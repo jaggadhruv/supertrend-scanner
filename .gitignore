@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# NOTE: data/ and output/ are intentionally NOT ignored here.
+# Those are your history + reports, and are meant to be committed so
+# GitHub Actions can persist results across runs and you have a
+# permanent archive of every report ever generated.
