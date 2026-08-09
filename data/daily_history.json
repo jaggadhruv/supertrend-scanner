@@ -1,0 +1,44 @@
+{
+  "RELIANCE.NS": {
+    "last_run_date": "2026-08-09",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "close": 1334.8,
+    "supertrend": 1266.71
+  },
+  "TCS.NS": {
+    "last_run_date": "2026-08-09",
+    "direction": "Bullish",
+    "signal": "NONE",
+    "close": 2452.7,
+    "supertrend": 2294.3
+  },
+  "HDFCBANK.NS": {
+    "last_run_date": "2026-08-09",
+    "direction": "Bearish",
+    "signal": "NONE",
+    "close": 731.0,
+    "supertrend": 762.19
+  },
+  "INFY.NS": {
+    "last_run_date": "2026-08-09",
+    "direction": "Bullish",
+    "signal": "NONE",
+    "close": 1175.1,
+    "supertrend": 1091.53
+  },
+  "AAPL": {
+    "last_run_date": "2026-08-09",
+    "direction": "Bearish",
+    "signal": "NONE",
+    "close": 313.33,
+    "supertrend": 331.69
+  },
+  "MSFT": {
+    "last_run_date": "2026-08-09",
+    "direction": "Bullish",
+    "signal": "NONE",
+    "close": 499.99,
+    "supertrend": 460.76
+  }
+}
