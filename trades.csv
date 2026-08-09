@@ -1,2 +1,6 @@
 Ticker,EntryDate,EntryPrice,Quantity,Status,ExitDate,ExitPrice,Notes
-RELIANCE.NS,2026-05-11,2870.50,10,Open,,,Entered on weekly Supertrend buy flip
+GOOG,2026-07-13,351.43,1.46,Open,,,Entered on weekly Supertrend buy flip
+META,2026-04-30,609.65,0.934,Open,,,
+NVDA,2026-05-13,226.99,2.33,Open,,,
+CRM,2026-03-06,200.49,2.634,Open,,,
+SOFI,2026-04-23,18.10,27.63,Open,,,
