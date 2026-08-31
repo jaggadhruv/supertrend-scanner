@@ -141,6 +141,9 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "is_new": ticker not in history_store,
         "flip": False,
         "changed_since_last_run": False,
+        "bars_in_trend": None,     # how many consecutive most-recent bars share the current direction
+        "trend_start_date": None,  # date of the first bar in that run (i.e. the bar the trend started on)
+        "bar_unit": "d" if cfg.interval.endswith("d") else "w",
     }
 
     data = fetch_data(ticker, cfg.interval, cfg.lookback_period)
@@ -178,6 +181,20 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
     last_recorded_direction = prior.get("direction") if prior else None
     changed_since_last_run = (last_recorded_direction is not None) and (last_recorded_direction != direction_now)
 
+    # How long the current trend has been running: walk back from the last
+    # bar and count consecutive bars that share the current direction. The
+    # count includes the last bar itself, so a fresh flip today reads as 1.
+    dir_series = st["Direction"].to_numpy()
+    last_dir = dir_series[-1]
+    bars_in_trend = 1
+    for i in range(len(dir_series) - 2, -1, -1):
+        if dir_series[i] == last_dir:
+            bars_in_trend += 1
+        else:
+            break
+    trend_start_idx = len(dir_series) - bars_in_trend
+    trend_start_date = st.index[trend_start_idx].strftime("%Y-%m-%d")
+
     result.update(
         {
             "close": round(float(last["Close"]), 2),
@@ -191,6 +208,8 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
             "is_new": prior is None,
             "flip": (signal_now in ("BUY", "SELL")) or changed_since_last_run,
             "changed_since_last_run": changed_since_last_run,
+            "bars_in_trend": bars_in_trend,
+            "trend_start_date": trend_start_date,
         }
     )
     return result

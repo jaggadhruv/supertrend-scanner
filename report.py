@@ -44,7 +44,7 @@ def _row_html(r):
         <tr class="row-error" data-ticker="{ticker.lower()}" data-signal="none" data-flip="0" data-held="0">
           <td class="rail rail-none"></td>
           <td class="col-ticker">{ticker}</td>
-          <td colspan="7" class="error-cell">⚠ {reason}</td>
+          <td colspan="8" class="error-cell">⚠ {reason}</td>
         </tr>"""
 
     direction = r["direction"]
@@ -87,6 +87,20 @@ def _row_html(r):
     else:
         flip_html = '<span class="muted">—</span>'
 
+    # "In Trend" column - how long the current direction has been running
+    bars = r.get("bars_in_trend")
+    unit = r.get("bar_unit", "d")
+    trend_start = r.get("trend_start_date") or ""
+    if bars is None:
+        in_trend_html = '<span class="muted">—</span>'
+        in_trend_sort = ""
+    else:
+        cls = "trend-bull" if direction == "Bullish" else "trend-bear"
+        word = ("day" if unit == "d" else "week") + ("s" if bars != 1 else "")
+        tip = f"Direction has been {direction} for {bars} {word} — since {trend_start}."
+        in_trend_html = f'<span class="in-trend {cls}" title="{_esc(tip)}">{bars}{unit}</span>'
+        in_trend_sort = str(bars)
+
     return f"""
     <tr data-ticker="{ticker.lower()}" data-signal="{signal.lower()}" data-flip="{'1' if flip else '0'}" data-held="{'1' if held else '0'}">
       <td class="rail {rail_cls}"></td>
@@ -97,6 +111,7 @@ def _row_html(r):
       <td>{_signal_badge(signal)}</td>
       <td>{last_recorded_html}</td>
       <td>{flip_html}</td>
+      <td data-sort="{in_trend_sort}">{in_trend_html}</td>
       <td>{held_html}</td>
       <td>{pnl_html}</td>
       <td class="muted small">{_esc(r.get('last_bar_date') or '—')}</td>
@@ -236,6 +251,9 @@ CSS_JS = """
   .held-yes { color: var(--amber); font-weight: 700; font-size: 12px; }
   .flip-yes { color: var(--text); background: rgba(231,236,243,0.08); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
   .flip-changed { color: var(--amber); background: var(--amber-bg); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; cursor: help; }
+  .in-trend { display:inline-block; padding: 2px 8px; border-radius: 999px; font-family: var(--mono); font-size: 11.5px; font-weight: 700; cursor: help; }
+  .trend-bull { color: var(--bull); background: var(--bull-bg); }
+  .trend-bear { color: var(--bear); background: var(--bear-bg); }
   .pnl-pos { color: var(--bull); font-weight: 700; }
   .pnl-neg { color: var(--bear); font-weight: 700; }
 
@@ -418,6 +436,7 @@ def generate_html_report(results, alerts, run_date, atr_period, atr_multiplier, 
           <th>Signal (Latest Bar)</th>
           <th>Last Recorded</th>
           <th>Flip</th>
+          <th title="How long the current direction has been running (bars in trend). d=trading days, w=weeks.">In Trend</th>
           <th>Held</th>
           <th>Position P/L</th>
           <th>Bar Date</th>
@@ -575,11 +594,14 @@ def _tf_status(r):
     if r is None:
         return {"present": False, "ok": False, "direction": None, "signal": "NONE",
                 "flip": False, "changed": False, "close": None, "supertrend": None,
-                "bar_date": None, "error": "not in this scan"}
+                "bar_date": None, "bars_in_trend": None, "trend_start_date": None,
+                "bar_unit": "d", "error": "not in this scan"}
     if r.get("status") != "ok":
         return {"present": True, "ok": False, "direction": None, "signal": "NONE",
                 "flip": False, "changed": False, "close": None, "supertrend": None,
-                "bar_date": None, "error": r.get("error") or r.get("status")}
+                "bar_date": None, "bars_in_trend": None, "trend_start_date": None,
+                "bar_unit": r.get("bar_unit", "d"),
+                "error": r.get("error") or r.get("status")}
     return {
         "present": True, "ok": True,
         "direction": r["direction"], "signal": r["signal"],
@@ -587,12 +609,15 @@ def _tf_status(r):
         "changed": r.get("changed_since_last_run", False),
         "close": r.get("close"), "supertrend": r.get("supertrend"),
         "bar_date": r.get("last_bar_date"),
+        "bars_in_trend": r.get("bars_in_trend"),
+        "trend_start_date": r.get("trend_start_date"),
+        "bar_unit": r.get("bar_unit", "d"),
         "error": None,
     }
 
 
 def _combined_tf_cell(state):
-    """Render one 'Direction + Signal' cell for a single timeframe."""
+    """Render one 'Direction + Signal + ST + In-Trend' cell for a single timeframe."""
     if not state["ok"]:
         note = _esc(state.get("error") or "n/a")
         return f'<span class="muted small" title="{note}">—</span>'
@@ -602,7 +627,18 @@ def _combined_tf_cell(state):
         # Direction differs from last run but not on the very latest bar.
         sig_html = '<span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed</span>'
     st = _fmt_num(state["supertrend"])
-    return f'<span class="tf-cell">{dir_html} {sig_html} <span class="muted small">ST {st}</span></span>'
+
+    bars = state.get("bars_in_trend")
+    unit = state.get("bar_unit", "d")
+    if bars is None:
+        trend_html = ""
+    else:
+        cls = "trend-bull" if state["direction"] == "Bullish" else "trend-bear"
+        word = ("day" if unit == "d" else "week") + ("s" if bars != 1 else "")
+        tip = f"{state['direction']} for {bars} {word} — since {state.get('trend_start_date') or ''}"
+        trend_html = f' <span class="in-trend {cls}" title="{_esc(tip)}">{bars}{unit}</span>'
+
+    return f'<span class="tf-cell">{dir_html} {sig_html}{trend_html} <span class="muted small">ST {st}</span></span>'
 
 
 def _confluence_cell(w, d):
@@ -868,8 +904,8 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
           <th title="Both weekly and daily agree bullish (▲▲) / bearish (▼▼) / mixed (▲▼)">Conf.</th>
           <th>Ticker</th>
           <th>Close</th>
-          <th><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · ST)</th>
-          <th><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · ST)</th>
+          <th><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · in-trend · ST)</th>
+          <th><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST)</th>
           <th>Held</th>
           <th>Position P/L</th>
           <th>Weekly Bar</th>
@@ -886,7 +922,9 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     Parameters: ATR period {atr_period}, multiplier {atr_multiplier}. Data via Yahoo Finance (yfinance).
     "Signal" is a fresh cross on the latest bar of that timeframe. "↺ Changed" means the current direction
     differs from what was saved last time you ran that scanner even if the exact flip bar has already passed
-    — so nothing is missed if you skip a run. "Confluence" agrees when both weekly and daily point the same way.
+    — so nothing is missed if you skip a run. "In-trend" counts the consecutive bars the current direction has
+    been running (d = trading days, w = weeks; hover for the start date). "Confluence" agrees when both
+    weekly and daily point the same way.
     This report is a personal analysis tool, not investment advice — verify signals independently before trading.
   </footer>
 
