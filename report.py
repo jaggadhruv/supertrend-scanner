@@ -446,3 +446,456 @@ def generate_html_report(results, alerts, run_date, atr_period, atr_multiplier, 
         f.write(body)
 
     return output_path
+
+
+# --------------------------------------------------------------------------
+# Combined (Weekly + Daily) report
+# --------------------------------------------------------------------------
+COMBINED_CSS_EXTRA = """
+<style>
+  .confluence-cell { text-align: center; letter-spacing: 1px; font-size: 14px; }
+  .conf-bull { color: var(--bull); font-weight: 700; }
+  .conf-bear { color: var(--bear); font-weight: 700; }
+  .conf-mixed { color: var(--amber); font-weight: 700; }
+  .conf-none { color: var(--muted); }
+
+  .tf-cell { white-space: nowrap; }
+  .tf-cell .dir { margin-right: 4px; }
+
+  .tf-tag { display:inline-block; font-family: var(--mono); font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; letter-spacing: 0.04em; margin-right: 6px; text-transform: uppercase; }
+  .tf-tag-w { background: rgba(120,140,220,0.18); color: #96A9E6; }
+  .tf-tag-d { background: rgba(220,170,120,0.18); color: #E6BE96; }
+
+  .buy-panels { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .buy-subpanel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 0 0 10px; display:flex; align-items:center; gap:8px; }
+  .buy-subpanel h3 .count { color: var(--text); font-family: var(--mono); }
+  .confluence-panel { border: 1px solid rgba(47,191,113,0.35); background: rgba(47,191,113,0.05); border-radius: 8px; padding: 12px 14px; }
+  .confluence-panel h3 { color: var(--bull); }
+  .confluence-panel .buy-item { background: rgba(47,191,113,0.18); }
+
+  .stats-group-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 4px; align-self: center; }
+
+  tr.hidden-row { display: none; }
+</style>
+"""
+
+COMBINED_JS = """
+<script>
+  (function() {
+    var currentFilter = 'all';
+    var searchTerm = '';
+
+    function applyFilters() {
+      var rows = document.querySelectorAll('#scan-table tbody tr');
+      rows.forEach(function(row) {
+        var wSig = row.getAttribute('data-w-signal');
+        var dSig = row.getAttribute('data-d-signal');
+        var wFlip = row.getAttribute('data-w-flip') === '1';
+        var dFlip = row.getAttribute('data-d-flip') === '1';
+        var held = row.getAttribute('data-held') === '1';
+        var confluence = row.getAttribute('data-confluence');
+        var ticker = row.getAttribute('data-ticker') || '';
+
+        var m = true;
+        switch (currentFilter) {
+          case 'any-buy':      m = wSig === 'buy' || dSig === 'buy'; break;
+          case 'any-sell':     m = wSig === 'sell' || dSig === 'sell'; break;
+          case 'conf-bull':    m = confluence === 'bull'; break;
+          case 'conf-bear':    m = confluence === 'bear'; break;
+          case 'weekly-flip':  m = wFlip; break;
+          case 'daily-flip':   m = dFlip; break;
+          case 'held':         m = held; break;
+          default:             m = true;
+        }
+        var matchesSearch = ticker.indexOf(searchTerm) !== -1;
+        row.classList.toggle('hidden-row', !(m && matchesSearch));
+      });
+    }
+
+    document.querySelectorAll('.chip-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.chip-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    var search = document.getElementById('search-box');
+    if (search) {
+      search.addEventListener('input', function() {
+        searchTerm = search.value.trim().toLowerCase();
+        applyFilters();
+      });
+    }
+
+    var sortState = {};
+    document.querySelectorAll('#scan-table thead th').forEach(function(th, colIndex) {
+      th.addEventListener('click', function() {
+        var table = document.getElementById('scan-table');
+        var tbody = table.querySelector('tbody');
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+
+        var asc = !(sortState[colIndex] === 'asc');
+        sortState = {};
+        sortState[colIndex] = asc ? 'asc' : 'desc';
+
+        document.querySelectorAll('#scan-table thead th').forEach(function(h) {
+          h.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+
+        rows.sort(function(a, b) {
+          var cellA = a.children[colIndex];
+          var cellB = b.children[colIndex];
+          if (!cellA || !cellB) return 0;
+          var va = cellA.getAttribute('data-sort');
+          var vb = cellB.getAttribute('data-sort');
+          if (va !== null && vb !== null) {
+            va = parseFloat(va); vb = parseFloat(vb);
+            return asc ? va - vb : vb - va;
+          }
+          var ta = cellA.textContent.trim().toLowerCase();
+          var tb = cellB.textContent.trim().toLowerCase();
+          if (ta < tb) return asc ? -1 : 1;
+          if (ta > tb) return asc ? 1 : -1;
+          return 0;
+        });
+
+        rows.forEach(function(r) { tbody.appendChild(r); });
+      });
+    });
+  })();
+</script>
+"""
+
+
+def _tf_status(r):
+    """Compact per-timeframe state, tolerant of missing/erroring results."""
+    if r is None:
+        return {"present": False, "ok": False, "direction": None, "signal": "NONE",
+                "flip": False, "changed": False, "close": None, "supertrend": None,
+                "bar_date": None, "error": "not in this scan"}
+    if r.get("status") != "ok":
+        return {"present": True, "ok": False, "direction": None, "signal": "NONE",
+                "flip": False, "changed": False, "close": None, "supertrend": None,
+                "bar_date": None, "error": r.get("error") or r.get("status")}
+    return {
+        "present": True, "ok": True,
+        "direction": r["direction"], "signal": r["signal"],
+        "flip": r.get("flip", False),
+        "changed": r.get("changed_since_last_run", False),
+        "close": r.get("close"), "supertrend": r.get("supertrend"),
+        "bar_date": r.get("last_bar_date"),
+        "error": None,
+    }
+
+
+def _combined_tf_cell(state):
+    """Render one 'Direction + Signal' cell for a single timeframe."""
+    if not state["ok"]:
+        note = _esc(state.get("error") or "n/a")
+        return f'<span class="muted small" title="{note}">—</span>'
+    dir_html = _direction_badge(state["direction"])
+    sig_html = _signal_badge(state["signal"])
+    if state["signal"] == "NONE" and state["changed"]:
+        # Direction differs from last run but not on the very latest bar.
+        sig_html = '<span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed</span>'
+    st = _fmt_num(state["supertrend"])
+    return f'<span class="tf-cell">{dir_html} {sig_html} <span class="muted small">ST {st}</span></span>'
+
+
+def _confluence_cell(w, d):
+    """Bull/Bear/Mixed indicator based on both timeframes' current direction."""
+    if not (w["ok"] and d["ok"]):
+        return '<span class="confluence-cell conf-none">—</span>', "none"
+    if w["direction"] == "Bullish" and d["direction"] == "Bullish":
+        return '<span class="confluence-cell conf-bull" title="Both weekly and daily are bullish">▲▲</span>', "bull"
+    if w["direction"] == "Bearish" and d["direction"] == "Bearish":
+        return '<span class="confluence-cell conf-bear" title="Both weekly and daily are bearish">▼▼</span>', "bear"
+    return '<span class="confluence-cell conf-mixed" title="Weekly and daily disagree">▲▼</span>', "mixed"
+
+
+def _combined_row_html(ticker, weekly_r, daily_r):
+    w = _tf_status(weekly_r)
+    d = _tf_status(daily_r)
+
+    # If BOTH are non-ok, render an error row spanning the metric columns.
+    if not w["ok"] and not d["ok"]:
+        errs = []
+        if w["error"]: errs.append(f"weekly: {w['error']}")
+        if d["error"]: errs.append(f"daily: {d['error']}")
+        return f"""
+        <tr class="row-error" data-ticker="{_esc(ticker).lower()}"
+            data-w-signal="none" data-d-signal="none"
+            data-w-flip="0" data-d-flip="0"
+            data-w-dir="none" data-d-dir="none"
+            data-held="0" data-confluence="none">
+          <td class="confluence-cell conf-none">—</td>
+          <td class="col-ticker">{_esc(ticker)}</td>
+          <td colspan="8" class="error-cell">⚠ {_esc(' · '.join(errs))}</td>
+        </tr>"""
+
+    conf_html, conf_key = _confluence_cell(w, d)
+
+    # Held / P/L come from whichever timeframe carries the trade info.
+    # analyze_ticker + cross_reference_trades populate both identically for a
+    # ticker present in trades.csv, so prefer daily for the freshest close,
+    # falling back to weekly.
+    trade_source = daily_r if (daily_r and daily_r.get("held")) else weekly_r if (weekly_r and weekly_r.get("held")) else None
+    held = bool(trade_source and trade_source.get("held"))
+    held_html = '<span class="held-yes">● Held</span>' if held else '<span class="muted">—</span>'
+    pnl_html = "—"
+    if held and trade_source.get("open_trades"):
+        parts = []
+        for t in trade_source["open_trades"]:
+            pnl = t.get("pnl_pct")
+            qty = t.get("Quantity", "")
+            entry = t.get("EntryPrice", "")
+            if pnl is not None:
+                cls = "pnl-pos" if pnl >= 0 else "pnl-neg"
+                parts.append(f'<span class="{cls}">{pnl:+.2f}%</span> <span class="muted">(qty {qty} @ {entry})</span>')
+            else:
+                parts.append('<span class="muted">n/a</span>')
+        pnl_html = "<br>".join(parts)
+
+    # Latest price: daily close if present, else weekly close.
+    close_source = d["close"] if d["ok"] else w["close"]
+
+    w_dir_key = (w["direction"] or "none").lower() if w["ok"] else "none"
+    d_dir_key = (d["direction"] or "none").lower() if d["ok"] else "none"
+
+    return f"""
+    <tr data-ticker="{_esc(ticker).lower()}"
+        data-w-signal="{w['signal'].lower()}"
+        data-d-signal="{d['signal'].lower()}"
+        data-w-flip="{'1' if w['flip'] else '0'}"
+        data-d-flip="{'1' if d['flip'] else '0'}"
+        data-w-dir="{w_dir_key}"
+        data-d-dir="{d_dir_key}"
+        data-held="{'1' if held else '0'}"
+        data-confluence="{conf_key}">
+      <td>{conf_html}</td>
+      <td class="col-ticker">{_esc(ticker)}</td>
+      <td data-sort="{close_source if close_source is not None else ''}">{_fmt_num(close_source)}</td>
+      <td>{_combined_tf_cell(w)}</td>
+      <td>{_combined_tf_cell(d)}</td>
+      <td>{held_html}</td>
+      <td>{pnl_html}</td>
+      <td class="muted small">{_esc(w['bar_date'] or '—')}</td>
+      <td class="muted small">{_esc(d['bar_date'] or '—')}</td>
+    </tr>"""
+
+
+def _combined_alert_html(a, timeframe_label):
+    tag_cls = "tf-tag-w" if timeframe_label.lower().startswith("w") else "tf-tag-d"
+    tag = f'<span class="tf-tag {tag_cls}">{_esc(timeframe_label)}</span>'
+    ticker = _esc(a["ticker"])
+    close = _fmt_num(a["close"])
+    date_ = _esc(a.get("last_bar_date"))
+    trades_bits = []
+    for t in a.get("open_trades", []):
+        pnl = t.get("pnl_pct")
+        pnl_str = f"{pnl:+.2f}%" if pnl is not None else "n/a"
+        trades_bits.append(f"entry {_esc(t.get('EntryPrice'))} · qty {_esc(t.get('Quantity'))} · P/L {pnl_str}")
+    trades_str = " · ".join(trades_bits) if trades_bits else ""
+
+    if a.get("signal") == "SELL":
+        timing = f"Flipped <strong>Bearish</strong> on the most recent {timeframe_label.lower()} bar ({date_}) at close {close}."
+    else:
+        last_seen = _esc(a.get("last_recorded_date") or "your last run")
+        timing = (
+            f"Already <strong>Bearish</strong> as of {date_} (close {close}) on the {timeframe_label.lower()} chart — "
+            f"this differs from what was recorded last time you ran the {timeframe_label.lower()} scanner ({last_seen})."
+        )
+
+    return f"""
+    <div class="alert-item">
+      <div class="alert-ticker">{tag}{ticker}</div>
+      <div class="alert-body">
+        {timing}
+        <div class="alert-trade">{trades_str}</div>
+      </div>
+    </div>"""
+
+
+def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multiplier, output_path):
+    """
+    One HTML report that stacks the weekly and daily views for every ticker.
+    weekly_scan and daily_scan are the dicts returned by engine.run_analysis.
+    """
+    weekly_results = weekly_scan["results"]
+    daily_results = daily_scan["results"]
+    run_date = daily_scan.get("run_date") or weekly_scan.get("run_date")
+
+    # index by ticker
+    w_by = {r["ticker"]: r for r in weekly_results}
+    d_by = {r["ticker"]: r for r in daily_results}
+
+    # union of tickers, in a stable order (weekly order first, then any
+    # daily-only additions - normally these are the same watchlist).
+    order = []
+    seen = set()
+    for r in weekly_results:
+        if r["ticker"] not in seen:
+            order.append(r["ticker"])
+            seen.add(r["ticker"])
+    for r in daily_results:
+        if r["ticker"] not in seen:
+            order.append(r["ticker"])
+            seen.add(r["ticker"])
+
+    # --- headline counts ---
+    def _ok(rs): return [r for r in rs if r.get("status") == "ok"]
+    w_ok = _ok(weekly_results)
+    d_ok = _ok(daily_results)
+    w_buys = [r for r in w_ok if r["signal"] == "BUY"]
+    w_sells = [r for r in w_ok if r["signal"] == "SELL"]
+    d_buys = [r for r in d_ok if r["signal"] == "BUY"]
+    d_sells = [r for r in d_ok if r["signal"] == "SELL"]
+    error_count = sum(1 for r in weekly_results if r.get("status") != "ok") + \
+                  sum(1 for r in daily_results if r.get("status") != "ok")
+
+    # Confluence buys/sells: BUY/SELL flip on the latest bar in BOTH timeframes.
+    w_buy_set = {r["ticker"] for r in w_buys}
+    d_buy_set = {r["ticker"] for r in d_buys}
+    w_sell_set = {r["ticker"] for r in w_sells}
+    d_sell_set = {r["ticker"] for r in d_sells}
+    confluence_buy_tickers = w_buy_set & d_buy_set
+    confluence_sell_tickers = w_sell_set & d_sell_set
+
+    generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    # --- alerts, tagged by timeframe ---
+    weekly_alerts = weekly_scan.get("alerts", [])
+    daily_alerts = daily_scan.get("alerts", [])
+    all_alerts = [(a, "Weekly") for a in weekly_alerts] + [(a, "Daily") for a in daily_alerts]
+
+    if all_alerts:
+        alert_items = "".join(_combined_alert_html(a, tf) for (a, tf) in all_alerts)
+        alert_banner = f"""
+        <div class="alert-banner">
+          <div class="alert-head">⚠ Sell signal on held stock(s) — {len(weekly_alerts)} weekly, {len(daily_alerts)} daily</div>
+          {alert_items}
+        </div>"""
+    else:
+        alert_banner = ""
+
+    # --- stats ---
+    stats_html = f"""
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num">{len(order)}</div><div class="label">Tickers</div></div>
+      <div class="stats-group-label">Weekly</div>
+      <div class="stat-chip stat-buy"><div class="num">{len(w_buys)}</div><div class="label">Buy</div></div>
+      <div class="stat-chip stat-sell"><div class="num">{len(w_sells)}</div><div class="label">Sell</div></div>
+      <div class="stats-group-label">Daily</div>
+      <div class="stat-chip stat-buy"><div class="num">{len(d_buys)}</div><div class="label">Buy</div></div>
+      <div class="stat-chip stat-sell"><div class="num">{len(d_sells)}</div><div class="label">Sell</div></div>
+      <div class="stats-group-label">Confluence</div>
+      <div class="stat-chip stat-buy"><div class="num">{len(confluence_buy_tickers)}</div><div class="label">Buy (both)</div></div>
+      <div class="stat-chip stat-sell"><div class="num">{len(confluence_sell_tickers)}</div><div class="label">Sell (both)</div></div>
+      <div class="stat-chip"><div class="num">{error_count}</div><div class="label">Errors</div></div>
+    </div>"""
+
+    # --- buy opportunity panels ---
+    def _buy_grid(rs):
+        if not rs:
+            return '<div class="empty-note">Nothing fresh.</div>'
+        return '<div class="buy-grid">' + "".join(_buy_html(r) for r in rs) + '</div>'
+
+    confluence_buy_results = [r for r in d_buys if r["ticker"] in confluence_buy_tickers] \
+                             or [r for r in w_buys if r["ticker"] in confluence_buy_tickers]
+
+    buy_panels = f"""
+    <div class="panel">
+      <h2>Buying Opportunities</h2>
+      <div class="buy-panels">
+        <div class="buy-subpanel confluence-panel">
+          <h3>★ Confluence Buy (fresh BUY on both weekly &amp; daily) <span class="count">{len(confluence_buy_tickers)}</span></h3>
+          {_buy_grid(confluence_buy_results)}
+        </div>
+        <div class="buy-subpanel">
+          <h3><span class="tf-tag tf-tag-w">Weekly</span> Buy Flips <span class="count">{len(w_buys)}</span></h3>
+          {_buy_grid(w_buys)}
+        </div>
+        <div class="buy-subpanel">
+          <h3><span class="tf-tag tf-tag-d">Daily</span> Buy Flips <span class="count">{len(d_buys)}</span></h3>
+          {_buy_grid(d_buys)}
+        </div>
+      </div>
+    </div>"""
+
+    # --- full merged table ---
+    rows_html = "".join(_combined_row_html(t, w_by.get(t), d_by.get(t)) for t in order)
+
+    body = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supertrend Combined Scanner — {run_date}</title>
+{CSS_JS}
+{COMBINED_CSS_EXTRA}
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <h1>Supertrend Combined Scanner</h1>
+    <div class="params">ATR({atr_period}) &times; {atr_multiplier} &middot; Weekly + Daily &middot; Generated {generated_at}</div>
+  </div>
+
+  {alert_banner}
+  {stats_html}
+  {buy_panels}
+
+  <div class="panel">
+    <h2>Full Watchlist — Weekly &amp; Daily Side-by-Side</h2>
+    <div class="controls">
+      <button class="chip-btn active" data-filter="all">All</button>
+      <button class="chip-btn" data-filter="any-buy">Any Buy</button>
+      <button class="chip-btn" data-filter="any-sell">Any Sell</button>
+      <button class="chip-btn" data-filter="conf-bull">Confluence ▲▲</button>
+      <button class="chip-btn" data-filter="conf-bear">Confluence ▼▼</button>
+      <button class="chip-btn" data-filter="weekly-flip">Weekly Flips</button>
+      <button class="chip-btn" data-filter="daily-flip">Daily Flips</button>
+      <button class="chip-btn" data-filter="held">My Portfolio</button>
+      <input type="text" id="search-box" class="search-box" placeholder="Search ticker...">
+    </div>
+    <table id="scan-table">
+      <thead>
+        <tr>
+          <th title="Both weekly and daily agree bullish (▲▲) / bearish (▼▼) / mixed (▲▼)">Conf.</th>
+          <th>Ticker</th>
+          <th>Close</th>
+          <th><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · ST)</th>
+          <th><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · ST)</th>
+          <th>Held</th>
+          <th>Position P/L</th>
+          <th>Weekly Bar</th>
+          <th>Daily Bar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows_html}
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Parameters: ATR period {atr_period}, multiplier {atr_multiplier}. Data via Yahoo Finance (yfinance).
+    "Signal" is a fresh cross on the latest bar of that timeframe. "↺ Changed" means the current direction
+    differs from what was saved last time you ran that scanner even if the exact flip bar has already passed
+    — so nothing is missed if you skip a run. "Confluence" agrees when both weekly and daily point the same way.
+    This report is a personal analysis tool, not investment advice — verify signals independently before trading.
+  </footer>
+
+</div>
+{COMBINED_JS}
+</body>
+</html>"""
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(body)
+
+    return output_path

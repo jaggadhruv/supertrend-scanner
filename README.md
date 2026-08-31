@@ -1,4 +1,4 @@
-# Supertrend Scanner (Weekly + Daily)
+# Supertrend Scanner (Weekly + Daily + Combined)
 
 A free, open-source tool that scans a watchlist of stocks using the
 **Supertrend indicator** (ATR period 10, multiplier 2.5), flags fresh
@@ -6,17 +6,18 @@ BUY/SELL flips, cross-references your own trade log so it can alert you
 when a stock you hold turns bearish, and outputs everything as one
 interactive HTML dashboard.
 
-There are two independent scanners sharing the same watchlist and trade
-log, but keeping completely separate history and reports:
+There are three entry points, all sharing the same watchlist and trade
+log:
 
 - **`scanner.py`** — weekly chart, meant to be run about once a week (positional trades)
 - **`daily_scanner.py`** — daily chart, meant to be run as often as you like (intraday/swing-style read)
+- **`combined_scanner.py`** — runs both scans in one go and writes a **single merged HTML report** with the weekly and daily views for every ticker sitting side-by-side, plus a "Confluence" section that highlights stocks flipping BUY or SELL on **both** timeframes on the same run. Purely additive — the two individual scanners still work exactly as before.
 
-Both are entirely manual — nothing is scheduled, nothing runs in the
-background. You run a file, you get a report, that's it. And both are
-**safe to skip**: every run re-downloads fresh data and recomputes
-everything from scratch, so missing a day (or several) never leaves stale
-or broken state — see "Skip-safety" below.
+All three are entirely manual — nothing is scheduled, nothing runs in
+the background locally. You run a file, you get a report, that's it.
+And all three are **safe to skip**: every run re-downloads fresh data
+and recomputes everything from scratch, so missing a day (or several)
+never leaves stale or broken state — see "Skip-safety" below.
 
 Nothing costs money — it uses `yfinance` (free Yahoo Finance data),
 `pandas`/`numpy` for the maths, and plain HTML/CSS/JS for the report (no
@@ -26,17 +27,19 @@ paid services, no external CDN calls).
 
 | File | Purpose |
 |---|---|
-| `stocks.csv` | Your watchlist — one ticker per row. Shared by both scanners. |
-| `trades.csv` | Your trade log — shared by both scanners. |
+| `stocks.csv` | Your watchlist — one ticker per row. Shared by all three scanners. |
+| `trades.csv` | Your trade log — shared by all three scanners. |
 | `supertrend.py` | The Supertrend indicator math. |
-| `engine.py` | Shared scan logic (fetch, analyze, alert, report) used by both scanners. |
+| `engine.py` | Shared scan logic (fetch, analyze, alert, save history). Used by every entry point. |
 | `scanner.py` | **Run this for the weekly scan.** |
 | `daily_scanner.py` | **Run this for the daily scan.** |
-| `report.py` | Builds the interactive HTML report. |
-| `data/weekly_history.json` | Auto-created — remembers the weekly scanner's last signal per stock. |
-| `data/daily_history.json` | Auto-created — same, for the daily scanner. Completely separate. |
+| `combined_scanner.py` | **Run this to produce one merged report with both weekly and daily results.** |
+| `report.py` | Builds the interactive HTML reports (per-timeframe + combined). |
+| `data/weekly_history.json` | Auto-created — remembers the weekly scanner's last signal per stock. Written by both `scanner.py` and `combined_scanner.py`. |
+| `data/daily_history.json` | Auto-created — same, for the daily scanner. Written by both `daily_scanner.py` and `combined_scanner.py`. |
 | `output/weekly/report_<date>.html` | Auto-created weekly reports — one per run, never overwritten. |
 | `output/daily/report_<date>.html` | Auto-created daily reports — one per run, never overwritten. |
+| `output/combined/report_<date>.html` | Auto-created merged (weekly + daily) reports — one per combined run. |
 
 ## 1. One-time setup
 
@@ -100,13 +103,24 @@ python scanner.py
 python daily_scanner.py
 ```
 
-Either way you'll see progress in the terminal, then something like:
+**Combined** — runs both scans back-to-back and produces one merged
+report with weekly + daily side-by-side per ticker:
+
+```bash
+python combined_scanner.py
+```
+
+This writes to `output/combined/report_<date>.html` **and** updates
+both `weekly_history.json` and `daily_history.json`, so it stays in
+sync with the individual scanners no matter which one you use next.
+
+Any of the three will show progress in the terminal, then something like:
 
 ```
 Report written to: output/weekly/report_2026-08-08.html
 ```
 
-Open that file in any browser (double-click it, or `open output/weekly/report_2026-08-08.html` on Mac / `start` on Windows). Daily reports land in `output/daily/` instead.
+Open that file in any browser (double-click it, or `open output/weekly/report_2026-08-08.html` on Mac / `start` on Windows). Daily reports land in `output/daily/`; combined reports in `output/combined/`.
 
 ## 5. Reading the report
 
@@ -120,6 +134,18 @@ Open that file in any browser (double-click it, or `open output/weekly/report_20
   - **Last Recorded** — the direction/signal saved from your *previous run of that scanner* (blank/"new" if you just added the stock — nothing to compare yet)
   - **Flip** — "✓ Flip" if it crossed on the latest bar, or amber "↺ Changed since last run" if the direction differs from last time even though the exact crossover bar has already passed (see Skip-safety below)
   - **Held / Position P/L** — pulled from trades.csv
+
+### The combined report (from `combined_scanner.py`)
+
+Layout is the same shape but shows both timeframes in one view:
+
+- **Alert banner** — held stocks flagged bearish in *either* the weekly or daily scan, each row tagged `WEEKLY` or `DAILY` so you can see which timeframe fired.
+- **Stats row** — total tickers, then Weekly Buy / Sell, Daily Buy / Sell, and a **Confluence** pair (Buy on both, Sell on both).
+- **Buying Opportunities** panel with three sub-sections:
+  1. **★ Confluence Buy** — a fresh BUY flip on *both* the weekly and daily charts on this run. Rare and the strongest signal the tool can raise.
+  2. **Weekly Buy Flips** — every weekly BUY.
+  3. **Daily Buy Flips** — every daily BUY.
+- **Full Watchlist table** with one row per ticker and columns for weekly and daily side-by-side, a **Confluence** indicator (▲▲ / ▼▼ / ▲▼), plus Held / P/L. Filters: All / Any Buy / Any Sell / Confluence ▲▲ / Confluence ▼▼ / Weekly Flips / Daily Flips / My Portfolio.
 
 ## 6. Repeat as often as you like
 
@@ -210,15 +236,19 @@ assumes a private repo.
    ```
    (In PyCharm you can do this via **VCS → Share Project on GitHub** instead, which handles the same steps through the UI — just make sure to select "Private" when it asks.)
 3. **Allow the workflow to push results.** On GitHub: your repo → **Settings → Actions → General → Workflow permissions** → select **"Read and write permissions"** → Save. Without this, the "commit results" step in the workflow will fail with a permissions error.
-4. That's it — `.github/workflows/weekly-scan.yml` and `.github/workflows/daily-scan.yml` are already in the project and will now run on their schedules automatically. You can also trigger either one manually any time: repo → **Actions** tab → pick the workflow → **Run workflow**.
+4. That's it — `.github/workflows/weekly-scan.yml`, `.github/workflows/daily-scan.yml`, and `.github/workflows/combined-scan.yml` are already in the project and will now run on their schedules automatically. You can also trigger any of them manually any time: repo → **Actions** tab → pick the workflow → **Run workflow**.
+
+> **Weekly + Daily + Combined together?** If you're happy with the merged view, you can just leave `combined-scan.yml` enabled and disable the weekly/daily ones from the **Actions** tab. All three are safe to leave running side-by-side too — they never conflict on the report files (each writes into its own `output/<flavor>/` subfolder), and the history files are always overwritten from a fresh recompute, so whichever workflow ran last just leaves the up-to-date state.
 
 ### Adjusting the schedule
 
-Both workflow files use cron syntax in **UTC**:
+All workflow files use cron syntax in **UTC**:
 
 ```yaml
 - cron: '0 6 * * 6'      # weekly: 06:00 UTC every Saturday
 - cron: '0 18 * * 1-5'   # daily: 18:00 UTC, Monday-Friday
+- cron: '0 22 * * 1-5'   # combined: 22:00 UTC weekdays (after US close)
+- cron: '0 7 * * 6'      # combined: 07:00 UTC Saturday (weekly candle just closed)
 ```
 
 Edit the hour to land after your target market's close, converted to UTC.

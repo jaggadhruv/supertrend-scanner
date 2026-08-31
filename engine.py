@@ -251,46 +251,94 @@ def update_history(history_store, results, run_date):
 # --------------------------------------------------------------------------
 # Orchestration
 # --------------------------------------------------------------------------
-def run_scan(cfg: ScanConfig):
-    print(f"Supertrend {cfg.label} Scanner — ATR({cfg.atr_period}) x {cfg.atr_multiplier}, {cfg.interval} bars")
+def run_analysis(cfg: ScanConfig, verbose: bool = True):
+    """
+    Runs the fetch + Supertrend + trade-cross-reference pipeline for one
+    timeframe and returns everything needed downstream. Pure with respect
+    to disk beyond the reads it does - it does NOT write history or any
+    report. Callers decide when to save state and how (or whether) to
+    render output.
+
+    Returns a dict:
+      {
+        "cfg": ScanConfig,
+        "run_date": "YYYY-MM-DD",
+        "results": [...],       # per-ticker result dicts, trades already cross-referenced
+        "alerts": [...],        # held bearish alerts derived from results
+        "history_store": {...}, # the PRIOR history read from disk (not yet updated)
+      }
+
+    Returns None if the watchlist is empty (mirrors run_scan's behaviour).
+    """
+    if verbose:
+        print(f"Supertrend {cfg.label} Scanner — ATR({cfg.atr_period}) x {cfg.atr_multiplier}, {cfg.interval} bars")
     run_date = date.today().isoformat()
 
     tickers = load_stock_list(cfg.stocks_file)
     if not tickers:
-        print("No tickers found in stocks.csv — add some tickers first.")
+        if verbose:
+            print("No tickers found in stocks.csv — add some tickers first.")
         return None
-    print(f"Watchlist: {len(tickers)} stocks")
+    if verbose:
+        print(f"Watchlist: {len(tickers)} stocks")
 
     trades_df = load_trades(cfg.trades_file)
     history_store = load_history(cfg.history_file)
 
     results = []
     for i, ticker in enumerate(tickers, 1):
-        print(f"  [{i}/{len(tickers)}] {ticker} ...", end=" ")
+        if verbose:
+            print(f"  [{i}/{len(tickers)}] {ticker} ...", end=" ")
         try:
             r = analyze_ticker(ticker, history_store, cfg)
         except Exception as e:
             r = {"ticker": ticker, "status": "error", "error": str(e)}
             traceback.print_exc()
-        print(r.get("status"))
+        if verbose:
+            print(r.get("status"))
         results.append(r)
         time.sleep(0.3)  # be polite to the free data endpoint
 
     results = cross_reference_trades(results, trades_df)
     alerts = build_alerts(results)
 
-    history_store = update_history(history_store, results, run_date)
-    save_history(cfg.history_file, history_store)
+    return {
+        "cfg": cfg,
+        "run_date": run_date,
+        "results": results,
+        "alerts": alerts,
+        "history_store": history_store,
+    }
+
+
+def commit_history(cfg: ScanConfig, scan: dict) -> None:
+    """Advance the on-disk history store using this run's results."""
+    updated = update_history(scan["history_store"], scan["results"], scan["run_date"])
+    save_history(cfg.history_file, updated)
+
+
+def run_scan(cfg: ScanConfig):
+    """
+    One-timeframe scan: analyze, save history, render the individual
+    HTML report to cfg.output_dir. Used by scanner.py and daily_scanner.py.
+    combined_scanner.py bypasses this and drives run_analysis directly so
+    it can produce a single merged report instead.
+    """
+    scan = run_analysis(cfg)
+    if scan is None:
+        return None
+
+    commit_history(cfg, scan)
 
     os.makedirs(cfg.output_dir, exist_ok=True)
-    out_path = os.path.join(cfg.output_dir, f"report_{run_date}.html")
+    out_path = os.path.join(cfg.output_dir, f"report_{scan['run_date']}.html")
 
     from report import generate_html_report
 
     generate_html_report(
-        results=results,
-        alerts=alerts,
-        run_date=run_date,
+        results=scan["results"],
+        alerts=scan["alerts"],
+        run_date=scan["run_date"],
         atr_period=cfg.atr_period,
         atr_multiplier=cfg.atr_multiplier,
         output_path=out_path,
