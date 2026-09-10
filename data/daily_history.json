@@ -200,7 +200,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 1123.0,
-    "supertrend": 1204.08
+    "supertrend": 1204.22
   },
   "AEG": {
     "last_run_date": "2026-09-10",
@@ -438,7 +438,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 138.5,
-    "supertrend": 130.34
+    "supertrend": 130.36
   },
   "NU": {
     "last_run_date": "2026-09-10",
