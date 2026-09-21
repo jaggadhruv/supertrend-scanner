@@ -1,3 +1,4 @@
+Website: https://jaggadhruv.github.io/supertrend-scanner/
 # Supertrend Scanner (Weekly + Daily + Combined)
 
 A free, open-source tool that scans a watchlist of stocks using the
