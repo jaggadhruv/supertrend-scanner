@@ -37,9 +37,14 @@ paid services, no external CDN calls).
 | `report.py` | Builds the interactive HTML reports (per-timeframe + combined). |
 | `data/weekly_history.json` | Auto-created — remembers the weekly scanner's last signal per stock. Written by both `scanner.py` and `combined_scanner.py`. |
 | `data/daily_history.json` | Auto-created — same, for the daily scanner. Written by both `daily_scanner.py` and `combined_scanner.py`. |
-| `output/weekly/report_<date>.html` | Auto-created weekly reports — one per run, never overwritten. |
-| `output/daily/report_<date>.html` | Auto-created daily reports — one per run, never overwritten. |
-| `output/combined/report_<date>.html` | Auto-created merged (weekly + daily) reports — one per combined run. |
+| `data/flip_log.json` | Auto-created — persistent log of every BUY/SELL flip (weekly and daily), append-only with dedup. Every scanner adds to it. Powers the **"Recent Flips (Last 7 Days)"** panel in the combined report; entries older than 180 days are pruned automatically. |
+| `output/weekly/report_<date>.html` | Auto-created weekly reports. Each run prunes anything older than 30 days from this folder. |
+| `output/daily/report_<date>.html` | Auto-created daily reports. Same 30-day retention. |
+| `output/combined/report_<date>.html` | Auto-created merged (weekly + daily) reports. Same 30-day retention. |
+| `publish.py` | Publisher for the public-view copy at `docs/index.html` (drives the optional GitHub Pages site). |
+| `docs/index.html` | Auto-created when `COMBINED_PUBLISH_PAGE=1` (the combined workflow sets it). Always the latest combined report in **public view** — no portfolio positions. This is what GitHub Pages serves. |
+| `docs/reports/report_<date>.html` | Auto-created dated archive of every published public report. Same 30-day retention. |
+| `docs/archive.html` | Auto-created index page listing all files in `docs/reports/`. |
 
 ## 1. One-time setup
 
@@ -140,19 +145,36 @@ Open that file in any browser (double-click it, or `open output/weekly/report_20
 Layout is the same shape but shows both timeframes in one view:
 
 - **Alert banner** — held stocks flagged bearish in *either* the weekly or daily scan, each row tagged `WEEKLY` or `DAILY` so you can see which timeframe fired.
+- **Recent Flips (Last 7 Days)** — a rolling log of every BUY/SELL flip captured across all your recent runs, grouped by day, newest date first. Each card shows ticker, `W`/`D` tag, signal, direction, and close/Supertrend. Anything older than 7 days rolls off this panel automatically (the full history stays in `data/flip_log.json`, pruned only at 180 days). This is what lets you "see this week's flips at a glance" even if you run the combined scanner daily.
 - **Stats row** — total tickers, then Weekly Buy / Sell, Daily Buy / Sell, and a **Confluence** pair (Buy on both, Sell on both).
 - **Buying Opportunities** panel with three sub-sections:
   1. **★ Confluence Buy** — a fresh BUY flip on *both* the weekly and daily charts on this run. Rare and the strongest signal the tool can raise.
   2. **Weekly Buy Flips** — every weekly BUY.
   3. **Daily Buy Flips** — every daily BUY.
-- **Full Watchlist table** with one row per ticker and columns for weekly and daily side-by-side, a **Confluence** indicator (▲▲ / ▼▼ / ▲▼), plus Held / P/L. Filters: All / Any Buy / Any Sell / Confluence ▲▲ / Confluence ▼▼ / Weekly Flips / Daily Flips / My Portfolio.
+- **Full Watchlist table** with one row per ticker and columns for weekly and daily side-by-side, a **Confluence** indicator (▲▲ / ▼▼ / ▲▼), plus Held / P/L.
+  - **Default order**: freshest daily flip first — a ticker that flipped today ranks above one that flipped three days ago, which ranks above a ticker sitting in a long-running trend.
+  - **Column sorts**: click any header. Confluence sorts bull → bear → mixed → none. Weekly and Daily columns sort by bars-in-trend (freshest flip first).
+  - **Filters**: All / **Recent (7d)** / Any Buy / Any Sell / Confluence ▲▲ / Confluence ▼▼ / Weekly Flips / Daily Flips / My Portfolio.
 
 ## 6. Repeat as often as you like
 
 Each run overwrites that scanner's own history file (`weekly_history.json`
 or `daily_history.json`) with this run's results, and writes a new dated
-HTML file — old reports are never deleted, so you naturally build up an
-archive in `output/weekly/` and `output/daily/`.
+HTML file into the appropriate `output/<flavor>/` folder.
+
+**Every run also prunes those output folders to the last 30 days.**
+Anything named `report_YYYY-MM-DD.html` whose date is more than 30 days
+before the current run is deleted, so `output/weekly/`,
+`output/daily/`, `output/combined/`, and (when publishing to Pages)
+`docs/reports/` all stay bounded automatically. Non-report files in
+those folders — `README.txt`, `index.html`, subdirectories — are never
+touched, only files matching the scanner's own naming pattern.
+
+Every run — individual or combined — also appends any fresh BUY/SELL
+flips it sees to `data/flip_log.json`. That file is the source of the
+combined report's "Recent Flips (Last 7 Days)" panel, so running the
+combined scanner daily gives you a rolling week-view of every flip that
+happened, whether you were watching or not.
 
 ## Skip-safety
 
@@ -238,7 +260,7 @@ assumes a private repo.
 3. **Allow the workflow to push results.** On GitHub: your repo → **Settings → Actions → General → Workflow permissions** → select **"Read and write permissions"** → Save. Without this, the "commit results" step in the workflow will fail with a permissions error.
 4. That's it — `.github/workflows/weekly-scan.yml`, `.github/workflows/daily-scan.yml`, and `.github/workflows/combined-scan.yml` are already in the project and will now run on their schedules automatically. You can also trigger any of them manually any time: repo → **Actions** tab → pick the workflow → **Run workflow**.
 
-> **Weekly + Daily + Combined together?** If you're happy with the merged view, you can just leave `combined-scan.yml` enabled and disable the weekly/daily ones from the **Actions** tab. All three are safe to leave running side-by-side too — they never conflict on the report files (each writes into its own `output/<flavor>/` subfolder), and the history files are always overwritten from a fresh recompute, so whichever workflow ran last just leaves the up-to-date state.
+> **Weekly + Daily + Combined together?** If you're happy with the merged view, you can just leave `combined-scan.yml` enabled and disable the weekly/daily ones from the **Actions** tab. All three are safe to leave running side-by-side too — they never conflict on the report files (each writes into its own `output/<flavor>/` subfolder), and the history files are always overwritten from a fresh recompute, so whichever workflow ran last just leaves the up-to-date state. The 30-day cleanup runs at the end of every scan too, so old reports don't build up regardless of which workflows you keep enabled.
 
 ### Adjusting the schedule
 
@@ -279,12 +301,41 @@ setting this up, trigger a manual run (**Actions → Run workflow**) and
 check the logs before relying on the schedule. If it turns out to be
 unreliable, running locally (as before) remains the fallback.
 
-### If you'd rather have a shareable webpage instead
+### Publishing to a live website via GitHub Pages
 
-GitHub Pages can turn a repo into a live URL you can open from any device,
-but on GitHub's free plan, Pages sites are **public even if the source
-repo is private** — so this only makes sense if you're fine with your
-signals (and, since it reads the same repo, your trades) being visible to
-anyone with the link. If that's acceptable, say so and I'll set up a
-`docs/` folder + Pages workflow that publishes a "latest report" page.
+The combined workflow can also publish the report to a **public URL**
+you can open from any device, showing the same Recent Flips panel,
+default sort by daily-flip recency, confluence ranking, and filters as
+your local report.
+
+**This is off by default. When it's on, it publishes a *public view* —
+Held / Position P/L columns are stripped, the "My Portfolio" filter is
+removed, and the held-bearish alert banner is not emitted, so your
+trade log doesn't leak into the page. Your watchlist tickers and the
+signal outputs themselves *are* visible at the URL** — because that's
+the point of the page. On GitHub's free plan, Pages sites are public
+even if the source repo is private, so if the watchlist itself is
+sensitive to you, leave this off and use `git pull` to view reports
+locally instead.
+
+To turn it on:
+
+1. In the repo on GitHub: **Settings → Pages → Build and deployment**
+   → Source: **Deploy from a branch** → Branch: **main**, folder:
+   **/docs** → Save. This is a one-time click; nothing to do in code.
+2. That's it — `.github/workflows/combined-scan.yml` already sets
+   `COMBINED_PUBLISH_PAGE=1`, so the next combined run writes
+   `docs/index.html` (the latest report) and
+   `docs/reports/report_<date>.html` (dated archive). Pages picks up
+   the change within a minute or two and serves it at
+   `https://<your-username>.github.io/<repo-name>/`.
+
+Local runs of `combined_scanner.py` do **not** write to `docs/` unless
+you also set `COMBINED_PUBLISH_PAGE=1` — so you can develop and test
+locally without accidentally clobbering the published site.
+
+To turn it off: either remove the `COMBINED_PUBLISH_PAGE` env line from
+`combined-scan.yml`, or in Pages settings, change **Source** back to
+"None". Docs already published stay in the repo until you delete
+`docs/`.
 

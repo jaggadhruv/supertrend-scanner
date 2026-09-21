@@ -7,7 +7,7 @@ generated, in any browser.
 """
 
 import html as _html
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 
 def _esc(x):
@@ -494,6 +494,22 @@ COMBINED_CSS_EXTRA = """
 
   .stats-group-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 0 4px; align-self: center; }
 
+  /* --- Recent flips (rolling 7-day) panel --- */
+  .flip-log-panel { border: 1px solid var(--border); }
+  .flip-log-panel .panel-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 12px; }
+  .flip-log-panel .panel-head h2 { margin: 0; }
+  .flip-log-panel .panel-head .subtle { color: var(--muted); font-family: var(--mono); font-size: 11.5px; }
+  .flip-day { margin: 10px 0 6px; }
+  .flip-day-head { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 6px; }
+  .flip-day-head .today-tag { display:inline-block; margin-left: 8px; background: rgba(240,169,61,0.16); color: var(--amber); padding: 1px 7px; border-radius: 999px; font-size: 10px; letter-spacing: 0.03em; }
+  .flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+  .flip-card { display:flex; align-items:center; gap: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); }
+  .flip-card.flip-buy  { border-color: rgba(47,191,113,0.35); background: rgba(47,191,113,0.06); }
+  .flip-card.flip-sell { border-color: rgba(240,71,93,0.35);  background: rgba(240,71,93,0.06);  }
+  .flip-card .flip-tkr { font-family: var(--mono); font-weight: 700; color: var(--text); min-width: 62px; }
+  .flip-card .flip-meta { color: var(--muted); font-size: 11.5px; font-family: var(--mono); }
+  .flip-card .flip-tag { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+
   tr.hidden-row { display: none; }
 </style>
 """
@@ -515,8 +531,12 @@ COMBINED_JS = """
         var confluence = row.getAttribute('data-confluence');
         var ticker = row.getAttribute('data-ticker') || '';
 
+        var dRec = parseInt(row.getAttribute('data-d-recency') || '9999', 10);
+        var wRec = parseInt(row.getAttribute('data-w-recency') || '9999', 10);
+
         var m = true;
         switch (currentFilter) {
+          case 'recent7':      m = dRec <= 7 || wRec <= 1; break;  // 7 daily bars OR 1 weekly bar ~= last week
           case 'any-buy':      m = wSig === 'buy' || dSig === 'buy'; break;
           case 'any-sell':     m = wSig === 'sell' || dSig === 'sell'; break;
           case 'conf-bull':    m = confluence === 'bull'; break;
@@ -652,24 +672,38 @@ def _confluence_cell(w, d):
     return '<span class="confluence-cell conf-mixed" title="Weekly and daily disagree">▲▼</span>', "mixed"
 
 
-def _combined_row_html(ticker, weekly_r, daily_r):
+def _combined_row_html(ticker, weekly_r, daily_r, public_view=False):
     w = _tf_status(weekly_r)
     d = _tf_status(daily_r)
+
+    # Numeric ranks used for sorting. Lower = "more interesting", so
+    # ascending sort naturally puts freshest daily flips / bullish
+    # confluence at the top.
+    conf_rank = {"bull": 0, "bear": 1, "mixed": 2, "none": 3}
+    # bars_in_trend of 1 means "flipped on the latest bar" — the smaller
+    # the number, the more recent the flip. Missing → 9999 so it sinks.
+    d_recency = d.get("bars_in_trend") if d.get("ok") else None
+    w_recency = w.get("bars_in_trend") if w.get("ok") else None
+    d_recency_sort = d_recency if d_recency is not None else 9999
+    w_recency_sort = w_recency if w_recency is not None else 9999
 
     # If BOTH are non-ok, render an error row spanning the metric columns.
     if not w["ok"] and not d["ok"]:
         errs = []
         if w["error"]: errs.append(f"weekly: {w['error']}")
         if d["error"]: errs.append(f"daily: {d['error']}")
+        # Public view has 2 fewer columns (no Held / P/L) → shorter colspan.
+        colspan = 6 if public_view else 8
         return f"""
         <tr class="row-error" data-ticker="{_esc(ticker).lower()}"
             data-w-signal="none" data-d-signal="none"
             data-w-flip="0" data-d-flip="0"
             data-w-dir="none" data-d-dir="none"
-            data-held="0" data-confluence="none">
-          <td class="confluence-cell conf-none">—</td>
+            data-held="0" data-confluence="none"
+            data-d-recency="9999" data-w-recency="9999">
+          <td data-sort="3" class="confluence-cell conf-none">—</td>
           <td class="col-ticker">{_esc(ticker)}</td>
-          <td colspan="8" class="error-cell">⚠ {_esc(' · '.join(errs))}</td>
+          <td colspan="{colspan}" class="error-cell">⚠ {_esc(' · '.join(errs))}</td>
         </tr>"""
 
     conf_html, conf_key = _confluence_cell(w, d)
@@ -701,6 +735,11 @@ def _combined_row_html(ticker, weekly_r, daily_r):
     w_dir_key = (w["direction"] or "none").lower() if w["ok"] else "none"
     d_dir_key = (d["direction"] or "none").lower() if d["ok"] else "none"
 
+    # Public view strips the two portfolio columns (Held + Position P/L).
+    portfolio_cells = "" if public_view else f"""
+      <td>{held_html}</td>
+      <td>{pnl_html}</td>"""
+
     return f"""
     <tr data-ticker="{_esc(ticker).lower()}"
         data-w-signal="{w['signal'].lower()}"
@@ -710,14 +749,14 @@ def _combined_row_html(ticker, weekly_r, daily_r):
         data-w-dir="{w_dir_key}"
         data-d-dir="{d_dir_key}"
         data-held="{'1' if held else '0'}"
-        data-confluence="{conf_key}">
-      <td>{conf_html}</td>
+        data-confluence="{conf_key}"
+        data-d-recency="{d_recency_sort}"
+        data-w-recency="{w_recency_sort}">
+      <td data-sort="{conf_rank[conf_key]}">{conf_html}</td>
       <td class="col-ticker">{_esc(ticker)}</td>
       <td data-sort="{close_source if close_source is not None else ''}">{_fmt_num(close_source)}</td>
-      <td>{_combined_tf_cell(w)}</td>
-      <td>{_combined_tf_cell(d)}</td>
-      <td>{held_html}</td>
-      <td>{pnl_html}</td>
+      <td data-sort="{w_recency_sort}">{_combined_tf_cell(w)}</td>
+      <td data-sort="{d_recency_sort}">{_combined_tf_cell(d)}</td>{portfolio_cells}
       <td class="muted small">{_esc(w['bar_date'] or '—')}</td>
       <td class="muted small">{_esc(d['bar_date'] or '—')}</td>
     </tr>"""
@@ -755,10 +794,100 @@ def _combined_alert_html(a, timeframe_label):
     </div>"""
 
 
-def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multiplier, output_path):
+def _flip_card_html(entry):
+    """One card for the rolling 'Recent Flips' panel."""
+    ticker = _esc(entry.get("ticker", ""))
+    timeframe = _esc(entry.get("timeframe", "")).lower()
+    signal = _esc(entry.get("signal", ""))
+    direction = _esc(entry.get("direction", ""))
+    close = entry.get("close")
+    close_str = _fmt_num(close)
+    st = _fmt_num(entry.get("supertrend"))
+    tf_cls = "tf-tag-w" if timeframe == "weekly" else "tf-tag-d"
+    card_cls = "flip-buy" if signal == "BUY" else "flip-sell"
+    return f"""
+    <div class="flip-card {card_cls}">
+      <span class="flip-tag {tf_cls}">{timeframe.upper()[:1]}</span>
+      <span class="flip-tkr">{ticker}</span>
+      <span class="flip-meta">{signal} · {direction} · Close {close_str} · ST {st}</span>
+    </div>"""
+
+
+def _recent_flips_panel_html(flip_log, run_date, days=7):
+    """
+    Rolling 'flips in the last N days' panel. Reads the shared flip log,
+    keeps entries whose flip_date is within `days` calendar days of
+    run_date, groups them by day (newest first), and renders each as a
+    card. Weekly and daily flips are shown together, tagged W/D.
+    """
+    if flip_log is None:
+        flip_log = []
+    try:
+        run_d = date.fromisoformat(run_date)
+    except (ValueError, TypeError):
+        run_d = date.today()
+    cutoff = (run_d - timedelta(days=days)).isoformat()
+
+    kept = [e for e in flip_log if (e.get("flip_date") or "") >= cutoff]
+
+    # Group by flip_date, newest date first
+    by_day = {}
+    for e in kept:
+        by_day.setdefault(e["flip_date"], []).append(e)
+    day_order = sorted(by_day.keys(), reverse=True)
+
+    subtle = f"Anything older than {days} days rolls off this list automatically. Full history in <code>data/flip_log.json</code>."
+
+    if not kept:
+        return f"""
+        <div class="panel flip-log-panel">
+          <div class="panel-head">
+            <h2>Recent Flips (Last {days} Days)</h2>
+            <span class="subtle">{subtle}</span>
+          </div>
+          <div class="empty-note">No BUY or SELL flips recorded in the last {days} days — the log picks them up automatically on the next run.</div>
+        </div>"""
+
+    day_blocks = []
+    for d in day_order:
+        entries = by_day[d]
+        # Within a day, keep the log's implicit order (weekly first, then
+        # daily, sorted by ticker for stability).
+        entries.sort(key=lambda e: (e.get("timeframe", ""), e.get("ticker", "")))
+        today_tag = ' <span class="today-tag">today</span>' if d == run_date else ""
+        cards = "".join(_flip_card_html(e) for e in entries)
+        day_blocks.append(
+            f"""<div class="flip-day">
+              <div class="flip-day-head">{_esc(d)}{today_tag}</div>
+              <div class="flip-grid">{cards}</div>
+            </div>"""
+        )
+
+    return f"""
+    <div class="panel flip-log-panel">
+      <div class="panel-head">
+        <h2>Recent Flips (Last {days} Days)</h2>
+        <span class="subtle">{len(kept)} flip(s) across {len(day_order)} day(s). {subtle}</span>
+      </div>
+      {''.join(day_blocks)}
+    </div>"""
+
+
+def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multiplier, output_path,
+                                  flip_log=None, public_view=False):
     """
     One HTML report that stacks the weekly and daily views for every ticker.
     weekly_scan and daily_scan are the dicts returned by engine.run_analysis.
+    flip_log is an optional list of dicts from engine.load_flip_log(); when
+    provided, a rolling "Recent Flips (Last 7 Days)" panel is included.
+
+    When public_view=True, portfolio-sensitive parts are omitted so the
+    resulting HTML is safe to publish to a public URL (e.g. GitHub Pages):
+      - Held / Position P/L columns are not rendered
+      - "My Portfolio" filter chip is removed
+      - The held-bearish alert banner is not emitted (it names held stocks)
+    The watchlist, per-ticker signals, and flip log ARE still visible in
+    public view - it's the "signals only" cut, not a fully private one.
     """
     weekly_results = weekly_scan["results"]
     daily_results = daily_scan["results"]
@@ -768,18 +897,27 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     w_by = {r["ticker"]: r for r in weekly_results}
     d_by = {r["ticker"]: r for r in daily_results}
 
-    # union of tickers, in a stable order (weekly order first, then any
-    # daily-only additions - normally these are the same watchlist).
-    order = []
-    seen = set()
+    # Default row order: freshest DAILY flip first, then freshest weekly
+    # flip, then alphabetical. bars_in_trend=1 means "flipped on the last
+    # bar", so ascending puts today's flips at the top and calm trends at
+    # the bottom. Users can still click any column to re-sort in the browser.
+    def _sort_key(ticker):
+        wr = w_by.get(ticker) or {}
+        dr = d_by.get(ticker) or {}
+        d_rec = dr.get("bars_in_trend") if dr.get("status") == "ok" else None
+        w_rec = wr.get("bars_in_trend") if wr.get("status") == "ok" else None
+        return (
+            d_rec if d_rec is not None else 9999,
+            w_rec if w_rec is not None else 9999,
+            ticker,
+        )
+
+    all_tickers = set()
     for r in weekly_results:
-        if r["ticker"] not in seen:
-            order.append(r["ticker"])
-            seen.add(r["ticker"])
+        all_tickers.add(r["ticker"])
     for r in daily_results:
-        if r["ticker"] not in seen:
-            order.append(r["ticker"])
-            seen.add(r["ticker"])
+        all_tickers.add(r["ticker"])
+    order = sorted(all_tickers, key=_sort_key)
 
     # --- headline counts ---
     def _ok(rs): return [r for r in rs if r.get("status") == "ok"]
@@ -803,11 +941,13 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # --- alerts, tagged by timeframe ---
+    # Public view omits the alert banner entirely — it names held tickers
+    # and their entry prices via the trade context, which is private.
     weekly_alerts = weekly_scan.get("alerts", [])
     daily_alerts = daily_scan.get("alerts", [])
     all_alerts = [(a, "Weekly") for a in weekly_alerts] + [(a, "Daily") for a in daily_alerts]
 
-    if all_alerts:
+    if all_alerts and not public_view:
         alert_items = "".join(_combined_alert_html(a, tf) for (a, tf) in all_alerts)
         alert_banner = f"""
         <div class="alert-banner">
@@ -861,8 +1001,22 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
       </div>
     </div>"""
 
+    # --- rolling recent-flips panel (last 7 days) ---
+    recent_flips_panel = _recent_flips_panel_html(flip_log, run_date, days=7)
+
     # --- full merged table ---
-    rows_html = "".join(_combined_row_html(t, w_by.get(t), d_by.get(t)) for t in order)
+    rows_html = "".join(_combined_row_html(t, w_by.get(t), d_by.get(t), public_view=public_view) for t in order)
+
+    # Header + filter chips flex based on public_view.
+    portfolio_headers = "" if public_view else """
+          <th>Held</th>
+          <th>Position P/L</th>"""
+    portfolio_chip = "" if public_view else """
+      <button class="chip-btn" data-filter="held">My Portfolio</button>"""
+    title_suffix = " · Public view" if public_view else ""
+    private_notice = "" if public_view else ""
+    public_notice = ("" if not public_view else
+        '<div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>')
 
     body = f"""<!DOCTYPE html>
 <html lang="en">
@@ -877,11 +1031,13 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
 <div class="wrap">
 
   <div class="topbar">
-    <h1>Supertrend Combined Scanner</h1>
+    <h1>Supertrend Combined Scanner{title_suffix}</h1>
     <div class="params">ATR({atr_period}) &times; {atr_multiplier} &middot; Weekly + Daily &middot; Generated {generated_at}</div>
+    {public_notice}
   </div>
 
   {alert_banner}
+  {recent_flips_panel}
   {stats_html}
   {buy_panels}
 
@@ -889,25 +1045,23 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     <h2>Full Watchlist — Weekly &amp; Daily Side-by-Side</h2>
     <div class="controls">
       <button class="chip-btn active" data-filter="all">All</button>
+      <button class="chip-btn" data-filter="recent7">Recent (7d)</button>
       <button class="chip-btn" data-filter="any-buy">Any Buy</button>
       <button class="chip-btn" data-filter="any-sell">Any Sell</button>
       <button class="chip-btn" data-filter="conf-bull">Confluence ▲▲</button>
       <button class="chip-btn" data-filter="conf-bear">Confluence ▼▼</button>
       <button class="chip-btn" data-filter="weekly-flip">Weekly Flips</button>
-      <button class="chip-btn" data-filter="daily-flip">Daily Flips</button>
-      <button class="chip-btn" data-filter="held">My Portfolio</button>
+      <button class="chip-btn" data-filter="daily-flip">Daily Flips</button>{portfolio_chip}
       <input type="text" id="search-box" class="search-box" placeholder="Search ticker...">
     </div>
     <table id="scan-table">
       <thead>
         <tr>
-          <th title="Both weekly and daily agree bullish (▲▲) / bearish (▼▼) / mixed (▲▼)">Conf.</th>
+          <th title="Both weekly and daily agree bullish (▲▲) / bearish (▼▼) / mixed (▲▼) — click to sort: bull → bear → mixed → none">Conf. ↕</th>
           <th>Ticker</th>
           <th>Close</th>
-          <th><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · in-trend · ST)</th>
-          <th><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST)</th>
-          <th>Held</th>
-          <th>Position P/L</th>
+          <th title="Click to sort by weekly bars-in-trend (freshest weekly flip first)"><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · in-trend · ST) ↕</th>
+          <th title="Click to sort by daily bars-in-trend (freshest daily flip first) — this is the default order"><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST) ↕</th>{portfolio_headers}
           <th>Weekly Bar</th>
           <th>Daily Bar</th>
         </tr>
@@ -924,7 +1078,9 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     differs from what was saved last time you ran that scanner even if the exact flip bar has already passed
     — so nothing is missed if you skip a run. "In-trend" counts the consecutive bars the current direction has
     been running (d = trading days, w = weeks; hover for the start date). "Confluence" agrees when both
-    weekly and daily point the same way.
+    weekly and daily point the same way. The table is sorted by daily flip recency by default (freshest first);
+    click any column header to re-sort — Confluence sorts bull → bear → mixed → none. The "Recent Flips" panel
+    reads from <code>data/flip_log.json</code>, which every run of any scanner appends to.
     This report is a personal analysis tool, not investment advice — verify signals independently before trading.
   </footer>
 

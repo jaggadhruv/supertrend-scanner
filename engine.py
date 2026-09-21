@@ -13,10 +13,11 @@ day (or a week). See analyze_ticker() for exactly how that's handled.
 
 import json
 import os
+import re
 import time
 import traceback
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import pandas as pd
 import yfinance as yf
@@ -93,6 +94,144 @@ def save_history(path, history):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         json.dump(history, f, indent=2, default=str)
+
+
+# --------------------------------------------------------------------------
+# Flip log — a persistent, timeframe-spanning record of every BUY/SELL flip
+#
+# Every entry point (scanner.py, daily_scanner.py, combined_scanner.py) feeds
+# the SAME file: data/flip_log.json (path derived from cfg.history_file's
+# directory). Entries are deduplicated on (ticker, timeframe, flip_date) so
+# it's safe to re-run any scanner as often as you like.
+# --------------------------------------------------------------------------
+FLIP_LOG_MAX_AGE_DAYS = 180
+
+
+def _flip_log_path(cfg: "ScanConfig") -> str:
+    """Both weekly and daily scanners share one flip log next to their histories."""
+    return os.path.join(os.path.dirname(cfg.history_file), "flip_log.json")
+
+
+def load_flip_log(path: str):
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+            return data if isinstance(data, list) else []
+    except (json.JSONDecodeError, OSError):
+        return []
+
+
+def save_flip_log(path: str, log: list) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(log, f, indent=2, default=str)
+
+
+def record_flips(cfg: "ScanConfig", results: list, run_date: str,
+                 max_age_days: int = FLIP_LOG_MAX_AGE_DAYS) -> int:
+    """
+    Append fresh BUY/SELL flips (r["signal"] in {"BUY","SELL"}) to
+    data/flip_log.json. Dedupes on (ticker, timeframe, flip_date), prunes
+    entries older than max_age_days, and re-sorts newest first. Returns
+    the number of NEW entries added on this call.
+    """
+    path = _flip_log_path(cfg)
+    log = load_flip_log(path)
+    timeframe = cfg.label.lower()  # "weekly" | "daily"
+
+    existing = {(e.get("ticker"), e.get("timeframe"), e.get("flip_date")) for e in log}
+    added = 0
+    for r in results:
+        if r.get("status") != "ok":
+            continue
+        if r.get("signal") not in ("BUY", "SELL"):
+            continue
+        key = (r["ticker"], timeframe, r["last_bar_date"])
+        if key in existing:
+            continue
+        log.append({
+            "ticker": r["ticker"],
+            "timeframe": timeframe,
+            "direction": r["direction"],
+            "signal": r["signal"],
+            "flip_date": r["last_bar_date"],   # the actual bar the flip landed on
+            "recorded_at": run_date,           # the run that first saw it
+            "close": r.get("close"),
+            "supertrend": r.get("supertrend"),
+        })
+        existing.add(key)
+        added += 1
+
+    # Prune anything older than the cutoff so the file stays bounded.
+    try:
+        cutoff = (date.fromisoformat(run_date) - timedelta(days=max_age_days)).isoformat()
+    except ValueError:
+        cutoff = "0000-00-00"
+    log = [e for e in log if (e.get("flip_date") or "0000-00-00") >= cutoff]
+
+    # Newest first — the report reads this file top-down.
+    log.sort(key=lambda e: (e.get("flip_date") or "", e.get("recorded_at") or ""), reverse=True)
+
+    save_flip_log(path, log)
+    return added
+
+
+# --------------------------------------------------------------------------
+# Output-folder cleanup
+#
+# Report files pile up: one HTML per run per timeframe. This helper deletes
+# report_YYYY-MM-DD.html files whose date is older than `days` from run_date,
+# so `output/weekly/`, `output/daily/`, `output/combined/`, and the published
+# `docs/reports/` folder stay bounded.
+# --------------------------------------------------------------------------
+_REPORT_FILENAME_RE = re.compile(r"^report_(\d{4}-\d{2}-\d{2})\.html$")
+
+
+def prune_old_reports(output_dir: str, days: int = 30, run_date: str = None) -> int:
+    """
+    Delete report_YYYY-MM-DD.html files whose date is more than `days`
+    days before run_date. Returns the number of files removed. Silent if
+    the directory doesn't exist. Anything not matching the report_<date>.html
+    pattern (README.txt, index.html, subfolders, ad-hoc files) is left alone.
+    """
+    if not os.path.isdir(output_dir):
+        return 0
+    if run_date is None:
+        run_date = date.today().isoformat()
+    try:
+        cutoff = (date.fromisoformat(run_date) - timedelta(days=days)).isoformat()
+    except ValueError:
+        return 0
+
+    removed = 0
+    for name in os.listdir(output_dir):
+        m = _REPORT_FILENAME_RE.match(name)
+        if not m:
+            continue
+        if m.group(1) < cutoff:
+            try:
+                os.remove(os.path.join(output_dir, name))
+                removed += 1
+            except OSError:
+                pass
+    return removed
+
+
+def recent_flips(log: list, days: int = 7, run_date: str | None = None):
+    """
+    Filter to flips whose flip_date is within `days` calendar days of
+    run_date (defaults to today). Preserves the log's existing sort order
+    (newest first).
+    """
+    if run_date is None:
+        run_date = date.today().isoformat()
+    try:
+        cutoff = (date.fromisoformat(run_date) - timedelta(days=days)).isoformat()
+    except ValueError:
+        return []
+    return [e for e in log if (e.get("flip_date") or "") >= cutoff]
 
 
 # --------------------------------------------------------------------------
@@ -338,16 +477,27 @@ def commit_history(cfg: ScanConfig, scan: dict) -> None:
 
 def run_scan(cfg: ScanConfig):
     """
-    One-timeframe scan: analyze, save history, render the individual
-    HTML report to cfg.output_dir. Used by scanner.py and daily_scanner.py.
+    One-timeframe scan: analyze, save history, append any fresh flips to
+    the shared flip log, and render the individual HTML report to
+    cfg.output_dir. Used by scanner.py and daily_scanner.py.
     combined_scanner.py bypasses this and drives run_analysis directly so
-    it can produce a single merged report instead.
+    it can produce a single merged report instead (and records flips itself).
     """
     scan = run_analysis(cfg)
     if scan is None:
         return None
 
     commit_history(cfg, scan)
+    added = record_flips(cfg, scan["results"], scan["run_date"])
+    if added:
+        print(f"Flip log: +{added} new {cfg.label.lower()} flip(s) recorded")
+
+    # Keep this timeframe's output folder bounded — deletes report_*.html
+    # dated more than 30 days before this run. Only touches files matching
+    # our own naming convention, never anything else.
+    removed = prune_old_reports(cfg.output_dir, days=30, run_date=scan["run_date"])
+    if removed:
+        print(f"Cleanup: removed {removed} report(s) older than 30 days from {cfg.output_dir}")
 
     os.makedirs(cfg.output_dir, exist_ok=True)
     out_path = os.path.join(cfg.output_dir, f"report_{scan['run_date']}.html")

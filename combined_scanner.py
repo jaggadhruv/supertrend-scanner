@@ -27,12 +27,20 @@ lookback window and recomputes Supertrend from scratch.
 
 import os
 
-from engine import commit_history, run_analysis
+from engine import (
+    commit_history,
+    load_flip_log,
+    prune_old_reports,
+    record_flips,
+    run_analysis,
+    _flip_log_path,
+)
 from scanner import CONFIG as WEEKLY_CONFIG
 from daily_scanner import CONFIG as DAILY_CONFIG
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 COMBINED_OUTPUT_DIR = os.path.join(BASE_DIR, "output", "combined")
+DOCS_DIR = os.path.join(BASE_DIR, "docs")
 
 
 def main():
@@ -58,6 +66,17 @@ def main():
     commit_history(WEEKLY_CONFIG, weekly_scan)
     commit_history(DAILY_CONFIG, daily_scan)
 
+    # Append any fresh BUY/SELL flips to the shared, timeframe-spanning flip
+    # log. Dedupes on (ticker, timeframe, flip_date), so if you already ran
+    # scanner.py earlier today, this call adds nothing for that timeframe.
+    w_added = record_flips(WEEKLY_CONFIG, weekly_scan["results"], weekly_scan["run_date"])
+    d_added = record_flips(DAILY_CONFIG,  daily_scan["results"],  daily_scan["run_date"])
+    print(f"\nFlip log: +{w_added} weekly, +{d_added} daily new flip(s) recorded")
+
+    # Reload the log so the report gets the full picture (including flips
+    # from earlier runs still inside the retention window).
+    flip_log = load_flip_log(_flip_log_path(WEEKLY_CONFIG))
+
     os.makedirs(COMBINED_OUTPUT_DIR, exist_ok=True)
     run_date = daily_scan["run_date"]
     out_path = os.path.join(COMBINED_OUTPUT_DIR, f"report_{run_date}.html")
@@ -67,11 +86,44 @@ def main():
     generate_combined_html_report(
         weekly_scan=weekly_scan,
         daily_scan=daily_scan,
+        flip_log=flip_log,
         atr_period=DAILY_CONFIG.atr_period,     # shared params, either works
         atr_multiplier=DAILY_CONFIG.atr_multiplier,
         output_path=out_path,
     )
     print(f"\nCombined report written to: {out_path}")
+
+    # Cleanup: keep each output/<flavor>/ folder to the last 30 days of
+    # reports. run_scan() already prunes its own timeframe when scanner.py
+    # / daily_scanner.py run individually, but a combined run touches all
+    # three folders' fresh data too, so we prune all three here.
+    for label, d in [
+        ("combined", COMBINED_OUTPUT_DIR),
+        ("weekly",   WEEKLY_CONFIG.output_dir),
+        ("daily",    DAILY_CONFIG.output_dir),
+    ]:
+        removed = prune_old_reports(d, days=30, run_date=run_date)
+        if removed:
+            print(f"Cleanup: removed {removed} {label} report(s) older than 30 days")
+
+    # Optional: publish the public-view copy to docs/ so GitHub Pages can
+    # serve it. Enabled by setting COMBINED_PUBLISH_PAGE=1 in the environment
+    # (the combined GitHub Actions workflow does this). Never touched
+    # otherwise, so local runs don't accidentally write to docs/.
+    if os.environ.get("COMBINED_PUBLISH_PAGE"):
+        from publish import publish_public_report
+        pub_path = publish_public_report(
+            weekly_scan=weekly_scan,
+            daily_scan=daily_scan,
+            flip_log=flip_log,
+            atr_period=DAILY_CONFIG.atr_period,
+            atr_multiplier=DAILY_CONFIG.atr_multiplier,
+            docs_dir=DOCS_DIR,
+            run_date=run_date,
+        )
+        print(f"Public page published to: {os.path.join(DOCS_DIR, 'index.html')}")
+        print(f"                archived: {pub_path}")
+
     return out_path
 
 
