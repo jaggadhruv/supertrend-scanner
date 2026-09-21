@@ -1,5 +1,105 @@
 [
   {
+    "ticker": "GOOG",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 350.87,
+    "supertrend": 329.72
+  },
+  {
+    "ticker": "CRM",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 236.42,
+    "supertrend": 261.74
+  },
+  {
+    "ticker": "DDOG",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 245.05,
+    "supertrend": 205.81
+  },
+  {
+    "ticker": "ADI",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 383.0,
+    "supertrend": 348.87
+  },
+  {
+    "ticker": "BABA",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 115.75,
+    "supertrend": 107.24
+  },
+  {
+    "ticker": "COP",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 127.53,
+    "supertrend": 138.2
+  },
+  {
+    "ticker": "CVX",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 203.67,
+    "supertrend": 218.1
+  },
+  {
+    "ticker": "EOG",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 141.38,
+    "supertrend": 151.69
+  },
+  {
+    "ticker": "MPWR",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 1277.68,
+    "supertrend": 1126.36
+  },
+  {
+    "ticker": "PGR",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-21",
+    "close": 212.24,
+    "supertrend": 223.82
+  },
+  {
     "ticker": "ARM",
     "timeframe": "daily",
     "direction": "Bullish",
