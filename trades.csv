@@ -1,6 +1,7 @@
 Ticker,EntryDate,EntryPrice,Quantity,Status,ExitDate,ExitPrice,Notes
 GOOG,2026-07-13,351.43,1.46,Open,,,Entered on weekly Supertrend buy flip
-META,2026-04-30,609.65,0.934,Open,,,
+META,2026-04-30,609.65,0.934,Close,2026-09-09,650.03,
 NVDA,2026-05-13,226.99,2.33,Open,,,
-CRM,2026-03-06,200.49,2.634,Open,,,
+CRM,2026-03-06,200.49,2.634,Close,2026-08-27,250.13,
 SOFI,2026-04-23,18.10,27.63,Open,,,
+TSLA,2026-08-20, 343.39,1.71,Close,2026-09-03,380.09,
