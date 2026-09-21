@@ -301,6 +301,43 @@ setting this up, trigger a manual run (**Actions → Run workflow**) and
 check the logs before relying on the schedule. If it turns out to be
 unreliable, running locally (as before) remains the fallback.
 
+### Troubleshooting Pages: "No such file or directory @ dir_chdir0 - /github/workspace/docs"
+
+If your **pages-build-deployment** action fails with a Jekyll error like
+that one, it means GitHub Pages is trying to run Jekyll on `docs/` and
+choking on the SCSS theme build. Our HTML pages are already complete
+and self-contained — Jekyll shouldn't run at all. The fix is a single
+empty file:
+
+```
+docs/.nojekyll
+```
+
+This project already includes it (`docs/.nojekyll`), and
+`publish.py` re-creates it every run in case it gets deleted. If your
+current repo doesn't have it yet:
+
+```bash
+touch docs/.nojekyll
+git add docs/.nojekyll
+git commit -m "Skip Jekyll on Pages"
+git push
+```
+
+That's it — the next Pages build will succeed, no other changes needed.
+
+### Troubleshooting: two combined workflows
+
+The **Combined Supertrend Scan** flow should be defined in exactly one
+YAML file (`.github/workflows/combined-scan.yml`). If an older version
+is still in the repo alongside the current one, both will fire on the
+same schedule and race on the same commit — you'll see back-to-back
+"nothing to push" or "non-fast-forward" errors in the Actions log. If
+you see two combined-flavor workflows in your Actions list, delete the
+older `.yml` and keep only one. (This wouldn't cause the Jekyll error
+above — that's separate — but it's worth cleaning up while you're
+there.)
+
 ### Publishing to a live website via GitHub Pages
 
 The combined workflow can also publish the report to a **public URL**

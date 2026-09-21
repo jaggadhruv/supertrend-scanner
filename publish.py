@@ -37,6 +37,15 @@ def publish_public_report(weekly_scan, daily_scan, flip_log, atr_period, atr_mul
     reports_dir = os.path.join(docs_dir, "reports")
     os.makedirs(reports_dir, exist_ok=True)
 
+    # Tell GitHub Pages to skip Jekyll and serve these HTML files as-is.
+    # Without this, Pages tries to run Jekyll on docs/, and Jekyll's
+    # default theme build (SCSS) fails on our all-HTML layout with
+    # "Error: No such file or directory @ dir_chdir0 - .../docs".
+    # An empty file is enough — Pages only checks that it exists.
+    nojekyll_path = os.path.join(docs_dir, ".nojekyll")
+    if not os.path.exists(nojekyll_path):
+        open(nojekyll_path, "w").close()
+
     latest_path = os.path.join(docs_dir, "index.html")
     archive_path = os.path.join(reports_dir, f"report_{run_date}.html")
 
