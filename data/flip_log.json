@@ -1,0 +1,142 @@
+[
+  {
+    "ticker": "ARM",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-18",
+    "recorded_at": "2026-09-21",
+    "close": 275.61,
+    "supertrend": 230.82
+  },
+  {
+    "ticker": "CSGP",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-18",
+    "recorded_at": "2026-09-21",
+    "close": 29.09,
+    "supertrend": 32.56
+  },
+  {
+    "ticker": "OXY",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-18",
+    "recorded_at": "2026-09-21",
+    "close": 58.84,
+    "supertrend": 63.04
+  },
+  {
+    "ticker": "SPOT",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-18",
+    "recorded_at": "2026-09-21",
+    "close": 509.45,
+    "supertrend": 568.01
+  },
+  {
+    "ticker": "GE",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 314.27,
+    "supertrend": 367.11
+  },
+  {
+    "ticker": "BAC",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 57.73,
+    "supertrend": 64.51
+  },
+  {
+    "ticker": "GS",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 942.0,
+    "supertrend": 1124.62
+  },
+  {
+    "ticker": "BKNG",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 167.9,
+    "supertrend": 213.77
+  },
+  {
+    "ticker": "UPS",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 99.06,
+    "supertrend": 114.37
+  },
+  {
+    "ticker": "AXP",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 311.56,
+    "supertrend": 359.03
+  },
+  {
+    "ticker": "HD",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 299.98,
+    "supertrend": 352.27
+  },
+  {
+    "ticker": "RTX",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 194.0,
+    "supertrend": 219.96
+  },
+  {
+    "ticker": "TTWO",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 205.45,
+    "supertrend": 258.23
+  },
+  {
+    "ticker": "XEL",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-14",
+    "recorded_at": "2026-09-21",
+    "close": 72.3,
+    "supertrend": 82.09
+  }
+]
