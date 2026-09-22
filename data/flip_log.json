@@ -1,5 +1,205 @@
 [
   {
+    "ticker": "NVDA",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 228.87,
+    "supertrend": 213.27
+  },
+  {
+    "ticker": "LRCX",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 310.96,
+    "supertrend": 265.18
+  },
+  {
+    "ticker": "HOOD",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 124.25,
+    "supertrend": 107.44
+  },
+  {
+    "ticker": "V",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 362.04,
+    "supertrend": 381.07
+  },
+  {
+    "ticker": "ASML",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 1747.9,
+    "supertrend": 1588.41
+  },
+  {
+    "ticker": "DRAM",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 63.62,
+    "supertrend": 55.76
+  },
+  {
+    "ticker": "WMT",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 110.12,
+    "supertrend": 103.95
+  },
+  {
+    "ticker": "JPM",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 340.0,
+    "supertrend": 363.58
+  },
+  {
+    "ticker": "AMAT",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 472.46,
+    "supertrend": 412.12
+  },
+  {
+    "ticker": "SHOP",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 147.74,
+    "supertrend": 130.43
+  },
+  {
+    "ticker": "WFC",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 83.15,
+    "supertrend": 90.25
+  },
+  {
+    "ticker": "DAL",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 83.92,
+    "supertrend": 77.92
+  },
+  {
+    "ticker": "AME",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 245.41,
+    "supertrend": 231.25
+  },
+  {
+    "ticker": "AMGN",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 410.24,
+    "supertrend": 378.26
+  },
+  {
+    "ticker": "CDNS",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 302.95,
+    "supertrend": 274.25
+  },
+  {
+    "ticker": "HON",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 211.85,
+    "supertrend": 197.65
+  },
+  {
+    "ticker": "MDB",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 427.69,
+    "supertrend": 365.91
+  },
+  {
+    "ticker": "MPC",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 389.68,
+    "supertrend": 434.15
+  },
+  {
+    "ticker": "T",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 25.1,
+    "supertrend": 26.83
+  },
+  {
+    "ticker": "VLO",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-22",
+    "recorded_at": "2026-09-22",
+    "close": 377.14,
+    "supertrend": 415.01
+  },
+  {
     "ticker": "GOOG",
     "timeframe": "daily",
     "direction": "Bullish",
