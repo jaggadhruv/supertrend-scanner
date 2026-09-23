@@ -1,5 +1,165 @@
 [
   {
+    "ticker": "PLTR",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 191.79,
+    "supertrend": 171.08
+  },
+  {
+    "ticker": "V",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 361.52,
+    "supertrend": 377.77
+  },
+  {
+    "ticker": "ASML",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 1744.61,
+    "supertrend": 1595.1
+  },
+  {
+    "ticker": "PANW",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 393.3,
+    "supertrend": 335.1
+  },
+  {
+    "ticker": "TXN",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 272.62,
+    "supertrend": 248.33
+  },
+  {
+    "ticker": "WFC",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 81.9,
+    "supertrend": 88.37
+  },
+  {
+    "ticker": "AME",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 246.45,
+    "supertrend": 233.07
+  },
+  {
+    "ticker": "AMGN",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 406.09,
+    "supertrend": 381.86
+  },
+  {
+    "ticker": "CDNS",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 309.09,
+    "supertrend": 283.33
+  },
+  {
+    "ticker": "FAST",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 50.99,
+    "supertrend": 47.86
+  },
+  {
+    "ticker": "HON",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 212.57,
+    "supertrend": 199.41
+  },
+  {
+    "ticker": "MDB",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 428.36,
+    "supertrend": 374.43
+  },
+  {
+    "ticker": "MPC",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 388.38,
+    "supertrend": 429.57
+  },
+  {
+    "ticker": "SNPS",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 413.06,
+    "supertrend": 377.26
+  },
+  {
+    "ticker": "TJX",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 131.59,
+    "supertrend": 123.87
+  },
+  {
+    "ticker": "VLO",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-23",
+    "recorded_at": "2026-09-23",
+    "close": 375.84,
+    "supertrend": 415.01
+  },
+  {
     "ticker": "NVDA",
     "timeframe": "daily",
     "direction": "Bullish",
