@@ -200,6 +200,76 @@
     "supertrend": 415.01
   },
   {
+    "ticker": "META",
+    "timeframe": "weekly",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 736.59,
+    "supertrend": 574.8
+  },
+  {
+    "ticker": "NVO",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 39.4,
+    "supertrend": 48.79
+  },
+  {
+    "ticker": "UNH",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 372.95,
+    "supertrend": 426.96
+  },
+  {
+    "ticker": "ALL",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 229.5,
+    "supertrend": 273.74
+  },
+  {
+    "ticker": "CMCSA",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 22.42,
+    "supertrend": 27.21
+  },
+  {
+    "ticker": "GD",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 343.39,
+    "supertrend": 386.81
+  },
+  {
+    "ticker": "UNP",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-22",
+    "close": 274.41,
+    "supertrend": 306.83
+  },
+  {
     "ticker": "GOOG",
     "timeframe": "daily",
     "direction": "Bullish",
