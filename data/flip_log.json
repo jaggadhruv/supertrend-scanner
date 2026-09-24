@@ -360,6 +360,46 @@
     "supertrend": 415.01
   },
   {
+    "ticker": "ABNB",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-24",
+    "close": 149.58,
+    "supertrend": 188.94
+  },
+  {
+    "ticker": "BRO",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-24",
+    "close": 61.7,
+    "supertrend": 74.66
+  },
+  {
+    "ticker": "PGR",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-24",
+    "close": 203.13,
+    "supertrend": 238.6
+  },
+  {
+    "ticker": "PSA",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-24",
+    "close": 286.73,
+    "supertrend": 328.38
+  },
+  {
     "ticker": "META",
     "timeframe": "weekly",
     "direction": "Bullish",
