@@ -1,5 +1,25 @@
 [
   {
+    "ticker": "AMT",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-24",
+    "recorded_at": "2026-09-24",
+    "close": 167.26,
+    "supertrend": 178.76
+  },
+  {
+    "ticker": "EXPD",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-24",
+    "recorded_at": "2026-09-24",
+    "close": 183.66,
+    "supertrend": 195.56
+  },
+  {
     "ticker": "PLTR",
     "timeframe": "daily",
     "direction": "Bullish",
