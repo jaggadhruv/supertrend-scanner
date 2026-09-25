@@ -380,6 +380,26 @@
     "supertrend": 415.01
   },
   {
+    "ticker": "AVGO",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-25",
+    "close": 350.36,
+    "supertrend": 436.93
+  },
+  {
+    "ticker": "FDX",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-21",
+    "recorded_at": "2026-09-25",
+    "close": 279.54,
+    "supertrend": 335.95
+  },
+  {
     "ticker": "ABNB",
     "timeframe": "weekly",
     "direction": "Bearish",

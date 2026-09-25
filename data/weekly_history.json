@@ -1,1584 +1,1584 @@
 {
   "AAPL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 337.02,
+    "close": 335.92,
     "supertrend": 295.51
   },
   "MSFT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 500.59,
-    "supertrend": 430.09
+    "close": 497.93,
+    "supertrend": 430.0
   },
   "GOOG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 334.98,
+    "close": 339.01,
     "supertrend": 387.3
   },
   "TSLA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 380.12,
+    "close": 377.94,
     "supertrend": 405.18
   },
   "NVDA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 225.51,
-    "supertrend": 185.76
+    "close": 224.58,
+    "supertrend": 185.41
   },
   "META": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "BUY",
-    "close": 744.1,
-    "supertrend": 576.45
+    "close": 777.59,
+    "supertrend": 580.43
   },
   "AMZN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 249.27,
+    "close": 249.38,
     "supertrend": 275.18
   },
   "LRCX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 307.28,
+    "close": 307.16,
     "supertrend": 375.78
   },
   "AVGO": {
-    "last_run_date": "2026-09-24",
-    "direction": "Bullish",
-    "signal": "NONE",
-    "close": 354.99,
-    "supertrend": 350.46
+    "last_run_date": "2026-09-25",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "close": 350.36,
+    "supertrend": 436.93
   },
   "NOW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 140.78,
+    "close": 137.78,
     "supertrend": 105.52
   },
   "PLTR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 191.79,
-    "supertrend": 141.62
+    "close": 192.59,
+    "supertrend": 141.84
   },
   "IBKR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 91.56,
+    "close": 89.82,
     "supertrend": 78.32
   },
   "AMD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 614.61,
-    "supertrend": 446.91
+    "close": 629.26,
+    "supertrend": 448.44
   },
   "NBIS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 226.61,
+    "close": 243.48,
     "supertrend": 293.21
   },
   "HOOD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 122.7,
-    "supertrend": 87.96
+    "close": 120.82,
+    "supertrend": 86.57
   },
   "ARM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 332.56,
+    "close": 306.34,
     "supertrend": 365.1
   },
   "MA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 559.92,
+    "close": 566.08,
     "supertrend": 531.4
   },
   "V": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 361.52,
+    "close": 367.98,
     "supertrend": 341.71
   },
   "ASML": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1744.61,
+    "close": 1722.5,
     "supertrend": 1503.43
   },
   "GE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 319.8,
+    "close": 319.78,
     "supertrend": 367.11
   },
   "NVO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 38.17,
-    "supertrend": 48.56
+    "close": 38.62,
+    "supertrend": 48.5
   },
   "ORCL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 144.56,
+    "close": 139.54,
     "supertrend": 179.24
   },
   "MU": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1071.88,
+    "close": 1080.53,
     "supertrend": 789.58
   },
   "MNST": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 43.91,
+    "close": 42.67,
     "supertrend": 49.09
   },
   "LLY": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1150.99,
+    "close": 1181.89,
     "supertrend": 1014.91
   },
   "AEG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 8.75,
+    "close": 8.81,
     "supertrend": 8.64
   },
   "SNOW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 334.81,
-    "supertrend": 264.89
+    "close": 334.0,
+    "supertrend": 264.28
   },
   "CRM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 237.58,
+    "close": 238.22,
     "supertrend": 206.22
   },
   "HWM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 228.78,
-    "supertrend": 274.19
+    "close": 229.38,
+    "supertrend": 274.73
   },
   "PANW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 393.3,
+    "close": 389.92,
     "supertrend": 296.65
   },
   "UNH": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 371.29,
+    "close": 375.01,
     "supertrend": 423.82
   },
   "SNDK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 1816.57,
+    "close": 1753.62,
     "supertrend": 2099.51
   },
   "INTC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 122.6,
+    "close": 127.39,
     "supertrend": 129.68
   },
   "NFLX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 71.36,
+    "close": 71.72,
     "supertrend": 84.31
   },
   "MRVL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 260.9,
+    "close": 258.95,
     "supertrend": 280.67
   },
   "SOFI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 16.55,
+    "close": 16.8,
     "supertrend": 21.25
   },
   "DRAM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 61.9,
+    "close": 60.72,
     "supertrend": 72.69
   },
   "TSM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 446.57,
+    "close": 451.15,
     "supertrend": 373.3
   },
   "WDC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 473.69,
+    "close": 450.31,
     "supertrend": 646.68
   },
   "QCOM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 197.24,
+    "close": 194.26,
     "supertrend": 214.64
   },
   "WMT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 110.53,
+    "close": 107.59,
     "supertrend": 122.11
   },
   "HPE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 62.33,
-    "supertrend": 45.28
+    "close": 63.52,
+    "supertrend": 45.69
   },
   "DDOG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 251.49,
+    "close": 256.92,
     "supertrend": 199.29
   },
   "JPM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 337.53,
+    "close": 338.56,
     "supertrend": 324.04
   },
   "AMAT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 474.38,
+    "close": 474.25,
     "supertrend": 575.07
   },
   "SHOP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 142.34,
+    "close": 145.16,
     "supertrend": 113.41
   },
   "CSCO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 106.43,
+    "close": 106.97,
     "supertrend": 106.38
   },
   "GEV": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 951.82,
+    "close": 955.04,
     "supertrend": 863.24
   },
   "ADI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 385.23,
+    "close": 382.61,
     "supertrend": 358.86
   },
   "TXN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 272.62,
+    "close": 270.65,
     "supertrend": 310.88
   },
   "CRWD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 262.49,
-    "supertrend": 181.99
+    "close": 259.67,
+    "supertrend": 182.16
   },
   "ADBE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 240.69,
+    "close": 238.93,
     "supertrend": 217.16
   },
   "TEAM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 195.08,
+    "close": 192.61,
     "supertrend": 148.24
   },
   "FTNT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 178.74,
-    "supertrend": 138.21
+    "close": 178.67,
+    "supertrend": 138.71
   },
   "WDAY": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 192.38,
+    "close": 190.99,
     "supertrend": 150.6
   },
   "BAC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 56.0,
-    "supertrend": 63.88
+    "close": 56.03,
+    "supertrend": 63.89
   },
   "WFC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 81.9,
+    "close": 82.18,
     "supertrend": 78.47
   },
   "C": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 131.93,
+    "close": 132.1,
     "supertrend": 124.53
   },
   "NU": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 13.62,
+    "close": 13.56,
     "supertrend": 11.83
   },
   "PYPL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 52.51,
+    "close": 52.6,
     "supertrend": 51.93
   },
   "COIN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 198.13,
+    "close": 199.21,
     "supertrend": 209.06
   },
   "AFRM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 68.09,
+    "close": 71.57,
     "supertrend": 61.15
   },
   "GS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 936.36,
-    "supertrend": 1096.18
+    "close": 923.29,
+    "supertrend": 1091.43
   },
   "MS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 198.39,
+    "close": 196.32,
     "supertrend": 193.96
   },
   "TGT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 156.26,
+    "close": 156.15,
     "supertrend": 140.12
   },
   "BKNG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 155.9,
+    "close": 157.41,
     "supertrend": 204.19
   },
   "BABA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 110.8,
+    "close": 110.63,
     "supertrend": 100.0
   },
   "PDD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 79.2,
-    "supertrend": 93.25
+    "close": 78.2,
+    "supertrend": 93.15
   },
   "MRK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 148.08,
+    "close": 147.98,
     "supertrend": 128.91
   },
   "ISRG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 398.3,
+    "close": 399.52,
     "supertrend": 428.57
   },
   "CAT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 812.02,
+    "close": 805.25,
     "supertrend": 961.0
   },
   "BA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 199.93,
+    "close": 196.8,
     "supertrend": 195.03
   },
   "LMT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 524.68,
+    "close": 523.7,
     "supertrend": 511.97
   },
   "UPS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 95.82,
-    "supertrend": 110.11
+    "close": 92.05,
+    "supertrend": 109.46
   },
   "FDX": {
-    "last_run_date": "2026-09-24",
-    "direction": "Bullish",
-    "signal": "NONE",
-    "close": 291.5,
-    "supertrend": 287.92
+    "last_run_date": "2026-09-25",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "close": 279.54,
+    "supertrend": 335.95
   },
   "AAL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
     "close": 13.35,
     "supertrend": 16.07
   },
   "DAL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 81.75,
+    "close": 82.76,
     "supertrend": 77.74
   },
   "SPCX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 148.36,
+    "close": 148.03,
     "supertrend": 197.7
   },
   "ABBV": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 265.08,
+    "close": 265.12,
     "supertrend": 231.99
   },
   "ABNB": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 149.58,
+    "close": 151.39,
     "supertrend": 188.94
   },
   "ABT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 103.49,
+    "close": 101.07,
     "supertrend": 98.72
   },
   "ADP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 263.68,
+    "close": 263.11,
     "supertrend": 247.05
   },
   "ADSK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 217.15,
+    "close": 211.35,
     "supertrend": 204.58
   },
   "AEP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 118.4,
-    "supertrend": 132.19
+    "close": 117.57,
+    "supertrend": 132.03
   },
   "AJG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 229.64,
+    "close": 227.13,
     "supertrend": 226.93
   },
   "ALL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 225.66,
+    "close": 227.17,
     "supertrend": 273.32
   },
   "AME": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 246.45,
+    "close": 247.74,
     "supertrend": 228.41
   },
   "AMGN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 406.09,
+    "close": 406.04,
     "supertrend": 441.74
   },
   "AMT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 170.78,
+    "close": 167.26,
     "supertrend": 164.62
   },
   "ANET": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 203.47,
-    "supertrend": 156.31
+    "close": 205.7,
+    "supertrend": 155.17
   },
   "AON": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 281.6,
-    "supertrend": 339.18
+    "close": 276.09,
+    "supertrend": 337.73
   },
   "APP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 315.25,
+    "close": 312.47,
     "supertrend": 452.97
   },
   "AXP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 301.96,
-    "supertrend": 348.29
+    "close": 305.66,
+    "supertrend": 347.95
   },
   "AZO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 2843.34,
-    "supertrend": 3276.39
+    "close": 2861.75,
+    "supertrend": 3290.32
   },
   "BDX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 182.52,
+    "close": 179.23,
     "supertrend": 165.12
   },
   "BLK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1060.89,
+    "close": 1073.45,
     "supertrend": 1028.69
   },
   "BR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 163.45,
+    "close": 162.66,
     "supertrend": 155.28
   },
   "BRO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 61.7,
-    "supertrend": 74.66
+    "close": 60.33,
+    "supertrend": 74.29
   },
   "BSX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 44.62,
-    "supertrend": 53.61
+    "close": 44.68,
+    "supertrend": 53.62
   },
   "CB": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 335.21,
+    "close": 334.84,
     "supertrend": 316.09
   },
   "CBRE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 136.41,
+    "close": 136.53,
     "supertrend": 153.81
   },
   "CDNS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 309.09,
+    "close": 322.0,
     "supertrend": 350.99
   },
   "CHD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 96.02,
+    "close": 95.33,
     "supertrend": 104.35
   },
   "CHTR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 116.61,
+    "close": 117.55,
     "supertrend": 165.0
   },
   "CL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 85.93,
+    "close": 85.32,
     "supertrend": 82.4
   },
   "CLX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 83.94,
-    "supertrend": 102.33
+    "close": 81.8,
+    "supertrend": 102.14
   },
   "CMCSA": {
-    "last_run_date": "2026-09-24",
-    "direction": "Bullish",
-    "signal": "NONE",
-    "close": 22.55,
-    "supertrend": 22.46
+    "last_run_date": "2026-09-25",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "close": 22.13,
+    "supertrend": 27.12
   },
   "CME": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 270.8,
+    "close": 268.91,
     "supertrend": 242.65
   },
   "COP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 128.09,
+    "close": 129.34,
     "supertrend": 117.41
   },
   "COR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 312.28,
+    "close": 309.87,
     "supertrend": 281.7
   },
   "COST": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 904.7,
-    "supertrend": 992.12
+    "close": 896.48,
+    "supertrend": 995.0
   },
   "CPRT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 28.86,
+    "close": 28.04,
     "supertrend": 27.46
   },
   "CSGP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 28.26,
-    "supertrend": 36.49
+    "close": 27.85,
+    "supertrend": 36.33
   },
   "CSL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 323.96,
-    "supertrend": 388.2
+    "close": 314.13,
+    "supertrend": 388.21
   },
   "CSX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 47.19,
+    "close": 46.95,
     "supertrend": 46.31
   },
   "CTAS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 191.97,
+    "close": 197.68,
     "supertrend": 181.44
   },
   "CVX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 205.51,
+    "close": 205.65,
     "supertrend": 187.25
   },
   "D": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 61.17,
-    "supertrend": 69.35
+    "close": 60.4,
+    "supertrend": 69.18
   },
   "DE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 709.48,
-    "supertrend": 598.73
+    "close": 694.94,
+    "supertrend": 598.76
   },
   "DECK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 78.59,
+    "close": 78.68,
     "supertrend": 96.47
   },
   "DHR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 221.56,
-    "supertrend": 182.33
+    "close": 223.77,
+    "supertrend": 183.17
   },
   "DIS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 103.46,
+    "close": 105.56,
     "supertrend": 108.32
   },
   "DLR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 181.45,
+    "close": 181.0,
     "supertrend": 201.66
   },
   "DRI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 213.69,
+    "close": 207.24,
     "supertrend": 190.55
   },
   "DUK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 114.17,
-    "supertrend": 126.97
+    "close": 113.23,
+    "supertrend": 126.74
   },
   "EMR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 154.59,
+    "close": 156.14,
     "supertrend": 137.17
   },
   "EOG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 141.84,
+    "close": 142.86,
     "supertrend": 125.58
   },
   "EQIX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1037.66,
+    "close": 1034.76,
     "supertrend": 985.21
   },
   "ETN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 438.76,
+    "close": 440.0,
     "supertrend": 372.54
   },
   "EW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 86.82,
+    "close": 85.73,
     "supertrend": 80.76
   },
   "EXPD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 188.03,
+    "close": 183.66,
     "supertrend": 168.2
   },
   "FAST": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 50.99,
+    "close": 50.73,
     "supertrend": 44.78
   },
   "FDS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 279.43,
+    "close": 271.25,
     "supertrend": 248.71
   },
   "FFIV": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 455.99,
-    "supertrend": 372.74
+    "close": 446.55,
+    "supertrend": 372.77
   },
   "FICO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 879.62,
-    "supertrend": 1252.99
+    "close": 856.48,
+    "supertrend": 1247.88
   },
   "GD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 343.33,
-    "supertrend": 387.02
+    "close": 336.29,
+    "supertrend": 385.31
   },
   "GILD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 151.37,
+    "close": 149.69,
     "supertrend": 131.12
   },
   "GIS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 35.82,
+    "close": 34.83,
     "supertrend": 34.27
   },
   "GNRC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 199.42,
+    "close": 198.05,
     "supertrend": 244.1
   },
   "HD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 296.72,
-    "supertrend": 344.08
+    "close": 292.18,
+    "supertrend": 343.0
   },
   "HON": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 212.57,
+    "close": 211.79,
     "supertrend": 240.43
   },
   "HRL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 19.92,
-    "supertrend": 23.59
+    "close": 19.84,
+    "supertrend": 23.55
   },
   "HSY": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 168.45,
-    "supertrend": 192.65
+    "close": 166.88,
+    "supertrend": 192.52
   },
   "HUBB": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 463.7,
+    "close": 465.88,
     "supertrend": 524.57
   },
   "HUBS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 226.03,
+    "close": 221.56,
     "supertrend": 270.6
   },
   "IDXX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 522.02,
-    "supertrend": 599.24
+    "close": 513.39,
+    "supertrend": 599.91
   },
   "INTU": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 286.8,
+    "close": 277.13,
     "supertrend": 376.94
   },
   "ITW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 273.42,
+    "close": 272.0,
     "supertrend": 260.79
   },
   "JNJ": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 269.17,
-    "supertrend": 239.2
+    "close": 270.68,
+    "supertrend": 239.37
   },
   "KLAC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 187.86,
+    "close": 187.11,
     "supertrend": 233.28
   },
   "KMB": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 97.7,
+    "close": 97.22,
     "supertrend": 110.72
   },
   "KMI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 31.37,
+    "close": 31.25,
     "supertrend": 30.45
   },
   "KO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 88.09,
+    "close": 88.1,
     "supertrend": 81.28
   },
   "LOW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 191.36,
-    "supertrend": 221.09
+    "close": 188.49,
+    "supertrend": 220.91
   },
   "LULU": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 102.28,
+    "close": 101.64,
     "supertrend": 127.88
   },
   "MCD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 238.32,
+    "close": 237.02,
     "supertrend": 271.81
   },
   "MCHP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 75.53,
+    "close": 74.69,
     "supertrend": 90.02
   },
   "MCK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 880.5,
+    "close": 869.36,
     "supertrend": 768.17
   },
   "MCO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 473.85,
+    "close": 467.35,
     "supertrend": 444.59
   },
   "MDB": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 428.36,
+    "close": 421.4,
     "supertrend": 316.48
   },
   "MDLZ": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 61.44,
+    "close": 60.86,
     "supertrend": 56.01
   },
   "MELI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1799.24,
+    "close": 1754.13,
     "supertrend": 1627.1
   },
   "MPC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 388.38,
+    "close": 390.95,
     "supertrend": 345.16
   },
   "MPWR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 1355.47,
+    "close": 1335.55,
     "supertrend": 1528.38
   },
   "MSI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 460.44,
+    "close": 454.91,
     "supertrend": 425.52
   },
   "MTD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 1492.34,
-    "supertrend": 1221.72
+    "close": 1519.15,
+    "supertrend": 1228.71
   },
   "NEE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 77.02,
-    "supertrend": 87.27
+    "close": 75.62,
+    "supertrend": 86.96
   },
   "NET": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 352.33,
-    "supertrend": 252.6
+    "close": 358.82,
+    "supertrend": 253.41
   },
   "NKE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 36.05,
+    "close": 35.99,
     "supertrend": 42.94
   },
   "NOC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 514.42,
-    "supertrend": 592.25
+    "close": 508.98,
+    "supertrend": 591.84
   },
   "O": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 55.61,
-    "supertrend": 62.18
+    "close": 55.41,
+    "supertrend": 62.13
   },
   "ODFL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 177.72,
+    "close": 174.93,
     "supertrend": 212.24
   },
   "OKTA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 205.36,
-    "supertrend": 146.38
+    "close": 206.64,
+    "supertrend": 147.71
   },
   "ORLY": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 85.9,
-    "supertrend": 96.1
+    "close": 86.24,
+    "supertrend": 96.86
   },
   "OXY": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 57.36,
+    "close": 58.05,
     "supertrend": 51.77
   },
   "PAYC": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 221.68,
+    "close": 220.81,
     "supertrend": 191.8
   },
   "PCTY": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 143.58,
+    "close": 143.64,
     "supertrend": 123.83
   },
   "PEG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 67.31,
-    "supertrend": 76.23
+    "close": 66.56,
+    "supertrend": 76.07
   },
   "PEP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 130.18,
+    "close": 128.15,
     "supertrend": 144.85
   },
   "PG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 147.39,
+    "close": 145.68,
     "supertrend": 158.03
   },
   "PGR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 203.13,
-    "supertrend": 238.6
+    "close": 202.17,
+    "supertrend": 238.19
   },
   "PH": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 971.21,
+    "close": 974.98,
     "supertrend": 921.77
   },
   "PLD": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 133.96,
+    "close": 133.82,
     "supertrend": 129.49
   },
   "POOL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 166.61,
-    "supertrend": 201.43
+    "close": 161.71,
+    "supertrend": 200.3
   },
   "PSA": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 286.73,
-    "supertrend": 328.38
+    "close": 284.56,
+    "supertrend": 327.93
   },
   "PSX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 256.48,
+    "close": 255.87,
     "supertrend": 227.27
   },
   "PWR": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 634.9,
+    "close": 643.5,
     "supertrend": 754.11
   },
   "REGN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 801.82,
+    "close": 796.02,
     "supertrend": 701.62
   },
   "ROK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 432.89,
+    "close": 432.93,
     "supertrend": 411.29
   },
   "ROP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 366.36,
+    "close": 364.02,
     "supertrend": 356.64
   },
   "ROST": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 233.98,
+    "close": 235.4,
     "supertrend": 221.04
   },
   "RTX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 192.19,
-    "supertrend": 217.06
+    "close": 188.61,
+    "supertrend": 216.5
   },
   "SBUX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 94.14,
+    "close": 93.65,
     "supertrend": 92.63
   },
   "SCHW": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 99.5,
+    "close": 99.49,
     "supertrend": 98.99
   },
   "SNPS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 413.06,
+    "close": 424.91,
     "supertrend": 481.13
   },
   "SO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 83.47,
-    "supertrend": 93.08
+    "close": 82.89,
+    "supertrend": 92.99
   },
   "SPG": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 204.16,
-    "supertrend": 225.34
+    "close": 204.7,
+    "supertrend": 225.23
   },
   "SPGI": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 406.5,
+    "close": 403.25,
     "supertrend": 373.92
   },
   "SPOT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 510.4,
+    "close": 511.38,
     "supertrend": 558.93
   },
   "SRE": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 79.0,
-    "supertrend": 90.35
+    "close": 77.74,
+    "supertrend": 90.09
   },
   "SYK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 273.4,
-    "supertrend": 325.82
+    "close": 269.75,
+    "supertrend": 325.39
   },
   "T": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 25.3,
+    "close": 25.45,
     "supertrend": 22.43
   },
   "TJX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 131.59,
+    "close": 131.63,
     "supertrend": 146.06
   },
   "TMO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 665.3,
-    "supertrend": 572.77
+    "close": 678.39,
+    "supertrend": 575.65
   },
   "TMUS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 165.66,
+    "close": 165.35,
     "supertrend": 195.17
   },
   "TRV": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 360.39,
+    "close": 362.39,
     "supertrend": 337.61
   },
   "TSCO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 32.29,
+    "close": 31.44,
     "supertrend": 36.61
   },
   "TT": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 437.09,
+    "close": 438.54,
     "supertrend": 420.43
   },
   "TTWO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 206.32,
-    "supertrend": 248.64
+    "close": 202.98,
+    "supertrend": 248.44
   },
   "TYL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 332.53,
+    "close": 326.85,
     "supertrend": 297.19
   },
   "UBER": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 69.42,
+    "close": 69.22,
     "supertrend": 82.29
   },
   "UNP": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "SELL",
-    "close": 275.53,
+    "close": 274.07,
     "supertrend": 306.83
   },
   "VEEV": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 270.75,
+    "close": 274.84,
     "supertrend": 225.31
   },
   "VLO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 375.84,
+    "close": 382.86,
     "supertrend": 333.63
   },
   "VLTO": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 95.88,
+    "close": 96.2,
     "supertrend": 86.42
   },
   "VRSK": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 171.8,
+    "close": 168.65,
     "supertrend": 202.35
   },
   "VRTX": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 516.34,
+    "close": 522.38,
     "supertrend": 467.98
   },
   "VZ": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 46.52,
+    "close": 47.32,
     "supertrend": 44.3
   },
   "WCN": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 155.41,
-    "supertrend": 172.13
+    "close": 155.93,
+    "supertrend": 173.09
   },
   "WELL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 229.87,
+    "close": 233.61,
     "supertrend": 215.99
   },
   "WM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 207.88,
+    "close": 207.96,
     "supertrend": 231.24
   },
   "WMB": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 71.11,
+    "close": 70.58,
     "supertrend": 68.96
   },
   "WSM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 227.83,
+    "close": 228.66,
     "supertrend": 204.28
   },
   "XEL": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 70.66,
-    "supertrend": 79.26
+    "close": 69.56,
+    "supertrend": 79.0
   },
   "XOM": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bullish",
     "signal": "NONE",
-    "close": 161.23,
+    "close": 162.14,
     "supertrend": 143.08
   },
   "ZTS": {
-    "last_run_date": "2026-09-24",
+    "last_run_date": "2026-09-25",
     "direction": "Bearish",
     "signal": "NONE",
-    "close": 71.61,
-    "supertrend": 85.2
+    "close": 70.27,
+    "supertrend": 85.17
   }
 }

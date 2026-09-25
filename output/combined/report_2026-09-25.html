@@ -154,9 +154,9 @@
 <div class="wrap">
 
   <div class="topbar">
-    <h1>Supertrend Combined Scanner · Public view</h1>
+    <h1>Supertrend Combined Scanner</h1>
     <div class="params">ATR(10) &times; 2.5 &middot; Weekly + Daily &middot; Generated 2026-09-25 00:20</div>
-    <div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>
+    
   </div>
 
   
@@ -604,6 +604,7 @@
       <button class="chip-btn" data-filter="conf-bear">Confluence ▼▼</button>
       <button class="chip-btn" data-filter="weekly-flip">Weekly Flips</button>
       <button class="chip-btn" data-filter="daily-flip">Daily Flips</button>
+      <button class="chip-btn" data-filter="held">My Portfolio</button>
       <input type="text" id="search-box" class="search-box" placeholder="Search ticker...">
     </div>
     <table id="scan-table">
@@ -614,6 +615,8 @@
           <th>Close</th>
           <th title="Click to sort by weekly bars-in-trend (freshest weekly flip first)"><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · in-trend · ST) ↕</th>
           <th title="Click to sort by daily bars-in-trend (freshest daily flip first) — this is the default order"><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST) ↕</th>
+          <th>Held</th>
+          <th>Position P/L</th>
           <th>Weekly Bar</th>
           <th>Daily Bar</th>
         </tr>
@@ -636,6 +639,8 @@
       <td data-sort="406.09">406.09</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 441.74</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 381.86</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -655,6 +660,8 @@
       <td data-sort="131.59">131.59</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 146.06</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 123.79</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -674,6 +681,8 @@
       <td data-sort="272.62">272.62</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 310.88</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 248.32</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -693,6 +702,8 @@
       <td data-sort="309.09">309.09</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 350.99</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 283.25</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -712,6 +723,8 @@
       <td data-sort="191.79">191.79</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 141.84</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 171.07</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -731,6 +744,8 @@
       <td data-sort="246.45">246.45</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 228.41</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 232.74</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -750,6 +765,8 @@
       <td data-sort="413.06">413.06</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 481.13</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 377.26</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -769,6 +786,8 @@
       <td data-sort="81.9">81.90</td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 12 weeks — since 2026-07-06">12w</span> <span class="muted small">ST 78.47</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 88.37</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -788,6 +807,8 @@
       <td data-sort="361.52">361.52</td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 14 weeks — since 2026-06-22">14w</span> <span class="muted small">ST 341.71</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 377.77</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -807,6 +828,8 @@
       <td data-sort="428.36">428.36</td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 17 weeks — since 2026-06-01">17w</span> <span class="muted small">ST 316.48</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 374.45</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -826,6 +849,8 @@
       <td data-sort="393.3">393.30</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 296.65</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 335.09</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -845,6 +870,8 @@
       <td data-sort="212.57">212.57</td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 weeks — since 2026-04-20">23w</span> <span class="muted small">ST 240.43</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 199.10</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -864,6 +891,8 @@
       <td data-sort="50.99">50.99</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 44.78</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 47.86</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -883,6 +912,8 @@
       <td data-sort="388.38">388.38</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 345.16</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 429.57</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -902,6 +933,8 @@
       <td data-sort="1744.61">1,744.61</td>
       <td data-sort="66"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 66 weeks — since 2025-06-23">66w</span> <span class="muted small">ST 1,503.43</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 1,595.14</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -921,6 +954,8 @@
       <td data-sort="375.84">375.84</td>
       <td data-sort="67"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 67 weeks — since 2025-06-16">67w</span> <span class="muted small">ST 333.63</span></span></td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 day — since 2026-09-23">1d</span> <span class="muted small">ST 415.01</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -940,6 +975,8 @@
       <td data-sort="203.13">203.13</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 238.19</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 217.45</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -959,6 +996,8 @@
       <td data-sort="474.38">474.38</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 575.07</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 418.66</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -978,6 +1017,8 @@
       <td data-sort="237.58">237.58</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 206.22</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 260.04</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -997,6 +1038,8 @@
       <td data-sort="128.09">128.09</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 117.41</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 136.78</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1016,6 +1059,8 @@
       <td data-sort="25.3">25.30</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 22.43</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 26.81</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1035,6 +1080,8 @@
       <td data-sort="142.34">142.34</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 113.41</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 130.43</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1054,6 +1101,8 @@
       <td data-sort="307.28">307.28</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 375.78</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 266.38</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1073,6 +1122,8 @@
       <td data-sort="205.51">205.51</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 187.25</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 216.81</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1092,6 +1143,8 @@
       <td data-sort="1355.47">1,355.47</td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 weeks — since 2026-06-29">13w</span> <span class="muted small">ST 1,528.38</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 1,201.62</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1111,6 +1164,8 @@
       <td data-sort="337.53">337.53</td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 14 weeks — since 2026-06-22">14w</span> <span class="muted small">ST 324.04</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 357.31</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1130,6 +1185,8 @@
       <td data-sort="122.7">122.70</td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 15 weeks — since 2026-06-15">15w</span> <span class="muted small">ST 86.57</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 108.19</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1149,6 +1206,8 @@
       <td data-sort="61.9">61.90</td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 17 weeks — since 2026-06-01">17w</span> <span class="muted small">ST 72.69</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 56.13</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1168,6 +1227,8 @@
       <td data-sort="110.53">110.53</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 122.11</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 105.47</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1187,6 +1248,8 @@
       <td data-sort="251.49">251.49</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 199.29</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 222.01</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1206,6 +1269,8 @@
       <td data-sort="385.23">385.23</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 358.86</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 355.96</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1225,6 +1290,8 @@
       <td data-sort="141.84">141.84</td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 33 weeks — since 2026-02-09">33w</span> <span class="muted small">ST 125.58</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 days — since 2026-09-21">2d</span> <span class="muted small">ST 150.86</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1244,6 +1311,8 @@
       <td data-sort="225.51">225.51</td>
       <td data-sort="69"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 69 weeks — since 2025-06-02">69w</span> <span class="muted small">ST 185.41</span></span></td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 2 days — since 2026-09-22">2d</span> <span class="muted small">ST 213.27</span></span></td>
+      <td><span class="held-yes">● Held</span></td>
+      <td><span class="pnl-neg">-0.65%</span> <span class="muted">(qty 2.33 @ 226.99)</span></td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1263,6 +1332,8 @@
       <td data-sort="57.36">57.36</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 51.77</span></span></td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 days — since 2026-09-18">3d</span> <span class="muted small">ST 61.23</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1282,6 +1353,8 @@
       <td data-sort="110.8">110.80</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 100.00</span></span></td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 3 days — since 2026-09-21">3d</span> <span class="muted small">ST 110.29</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1301,6 +1374,8 @@
       <td data-sort="334.98">334.98</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 387.30</span></span></td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 3 days — since 2026-09-21">3d</span> <span class="muted small">ST 331.28</span></span></td>
+      <td><span class="held-yes">● Held</span></td>
+      <td><span class="pnl-neg">-4.68%</span> <span class="muted">(qty 1.46 @ 351.43)</span></td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1320,6 +1395,8 @@
       <td data-sort="510.4">510.40</td>
       <td data-sort="45"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 45 weeks — since 2025-11-17">45w</span> <span class="muted small">ST 558.93</span></span></td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 days — since 2026-09-18">3d</span> <span class="muted small">ST 552.55</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1339,6 +1416,8 @@
       <td data-sort="28.26">28.26</td>
       <td data-sort="51"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 51 weeks — since 2025-10-06">51w</span> <span class="muted small">ST 36.33</span></span></td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 days — since 2026-09-18">3d</span> <span class="muted small">ST 31.29</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1358,6 +1437,8 @@
       <td data-sort="270.8">270.80</td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 5 weeks — since 2026-08-24">5w</span> <span class="muted small">ST 242.65</span></span></td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 4 days — since 2026-09-17">4d</span> <span class="muted small">ST 285.02</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1377,6 +1458,8 @@
       <td data-sort="332.56">332.56</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 365.10</span></span></td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 4 days — since 2026-09-18">4d</span> <span class="muted small">ST 285.14</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1396,6 +1479,8 @@
       <td data-sort="199.42">199.42</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 244.10</span></span></td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 4 days — since 2026-09-17">4d</span> <span class="muted small">ST 185.38</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1415,6 +1500,8 @@
       <td data-sort="265.08">265.08</td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 14 weeks — since 2026-06-22">14w</span> <span class="muted small">ST 231.99</span></span></td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 4 days — since 2026-09-17">4d</span> <span class="muted small">ST 253.03</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1434,6 +1521,8 @@
       <td data-sort="398.3">398.30</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 428.57</span></span></td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 4 days — since 2026-09-17">4d</span> <span class="muted small">ST 371.41</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1453,6 +1542,8 @@
       <td data-sort="46.52">46.52</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 44.30</span></span></td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 days — since 2026-09-17">5d</span> <span class="muted small">ST 49.35</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1472,6 +1563,8 @@
       <td data-sort="13.62">13.62</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 11.83</span></span></td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 days — since 2026-09-16">5d</span> <span class="muted small">ST 15.00</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1491,6 +1584,8 @@
       <td data-sort="312.28">312.28</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 281.70</span></span></td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 days — since 2026-09-16">5d</span> <span class="muted small">ST 326.50</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1510,6 +1605,8 @@
       <td data-sort="75.53">75.53</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 90.02</span></span></td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 days — since 2026-09-16">5d</span> <span class="muted small">ST 77.77</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1529,6 +1626,8 @@
       <td data-sort="1492.34">1,492.34</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 1,228.71</span></span></td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 5 days — since 2026-09-16">5d</span> <span class="muted small">ST 1,390.36</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1548,6 +1647,8 @@
       <td data-sort="1799.24">1,799.24</td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 4 weeks — since 2026-08-31">4w</span> <span class="muted small">ST 1,627.10</span></span></td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 days — since 2026-09-15">6d</span> <span class="muted small">ST 1,956.35</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1567,6 +1668,8 @@
       <td data-sort="455.99">455.99</td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 30 weeks — since 2026-03-02">30w</span> <span class="muted small">ST 372.77</span></span></td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 days — since 2026-09-15">6d</span> <span class="muted small">ST 420.62</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1586,6 +1689,8 @@
       <td data-sort="16.55">16.55</td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 35 weeks — since 2026-01-26">35w</span> <span class="muted small">ST 21.25</span></span></td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 days — since 2026-09-16">6d</span> <span class="muted small">ST 18.56</span></span></td>
+      <td><span class="held-yes">● Held</span></td>
+      <td><span class="pnl-neg">-8.56%</span> <span class="muted">(qty 27.63 @ 18.1)</span></td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1605,6 +1710,8 @@
       <td data-sort="156.26">156.26</td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 38 weeks — since 2026-01-05">38w</span> <span class="muted small">ST 140.12</span></span></td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 days — since 2026-09-15">6d</span> <span class="muted small">ST 165.34</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1624,6 +1731,8 @@
       <td data-sort="91.56">91.56</td>
       <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-05-12">72w</span> <span class="muted small">ST 78.32</span></span></td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 days — since 2026-09-15">6d</span> <span class="muted small">ST 94.59</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1643,6 +1752,8 @@
       <td data-sort="352.33">352.33</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 253.41</span></span></td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 7 days — since 2026-09-14">7d</span> <span class="muted small">ST 311.27</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1662,6 +1773,8 @@
       <td data-sort="144.56">144.56</td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 14 weeks — since 2026-06-22">14w</span> <span class="muted small">ST 179.24</span></span></td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 8 days — since 2026-09-14">8d</span> <span class="muted small">ST 162.10</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1681,6 +1794,8 @@
       <td data-sort="438.76">438.76</td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 33 weeks — since 2026-02-09">33w</span> <span class="muted small">ST 372.54</span></span></td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 days — since 2026-09-11">8d</span> <span class="muted small">ST 402.88</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1700,6 +1815,8 @@
       <td data-sort="32.29">32.29</td>
       <td data-sort="45"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 45 weeks — since 2025-11-17">45w</span> <span class="muted small">ST 36.61</span></span></td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 8 days — since 2026-09-11">8d</span> <span class="muted small">ST 34.80</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1719,6 +1836,8 @@
       <td data-sort="28.87">28.87</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 27.46</span></span></td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 days — since 2026-09-10">9d</span> <span class="muted small">ST 31.21</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1738,6 +1857,8 @@
       <td data-sort="161.23">161.23</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 143.08</span></span></td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 days — since 2026-09-10">9d</span> <span class="muted small">ST 157.85</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1757,6 +1878,8 @@
       <td data-sort="95.88">95.88</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 86.42</span></span></td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 days — since 2026-09-10">9d</span> <span class="muted small">ST 98.53</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1776,6 +1899,8 @@
       <td data-sort="801.82">801.82</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 701.62</span></span></td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 days — since 2026-09-10">9d</span> <span class="muted small">ST 823.94</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1795,6 +1920,8 @@
       <td data-sort="406.5">406.50</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 373.92</span></span></td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 days — since 2026-09-10">9d</span> <span class="muted small">ST 430.58</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1814,6 +1941,8 @@
       <td data-sort="226.03">226.03</td>
       <td data-sort="82"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 82 weeks — since 2025-03-03">82w</span> <span class="muted small">ST 270.60</span></span></td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 days — since 2026-09-10">9d</span> <span class="muted small">ST 250.55</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1833,6 +1962,8 @@
       <td data-sort="229.64">229.64</td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 13 weeks — since 2026-06-29">13w</span> <span class="muted small">ST 226.93</span></span></td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 days — since 2026-09-09">10d</span> <span class="muted small">ST 246.74</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1852,6 +1983,8 @@
       <td data-sort="279.43">279.43</td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 17 weeks — since 2026-06-01">17w</span> <span class="muted small">ST 248.71</span></span></td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 days — since 2026-09-09">10d</span> <span class="muted small">ST 290.67</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1871,6 +2004,8 @@
       <td data-sort="116.61">116.61</td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 weeks — since 2026-04-20">23w</span> <span class="muted small">ST 165.00</span></span></td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 days — since 2026-09-09">10d</span> <span class="muted small">ST 134.47</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1890,6 +2025,8 @@
       <td data-sort="103.46">103.46</td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 30 weeks — since 2026-03-02">30w</span> <span class="muted small">ST 108.32</span></span></td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 days — since 2026-09-09">10d</span> <span class="muted small">ST 109.33</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1909,6 +2046,8 @@
       <td data-sort="136.41">136.41</td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 33 weeks — since 2026-02-09">33w</span> <span class="muted small">ST 153.81</span></span></td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 days — since 2026-09-09">10d</span> <span class="muted small">ST 148.99</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1928,6 +2067,8 @@
       <td data-sort="516.34">516.34</td>
       <td data-sort="43"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 43 weeks — since 2025-12-01">43w</span> <span class="muted small">ST 467.98</span></span></td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 days — since 2026-09-09">10d</span> <span class="muted small">ST 536.52</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1947,6 +2088,8 @@
       <td data-sort="149.58">149.58</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 188.94</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 169.15</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1966,6 +2109,8 @@
       <td data-sort="61.7">61.70</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 74.29</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 66.82</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -1985,6 +2130,8 @@
       <td data-sort="22.55">22.55</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 27.12</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-09">11d</span> <span class="muted small">ST 24.30</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2004,6 +2151,8 @@
       <td data-sort="332.53">332.53</td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 5 weeks — since 2026-08-24">5w</span> <span class="muted small">ST 297.19</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 365.59</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2023,6 +2172,8 @@
       <td data-sort="163.45">163.45</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 155.28</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 174.25</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2042,6 +2193,8 @@
       <td data-sort="460.44">460.44</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 425.52</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 482.25</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2061,6 +2214,8 @@
       <td data-sort="182.52">182.52</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 165.12</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 187.39</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2080,6 +2235,8 @@
       <td data-sort="221.68">221.68</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 191.80</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 236.83</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2099,6 +2256,8 @@
       <td data-sort="143.58">143.58</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 123.83</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 154.73</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2118,6 +2277,8 @@
       <td data-sort="366.36">366.36</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 356.64</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 390.71</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2137,6 +2298,8 @@
       <td data-sort="559.92">559.92</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 531.40</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 581.94</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2156,6 +2319,8 @@
       <td data-sort="473.85">473.85</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 444.59</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 491.78</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2175,6 +2340,8 @@
       <td data-sort="263.68">263.68</td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 17 weeks — since 2026-06-01">17w</span> <span class="muted small">ST 247.05</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 279.55</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2194,6 +2361,8 @@
       <td data-sort="62.33">62.33</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 45.69</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 days — since 2026-09-09">11d</span> <span class="muted small">ST 53.58</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2213,6 +2382,8 @@
       <td data-sort="96.02">96.02</td>
       <td data-sort="26"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 26 weeks — since 2026-03-30">26w</span> <span class="muted small">ST 104.35</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 98.71</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2232,6 +2403,8 @@
       <td data-sort="94.14">94.14</td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 36 weeks — since 2026-01-19">36w</span> <span class="muted small">ST 92.63</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 100.22</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2251,6 +2424,8 @@
       <td data-sort="85.9">85.90</td>
       <td data-sort="48"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 48 weeks — since 2025-10-27">48w</span> <span class="muted small">ST 96.86</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 88.32</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2270,6 +2445,8 @@
       <td data-sort="155.41">155.41</td>
       <td data-sort="55"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 55 weeks — since 2025-09-08">55w</span> <span class="muted small">ST 173.09</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 161.83</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2289,6 +2466,8 @@
       <td data-sort="86.82">86.82</td>
       <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-05-12">72w</span> <span class="muted small">ST 80.76</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 90.60</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2308,6 +2487,8 @@
       <td data-sort="71.11">71.11</td>
       <td data-sort="132"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 132 weeks — since 2024-03-18">132w</span> <span class="muted small">ST 68.96</span></span></td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 days — since 2026-09-08">11d</span> <span class="muted small">ST 70.49</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2327,6 +2508,8 @@
       <td data-sort="240.69">240.69</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 217.16</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 12 days — since 2026-09-08">12d</span> <span class="muted small">ST 263.88</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2346,6 +2529,8 @@
       <td data-sort="122.6">122.60</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 129.68</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 12 days — since 2026-09-08">12d</span> <span class="muted small">ST 105.86</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2365,6 +2550,8 @@
       <td data-sort="226.61">226.61</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 293.21</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 12 days — since 2026-09-08">12d</span> <span class="muted small">ST 202.19</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2384,6 +2571,8 @@
       <td data-sort="71.36">71.36</td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 17 weeks — since 2026-06-01">17w</span> <span class="muted small">ST 84.31</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 12 days — since 2026-09-08">12d</span> <span class="muted small">ST 77.46</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2403,6 +2592,8 @@
       <td data-sort="130.18">130.18</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 144.85</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 12 days — since 2026-09-04">12d</span> <span class="muted small">ST 134.75</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2422,6 +2613,8 @@
       <td data-sort="614.61">614.61</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 448.44</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 12 days — since 2026-09-08">12d</span> <span class="muted small">ST 553.76</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2441,6 +2634,8 @@
       <td data-sort="69.42">69.42</td>
       <td data-sort="41"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 41 weeks — since 2025-12-15">41w</span> <span class="muted small">ST 82.29</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 12 days — since 2026-09-08">12d</span> <span class="muted small">ST 74.25</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2460,6 +2655,8 @@
       <td data-sort="286.8">286.80</td>
       <td data-sort="58"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 58 weeks — since 2025-08-18">58w</span> <span class="muted small">ST 376.94</span></span></td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 12 days — since 2026-09-04">12d</span> <span class="muted small">ST 324.78</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2479,6 +2676,8 @@
       <td data-sort="35.82">35.82</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 34.27</span></span></td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 days — since 2026-09-04">13d</span> <span class="muted small">ST 37.98</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2498,6 +2697,8 @@
       <td data-sort="217.15">217.15</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 204.58</span></span></td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 days — since 2026-09-03">13d</span> <span class="muted small">ST 236.08</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2517,6 +2718,8 @@
       <td data-sort="904.7">904.70</td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 12 weeks — since 2026-07-06">12w</span> <span class="muted small">ST 995.00</span></span></td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 days — since 2026-09-03">13d</span> <span class="muted small">ST 925.93</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2536,6 +2739,8 @@
       <td data-sort="131.93">131.93</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 124.53</span></span></td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 13 days — since 2026-09-03">13d</span> <span class="muted small">ST 131.71</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2555,6 +2760,8 @@
       <td data-sort="61.44">61.44</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 56.01</span></span></td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 days — since 2026-09-03">13d</span> <span class="muted small">ST 63.65</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2574,6 +2781,8 @@
       <td data-sort="291.5">291.50</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 335.95</span></span></td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 14 days — since 2026-09-02">14d</span> <span class="muted small">ST 311.83</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2593,6 +2802,8 @@
       <td data-sort="744.1">744.10</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-buy">BUY</span> <span class="in-trend trend-bull" title="Bullish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 580.43</span></span></td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 14 days — since 2026-09-03">14d</span> <span class="muted small">ST 682.21</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2612,6 +2823,8 @@
       <td data-sort="1060.89">1,060.89</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 1,028.69</span></span></td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 14 days — since 2026-09-02">14d</span> <span class="muted small">ST 1,102.57</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2631,6 +2844,8 @@
       <td data-sort="275.53">275.53</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 306.83</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 288.54</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2650,6 +2865,8 @@
       <td data-sort="301.96">301.96</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 347.95</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 320.14</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2669,6 +2886,8 @@
       <td data-sort="43.91">43.91</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 49.09</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 45.13</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2688,6 +2907,8 @@
       <td data-sort="154.59">154.59</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 137.17</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 156.41</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2707,6 +2928,8 @@
       <td data-sort="85.93">85.93</td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 13 weeks — since 2026-06-29">13w</span> <span class="muted small">ST 82.40</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 90.46</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2726,6 +2949,8 @@
       <td data-sort="273.4">273.40</td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 weeks — since 2026-03-09">29w</span> <span class="muted small">ST 325.39</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 296.20</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2745,6 +2970,8 @@
       <td data-sort="166.61">166.61</td>
       <td data-sort="32"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 32 weeks — since 2026-02-16">32w</span> <span class="muted small">ST 200.30</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 179.18</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2764,6 +2991,8 @@
       <td data-sort="1037.66">1,037.66</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 985.21</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 1,071.39</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2783,6 +3012,8 @@
       <td data-sort="88.09">88.09</td>
       <td data-sort="85"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 85 weeks — since 2025-02-10">85w</span> <span class="muted small">ST 81.28</span></span></td>
       <td data-sort="15"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 15 days — since 2026-09-01">15d</span> <span class="muted small">ST 90.92</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2802,6 +3033,8 @@
       <td data-sort="155.9">155.90</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 204.19</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-09-01">16d</span> <span class="muted small">ST 176.18</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2821,6 +3054,8 @@
       <td data-sort="206.32">206.32</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 248.44</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 224.39</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2840,6 +3075,8 @@
       <td data-sort="103.49">103.49</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 98.72</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 108.00</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2859,6 +3096,8 @@
       <td data-sort="249.27">249.27</td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 14 weeks — since 2026-06-22">14w</span> <span class="muted small">ST 275.18</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-09-01">16d</span> <span class="muted small">ST 261.35</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2878,6 +3117,8 @@
       <td data-sort="227.83">227.83</td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 16 weeks — since 2026-06-08">16w</span> <span class="muted small">ST 204.28</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 239.38</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2897,6 +3138,8 @@
       <td data-sort="1150.99">1,150.99</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 1,014.91</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 1,196.13</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2916,6 +3159,8 @@
       <td data-sort="168.45">168.45</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 192.52</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 177.49</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2935,6 +3180,8 @@
       <td data-sort="83.94">83.94</td>
       <td data-sort="28"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 28 weeks — since 2026-03-16">28w</span> <span class="muted small">ST 102.14</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 90.25</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2954,6 +3201,8 @@
       <td data-sort="323.96">323.96</td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 weeks — since 2026-03-09">29w</span> <span class="muted small">ST 388.21</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 16 days — since 2026-08-31">16d</span> <span class="muted small">ST 340.28</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2973,6 +3222,8 @@
       <td data-sort="337.02">337.02</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 295.51</span></span></td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 16 days — since 2026-09-01">16d</span> <span class="muted small">ST 324.39</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -2992,6 +3243,8 @@
       <td data-sort="273.42">273.42</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 260.79</span></span></td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 17 days — since 2026-08-28">17d</span> <span class="muted small">ST 276.16</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3011,6 +3264,8 @@
       <td data-sort="181.45">181.45</td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 weeks — since 2026-06-29">13w</span> <span class="muted small">ST 201.66</span></span></td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 17 days — since 2026-08-28">17d</span> <span class="muted small">ST 190.51</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3030,6 +3285,8 @@
       <td data-sort="197.24">197.24</td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 weeks — since 2026-06-29">13w</span> <span class="muted small">ST 214.64</span></span></td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 17 days — since 2026-08-31">17d</span> <span class="muted small">ST 173.76</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3049,6 +3306,8 @@
       <td data-sort="286.73">286.73</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 327.93</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 days — since 2026-08-27">18d</span> <span class="muted small">ST 304.48</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3068,6 +3327,8 @@
       <td data-sort="296.72">296.72</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 343.00</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 days — since 2026-08-27">18d</span> <span class="muted small">ST 314.60</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3087,6 +3348,8 @@
       <td data-sort="52.51">52.51</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 51.93</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 days — since 2026-08-28">18d</span> <span class="muted small">ST 56.34</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3106,6 +3369,8 @@
       <td data-sort="205.36">205.36</td>
       <td data-sort="19"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 19 weeks — since 2026-05-18">19w</span> <span class="muted small">ST 147.71</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 days — since 2026-08-27">18d</span> <span class="muted small">ST 175.60</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3125,6 +3390,8 @@
       <td data-sort="262.49">262.49</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 182.16</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 days — since 2026-08-27">18d</span> <span class="muted small">ST 220.87</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3144,6 +3411,8 @@
       <td data-sort="191.36">191.36</td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 weeks — since 2026-03-09">29w</span> <span class="muted small">ST 220.91</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 days — since 2026-08-27">18d</span> <span class="muted small">ST 201.46</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3163,6 +3432,8 @@
       <td data-sort="213.69">213.69</td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 38 weeks — since 2026-01-05">38w</span> <span class="muted small">ST 190.55</span></span></td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 days — since 2026-08-27">18d</span> <span class="muted small">ST 220.75</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3182,6 +3453,8 @@
       <td data-sort="99.5">99.50</td>
       <td data-sort="12"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 12 weeks — since 2026-07-06">12w</span> <span class="muted small">ST 98.99</span></span></td>
       <td data-sort="19"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 19 days — since 2026-08-27">19d</span> <span class="muted small">ST 106.95</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3201,6 +3474,8 @@
       <td data-sort="44.62">44.62</td>
       <td data-sort="78"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 78 weeks — since 2025-03-31">78w</span> <span class="muted small">ST 53.62</span></span></td>
       <td data-sort="19"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 19 days — since 2026-08-26">19d</span> <span class="muted small">ST 47.04</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3220,6 +3495,8 @@
       <td data-sort="343.33">343.33</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 385.31</span></span></td>
       <td data-sort="20"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 20 days — since 2026-08-25">20d</span> <span class="muted small">ST 362.85</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3239,6 +3516,8 @@
       <td data-sort="634.9">634.90</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 754.11</span></span></td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 21 days — since 2026-08-24">21d</span> <span class="muted small">ST 663.74</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3258,6 +3537,8 @@
       <td data-sort="514.42">514.42</td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 weeks — since 2026-04-20">23w</span> <span class="muted small">ST 591.84</span></span></td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 21 days — since 2026-08-24">21d</span> <span class="muted small">ST 545.28</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3277,6 +3558,8 @@
       <td data-sort="709.48">709.48</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 598.76</span></span></td>
       <td data-sort="22"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 22 days — since 2026-08-21">22d</span> <span class="muted small">ST 665.88</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3296,6 +3579,8 @@
       <td data-sort="524.68">524.68</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 511.97</span></span></td>
       <td data-sort="22"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 22 days — since 2026-08-21">22d</span> <span class="muted small">ST 560.25</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3315,6 +3600,8 @@
       <td data-sort="31.37">31.37</td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 36 weeks — since 2026-01-19">36w</span> <span class="muted small">ST 30.45</span></span></td>
       <td data-sort="22"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 22 days — since 2026-08-21">22d</span> <span class="muted small">ST 32.65</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3334,6 +3621,8 @@
       <td data-sort="192.19">192.19</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 216.50</span></span></td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 days — since 2026-08-20">23d</span> <span class="muted small">ST 202.30</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3353,6 +3642,8 @@
       <td data-sort="228.78">228.78</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 274.73</span></span></td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 days — since 2026-08-20">23d</span> <span class="muted small">ST 247.36</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3372,6 +3663,8 @@
       <td data-sort="971.21">971.21</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 921.77</span></span></td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 days — since 2026-08-20">23d</span> <span class="muted small">ST 983.65</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3391,6 +3684,8 @@
       <td data-sort="8.75">8.75</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 8.64</span></span></td>
       <td data-sort="23"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 23 days — since 2026-08-20">23d</span> <span class="muted small">ST 9.22</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3410,6 +3705,8 @@
       <td data-sort="56.0">56.00</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 63.89</span></span></td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 24 days — since 2026-08-20">24d</span> <span class="muted small">ST 59.38</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3429,6 +3726,8 @@
       <td data-sort="319.8">319.80</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 367.11</span></span></td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 24 days — since 2026-08-19">24d</span> <span class="muted small">ST 333.55</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3448,6 +3747,8 @@
       <td data-sort="199.93">199.93</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 195.03</span></span></td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 24 days — since 2026-08-20">24d</span> <span class="muted small">ST 211.61</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3467,6 +3768,8 @@
       <td data-sort="198.13">198.13</td>
       <td data-sort="56"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 56 weeks — since 2025-09-01">56w</span> <span class="muted small">ST 209.06</span></span></td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 days — since 2026-08-20">24d</span> <span class="muted small">ST 171.24</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3486,6 +3789,8 @@
       <td data-sort="463.7">463.70</td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 weeks — since 2026-08-24">5w</span> <span class="muted small">ST 524.57</span></span></td>
       <td data-sort="25"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 25 days — since 2026-08-19">25d</span> <span class="muted small">ST 472.95</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3505,6 +3810,8 @@
       <td data-sort="380.12">380.12</td>
       <td data-sort="10"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 10 weeks — since 2026-07-20">10w</span> <span class="muted small">ST 405.18</span></span></td>
       <td data-sort="25"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 25 days — since 2026-08-19">25d</span> <span class="muted small">ST 351.86</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3524,6 +3831,8 @@
       <td data-sort="269.17">269.17</td>
       <td data-sort="14"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 14 weeks — since 2026-06-22">14w</span> <span class="muted small">ST 239.37</span></span></td>
       <td data-sort="25"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 25 days — since 2026-08-18">25d</span> <span class="muted small">ST 263.19</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3543,6 +3852,8 @@
       <td data-sort="81.75">81.75</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 77.74</span></span></td>
       <td data-sort="25"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 25 days — since 2026-08-18">25d</span> <span class="muted small">ST 82.91</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3562,6 +3873,8 @@
       <td data-sort="354.99">354.99</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 436.93</span></span></td>
       <td data-sort="26"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 26 days — since 2026-08-18">26d</span> <span class="muted small">ST 368.28</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3581,6 +3894,8 @@
       <td data-sort="281.6">281.60</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 337.73</span></span></td>
       <td data-sort="26"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 26 days — since 2026-08-17">26d</span> <span class="muted small">ST 305.13</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3600,6 +3915,8 @@
       <td data-sort="233.98">233.98</td>
       <td data-sort="56"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 56 weeks — since 2025-09-01">56w</span> <span class="muted small">ST 221.04</span></span></td>
       <td data-sort="26"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 26 days — since 2026-08-17">26d</span> <span class="muted small">ST 238.09</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3619,6 +3936,8 @@
       <td data-sort="102.28">102.28</td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 30 weeks — since 2026-03-02">30w</span> <span class="muted small">ST 127.88</span></span></td>
       <td data-sort="27"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 27 days — since 2026-08-17">27d</span> <span class="muted small">ST 109.97</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3638,6 +3957,8 @@
       <td data-sort="522.02">522.02</td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 33 weeks — since 2026-02-09">33w</span> <span class="muted small">ST 599.91</span></span></td>
       <td data-sort="27"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 27 days — since 2026-08-14">27d</span> <span class="muted small">ST 542.90</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3657,6 +3978,8 @@
       <td data-sort="1071.88">1,071.88</td>
       <td data-sort="69"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 69 weeks — since 2025-06-02">69w</span> <span class="muted small">ST 789.58</span></span></td>
       <td data-sort="27"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 27 days — since 2026-08-17">27d</span> <span class="muted small">ST 965.79</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3676,6 +3999,8 @@
       <td data-sort="1816.57">1,816.57</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 2,099.51</span></span></td>
       <td data-sort="28"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 28 days — since 2026-08-14">28d</span> <span class="muted small">ST 1,572.58</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3695,6 +4020,8 @@
       <td data-sort="79.2">79.20</td>
       <td data-sort="45"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 45 weeks — since 2025-11-17">45w</span> <span class="muted small">ST 93.15</span></span></td>
       <td data-sort="28"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 28 days — since 2026-08-13">28d</span> <span class="muted small">ST 82.58</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3714,6 +4041,8 @@
       <td data-sort="225.66">225.66</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 273.32</span></span></td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 days — since 2026-08-12">29d</span> <span class="muted small">ST 245.83</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3733,6 +4062,8 @@
       <td data-sort="106.43">106.43</td>
       <td data-sort="69"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 69 weeks — since 2025-06-02">69w</span> <span class="muted small">ST 106.38</span></span></td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 days — since 2026-08-13">29d</span> <span class="muted small">ST 113.74</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3752,6 +4083,8 @@
       <td data-sort="360.39">360.39</td>
       <td data-sort="74"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 74 weeks — since 2025-04-28">74w</span> <span class="muted small">ST 337.61</span></span></td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 days — since 2026-08-12">29d</span> <span class="muted small">ST 380.56</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3771,6 +4104,8 @@
       <td data-sort="335.21">335.21</td>
       <td data-sort="81"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 81 weeks — since 2025-03-10">81w</span> <span class="muted small">ST 316.09</span></span></td>
       <td data-sort="29"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 29 days — since 2026-08-12">29d</span> <span class="muted small">ST 349.65</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3790,6 +4125,8 @@
       <td data-sort="19.92">19.92</td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 weeks — since 2026-08-24">5w</span> <span class="muted small">ST 23.55</span></span></td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 30 days — since 2026-08-11">30d</span> <span class="muted small">ST 21.42</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3809,6 +4146,8 @@
       <td data-sort="880.5">880.50</td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 5 weeks — since 2026-08-24">5w</span> <span class="muted small">ST 768.17</span></span></td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 30 days — since 2026-08-11">30d</span> <span class="muted small">ST 866.71</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3828,6 +4167,8 @@
       <td data-sort="36.05">36.05</td>
       <td data-sort="51"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 51 weeks — since 2025-10-06">51w</span> <span class="muted small">ST 42.94</span></span></td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 30 days — since 2026-08-12">30d</span> <span class="muted small">ST 38.27</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3847,6 +4188,8 @@
       <td data-sort="446.57">446.57</td>
       <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-05-12">72w</span> <span class="muted small">ST 373.30</span></span></td>
       <td data-sort="30"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 30 days — since 2026-08-12">30d</span> <span class="muted small">ST 421.08</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3866,6 +4209,8 @@
       <td data-sort="13.35">13.35</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 16.07</span></span></td>
       <td data-sort="32"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 32 days — since 2026-08-10">32d</span> <span class="muted small">ST 13.83</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3885,6 +4230,8 @@
       <td data-sort="148.36">148.36</td>
       <td data-sort="7"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 7 weeks — since 2026-08-10">7w</span> <span class="muted small">ST 197.70</span></span></td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 33 days — since 2026-08-07">33d</span> <span class="muted small">ST 137.12</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3904,6 +4251,8 @@
       <td data-sort="77.02">77.02</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 86.96</span></span></td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 33 days — since 2026-08-06">33d</span> <span class="muted small">ST 81.42</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3923,6 +4272,8 @@
       <td data-sort="191.97">191.97</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 181.44</span></span></td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 34 days — since 2026-08-05">34d</span> <span class="muted small">ST 205.02</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3942,6 +4293,8 @@
       <td data-sort="371.29">371.29</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 423.82</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 392.50</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3961,6 +4314,8 @@
       <td data-sort="204.16">204.16</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 225.23</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 212.06</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3980,6 +4335,8 @@
       <td data-sort="188.03">188.03</td>
       <td data-sort="16"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 16 weeks — since 2026-06-08">16w</span> <span class="muted small">ST 168.20</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed</span> <span class="in-trend trend-bull" title="Bullish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 185.01</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -3999,6 +4356,8 @@
       <td data-sort="133.96">133.96</td>
       <td data-sort="19"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 19 weeks — since 2026-05-18">19w</span> <span class="muted small">ST 129.49</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 139.70</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4018,6 +4377,8 @@
       <td data-sort="432.89">432.89</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 411.29</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 438.99</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4037,6 +4398,8 @@
       <td data-sort="203.47">203.47</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 155.17</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 184.19</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4056,6 +4419,8 @@
       <td data-sort="55.61">55.61</td>
       <td data-sort="27"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 27 weeks — since 2026-03-23">27w</span> <span class="muted small">ST 62.13</span></span></td>
       <td data-sort="35"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 35 days — since 2026-08-04">35d</span> <span class="muted small">ST 58.22</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4075,6 +4440,8 @@
       <td data-sort="61.17">61.17</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 69.18</span></span></td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 36 days — since 2026-08-03">36d</span> <span class="muted small">ST 64.63</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4094,6 +4461,8 @@
       <td data-sort="83.47">83.47</td>
       <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 weeks — since 2026-08-24">5w</span> <span class="muted small">ST 92.99</span></span></td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 36 days — since 2026-08-03">36d</span> <span class="muted small">ST 87.42</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4113,6 +4482,8 @@
       <td data-sort="114.17">114.17</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 126.74</span></span></td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 36 days — since 2026-08-03">36d</span> <span class="muted small">ST 119.34</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4132,6 +4503,8 @@
       <td data-sort="260.9">260.90</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 280.67</span></span></td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 36 days — since 2026-08-04">36d</span> <span class="muted small">ST 227.01</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4151,6 +4524,8 @@
       <td data-sort="47.19">47.19</td>
       <td data-sort="69"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 69 weeks — since 2025-06-02">69w</span> <span class="muted small">ST 46.31</span></span></td>
       <td data-sort="36"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 36 days — since 2026-08-03">36d</span> <span class="muted small">ST 49.19</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4170,6 +4545,8 @@
       <td data-sort="171.8">171.80</td>
       <td data-sort="25"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 25 weeks — since 2026-04-06">25w</span> <span class="muted small">ST 202.35</span></span></td>
       <td data-sort="37"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 37 days — since 2026-07-31">37d</span> <span class="muted small">ST 186.03</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4189,6 +4566,8 @@
       <td data-sort="38.17">38.17</td>
       <td data-sort="1"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span> <span class="in-trend trend-bear" title="Bearish for 1 week — since 2026-09-21">1w</span> <span class="muted small">ST 48.50</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-31">38d</span> <span class="muted small">ST 42.07</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4208,6 +4587,8 @@
       <td data-sort="70.66">70.66</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 79.00</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-30">38d</span> <span class="muted small">ST 74.42</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4227,6 +4608,8 @@
       <td data-sort="177.72">177.72</td>
       <td data-sort="4"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 4 weeks — since 2026-08-31">4w</span> <span class="muted small">ST 212.24</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-30">38d</span> <span class="muted small">ST 186.83</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4246,6 +4629,8 @@
       <td data-sort="207.88">207.88</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 231.24</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-30">38d</span> <span class="muted small">ST 216.94</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4265,6 +4650,8 @@
       <td data-sort="147.39">147.39</td>
       <td data-sort="28"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 28 weeks — since 2026-03-16">28w</span> <span class="muted small">ST 158.03</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-30">38d</span> <span class="muted small">ST 148.50</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4284,6 +4671,8 @@
       <td data-sort="229.87">229.87</td>
       <td data-sort="33"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 33 weeks — since 2026-02-09">33w</span> <span class="muted small">ST 215.99</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-30">38d</span> <span class="muted small">ST 242.24</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4303,6 +4692,8 @@
       <td data-sort="879.62">879.62</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 1,247.88</span></span></td>
       <td data-sort="38"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 38 days — since 2026-07-30">38d</span> <span class="muted small">ST 1,013.60</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4322,6 +4713,8 @@
       <td data-sort="170.78">170.78</td>
       <td data-sort="17"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 17 weeks — since 2026-06-01">17w</span> <span class="muted small">ST 164.62</span></span></td>
       <td data-sort="39"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed</span> <span class="in-trend trend-bull" title="Bullish for 39 days — since 2026-07-29">39d</span> <span class="muted small">ST 168.09</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4341,6 +4734,8 @@
       <td data-sort="437.09">437.09</td>
       <td data-sort="34"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 34 weeks — since 2026-02-02">34w</span> <span class="muted small">ST 420.43</span></span></td>
       <td data-sort="39"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 39 days — since 2026-07-29">39d</span> <span class="muted small">ST 448.80</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4360,6 +4755,8 @@
       <td data-sort="936.36">936.36</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 1,091.43</span></span></td>
       <td data-sort="40"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 40 days — since 2026-07-28">40d</span> <span class="muted small">ST 1,013.13</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4379,6 +4776,8 @@
       <td data-sort="140.78">140.78</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 105.52</span></span></td>
       <td data-sort="40"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 40 days — since 2026-07-29">40d</span> <span class="muted small">ST 128.88</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4398,6 +4797,8 @@
       <td data-sort="95.82">95.82</td>
       <td data-sort="2"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 2 weeks — since 2026-09-14">2w</span> <span class="muted small">ST 109.46</span></span></td>
       <td data-sort="41"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 41 days — since 2026-07-28">41d</span> <span class="muted small">ST 101.29</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4417,6 +4818,8 @@
       <td data-sort="221.56">221.56</td>
       <td data-sort="13"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 13 weeks — since 2026-06-29">13w</span> <span class="muted small">ST 183.17</span></span></td>
       <td data-sort="43"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 43 days — since 2026-07-23">43d</span> <span class="muted small">ST 206.91</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4436,6 +4839,8 @@
       <td data-sort="165.66">165.66</td>
       <td data-sort="20"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 20 weeks — since 2026-05-11">20w</span> <span class="muted small">ST 195.17</span></span></td>
       <td data-sort="43"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 43 days — since 2026-07-23">43d</span> <span class="muted small">ST 177.87</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4455,6 +4860,8 @@
       <td data-sort="951.82">951.82</td>
       <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-05-12">72w</span> <span class="muted small">ST 863.24</span></span></td>
       <td data-sort="44"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 44 days — since 2026-07-22">44d</span> <span class="muted small">ST 986.39</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4474,6 +4881,8 @@
       <td data-sort="68.09">68.09</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 61.15</span></span></td>
       <td data-sort="45"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 45 days — since 2026-07-21">45d</span> <span class="muted small">ST 77.14</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4493,6 +4902,8 @@
       <td data-sort="118.4">118.40</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 132.03</span></span></td>
       <td data-sort="46"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 46 days — since 2026-07-20">46d</span> <span class="muted small">ST 123.82</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4512,6 +4923,8 @@
       <td data-sort="79.0">79.00</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 90.09</span></span></td>
       <td data-sort="46"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 46 days — since 2026-07-20">46d</span> <span class="muted small">ST 84.01</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4531,6 +4944,8 @@
       <td data-sort="198.39">198.39</td>
       <td data-sort="24"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 24 weeks — since 2026-04-13">24w</span> <span class="muted small">ST 193.96</span></span></td>
       <td data-sort="46"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 46 days — since 2026-07-20">46d</span> <span class="muted small">ST 213.13</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4550,6 +4965,8 @@
       <td data-sort="67.31">67.31</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 76.07</span></span></td>
       <td data-sort="48"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 48 days — since 2026-07-16">48d</span> <span class="muted small">ST 71.07</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4569,6 +4986,8 @@
       <td data-sort="97.7">97.70</td>
       <td data-sort="3"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 3 weeks — since 2026-09-07">3w</span> <span class="muted small">ST 110.72</span></span></td>
       <td data-sort="50"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 50 days — since 2026-07-14">50d</span> <span class="muted small">ST 102.98</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4588,6 +5007,8 @@
       <td data-sort="238.32">238.32</td>
       <td data-sort="28"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 28 weeks — since 2026-03-16">28w</span> <span class="muted small">ST 271.81</span></span></td>
       <td data-sort="50"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 50 days — since 2026-07-15">50d</span> <span class="muted small">ST 255.37</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4607,6 +5028,8 @@
       <td data-sort="315.25">315.25</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 452.97</span></span></td>
       <td data-sort="51"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 51 days — since 2026-07-13">51d</span> <span class="muted small">ST 345.48</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4626,6 +5049,8 @@
       <td data-sort="195.08">195.08</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 148.24</span></span></td>
       <td data-sort="51"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 51 days — since 2026-07-13">51d</span> <span class="muted small">ST 174.79</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4645,6 +5070,8 @@
       <td data-sort="256.48">256.48</td>
       <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-05-12">72w</span> <span class="muted small">ST 227.27</span></span></td>
       <td data-sort="54"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 54 days — since 2026-07-08">54d</span> <span class="muted small">ST 254.43</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4664,6 +5091,8 @@
       <td data-sort="151.37">151.37</td>
       <td data-sort="6"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 6 weeks — since 2026-08-17">6w</span> <span class="muted small">ST 131.12</span></span></td>
       <td data-sort="55"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 55 days — since 2026-07-07">55d</span> <span class="muted small">ST 143.23</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4683,6 +5112,8 @@
       <td data-sort="812.02">812.02</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 961.00</span></span></td>
       <td data-sort="55"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 55 days — since 2026-07-07">55d</span> <span class="muted small">ST 843.91</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4702,6 +5133,8 @@
       <td data-sort="192.38">192.38</td>
       <td data-sort="8"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 8 weeks — since 2026-08-03">8w</span> <span class="muted small">ST 150.60</span></span></td>
       <td data-sort="57"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 57 days — since 2026-07-02">57d</span> <span class="muted small">ST 182.15</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4721,6 +5154,8 @@
       <td data-sort="187.86">187.86</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 233.28</span></span></td>
       <td data-sort="57"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 57 days — since 2026-07-02">57d</span> <span class="muted small">ST 189.10</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4740,6 +5175,8 @@
       <td data-sort="500.59">500.59</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 430.00</span></span></td>
       <td data-sort="58"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 58 days — since 2026-07-02">58d</span> <span class="muted small">ST 482.27</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4759,6 +5196,8 @@
       <td data-sort="334.81">334.81</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 264.28</span></span></td>
       <td data-sort="58"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 58 days — since 2026-07-01">58d</span> <span class="muted small">ST 320.86</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4778,6 +5217,8 @@
       <td data-sort="270.75">270.75</td>
       <td data-sort="9"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 9 weeks — since 2026-07-27">9w</span> <span class="muted small">ST 225.31</span></span></td>
       <td data-sort="61"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 61 days — since 2026-06-26">61d</span> <span class="muted small">ST 254.49</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4797,6 +5238,8 @@
       <td data-sort="473.69">473.69</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 646.68</span></span></td>
       <td data-sort="62"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 62 days — since 2026-06-26">62d</span> <span class="muted small">ST 489.14</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4816,6 +5259,8 @@
       <td data-sort="78.59">78.59</td>
       <td data-sort="27"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 27 weeks — since 2026-03-23">27w</span> <span class="muted small">ST 96.47</span></span></td>
       <td data-sort="67"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 67 days — since 2026-06-17">67d</span> <span class="muted small">ST 85.20</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4835,6 +5280,8 @@
       <td data-sort="665.3">665.30</td>
       <td data-sort="11"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 11 weeks — since 2026-07-13">11w</span> <span class="muted small">ST 575.65</span></span></td>
       <td data-sort="81"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 81 days — since 2026-05-28">81d</span> <span class="muted small">ST 625.63</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4854,6 +5301,8 @@
       <td data-sort="148.08">148.08</td>
       <td data-sort="46"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 46 weeks — since 2025-11-10">46w</span> <span class="muted small">ST 128.91</span></span></td>
       <td data-sort="84"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 84 days — since 2026-05-22">84d</span> <span class="muted small">ST 142.16</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4873,6 +5322,8 @@
       <td data-sort="2843.34">2,843.34</td>
       <td data-sort="18"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 18 weeks — since 2026-05-25">18w</span> <span class="muted small">ST 3,290.32</span></span></td>
       <td data-sort="92"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 92 days — since 2026-05-12">92d</span> <span class="muted small">ST 3,003.95</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4892,6 +5343,8 @@
       <td data-sort="178.74">178.74</td>
       <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-04">21w</span> <span class="muted small">ST 138.71</span></span></td>
       <td data-sort="107"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 107 days — since 2026-04-21">107d</span> <span class="muted small">ST 158.41</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4911,6 +5364,8 @@
       <td data-sort="71.61">71.61</td>
       <td data-sort="93"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 93 weeks — since 2024-12-16">93w</span> <span class="muted small">ST 85.17</span></span></td>
       <td data-sort="136"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 136 days — since 2026-03-10">136d</span> <span class="muted small">ST 76.04</span></span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
       <td class="muted small">2026-09-21</td>
       <td class="muted small">2026-09-23</td>
     </tr>
@@ -4922,7 +5377,7 @@
             data-d-recency="9999" data-w-recency="9999">
           <td data-sort="3" class="confluence-cell conf-none">—</td>
           <td class="col-ticker">EA</td>
-          <td colspan="6" class="error-cell">⚠ weekly: Only 1 bars available, need at least 15 · daily: Only 1 bars available, need at least 15</td>
+          <td colspan="8" class="error-cell">⚠ weekly: Only 1 bars available, need at least 15 · daily: Only 1 bars available, need at least 15</td>
         </tr>
         <tr class="row-error" data-ticker="mmc"
             data-w-signal="none" data-d-signal="none"
@@ -4932,7 +5387,7 @@
             data-d-recency="9999" data-w-recency="9999">
           <td data-sort="3" class="confluence-cell conf-none">—</td>
           <td class="col-ticker">MMC</td>
-          <td colspan="6" class="error-cell">⚠ weekly: No data returned (check ticker symbol / exchange suffix) · daily: No data returned (check ticker symbol / exchange suffix)</td>
+          <td colspan="8" class="error-cell">⚠ weekly: No data returned (check ticker symbol / exchange suffix) · daily: No data returned (check ticker symbol / exchange suffix)</td>
         </tr>
         <tr class="row-error" data-ticker="rsx"
             data-w-signal="none" data-d-signal="none"
@@ -4942,7 +5397,7 @@
             data-d-recency="9999" data-w-recency="9999">
           <td data-sort="3" class="confluence-cell conf-none">—</td>
           <td class="col-ticker">RSX</td>
-          <td colspan="6" class="error-cell">⚠ weekly: No data returned (check ticker symbol / exchange suffix) · daily: No data returned (check ticker symbol / exchange suffix)</td>
+          <td colspan="8" class="error-cell">⚠ weekly: No data returned (check ticker symbol / exchange suffix) · daily: No data returned (check ticker symbol / exchange suffix)</td>
         </tr>
         <tr class="row-error" data-ticker="tdx"
             data-w-signal="none" data-d-signal="none"
@@ -4952,7 +5407,7 @@
             data-d-recency="9999" data-w-recency="9999">
           <td data-sort="3" class="confluence-cell conf-none">—</td>
           <td class="col-ticker">TDX</td>
-          <td colspan="6" class="error-cell">⚠ weekly: No data returned (check ticker symbol / exchange suffix) · daily: No data returned (check ticker symbol / exchange suffix)</td>
+          <td colspan="8" class="error-cell">⚠ weekly: No data returned (check ticker symbol / exchange suffix) · daily: No data returned (check ticker symbol / exchange suffix)</td>
         </tr>
       </tbody>
     </table>
