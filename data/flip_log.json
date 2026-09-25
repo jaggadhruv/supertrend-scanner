@@ -1,5 +1,75 @@
 [
   {
+    "ticker": "BABA",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 109.74,
+    "supertrend": 118.18
+  },
+  {
+    "ticker": "AAL",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 13.87,
+    "supertrend": 12.62
+  },
+  {
+    "ticker": "EMR",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 158.23,
+    "supertrend": 149.29
+  },
+  {
+    "ticker": "MCHP",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 78.69,
+    "supertrend": 70.13
+  },
+  {
+    "ticker": "MCK",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 866.64,
+    "supertrend": 916.78
+  },
+  {
+    "ticker": "TT",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 454.44,
+    "supertrend": 421.7
+  },
+  {
+    "ticker": "WMB",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-25",
+    "recorded_at": "2026-09-25",
+    "close": 69.26,
+    "supertrend": 74.05
+  },
+  {
     "ticker": "AMT",
     "timeframe": "daily",
     "direction": "Bearish",
