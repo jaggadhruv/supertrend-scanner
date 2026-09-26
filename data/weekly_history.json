@@ -88,7 +88,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 630.63,
-    "supertrend": 450.48
+    "supertrend": 450.49
   },
   "NBIS": {
     "last_run_date": "2026-09-26",
@@ -830,7 +830,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 690.46,
-    "supertrend": 596.94
+    "supertrend": 596.84
   },
   "DECK": {
     "last_run_date": "2026-09-26",
@@ -1404,7 +1404,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 272.36,
-    "supertrend": 326.57
+    "supertrend": 326.55
   },
   "T": {
     "last_run_date": "2026-09-26",
@@ -1544,7 +1544,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 206.83,
-    "supertrend": 231.18
+    "supertrend": 231.17
   },
   "WMB": {
     "last_run_date": "2026-09-26",
