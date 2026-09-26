@@ -1,4 +1,3 @@
-Website: https://jaggadhruv.github.io/supertrend-scanner/
 # Supertrend Scanner (Weekly + Daily + Combined)
 
 A free, open-source tool that scans a watchlist of stocks using the
@@ -38,7 +37,7 @@ paid services, no external CDN calls).
 | `report.py` | Builds the interactive HTML reports (per-timeframe + combined). |
 | `data/weekly_history.json` | Auto-created — remembers the weekly scanner's last signal per stock. Written by both `scanner.py` and `combined_scanner.py`. |
 | `data/daily_history.json` | Auto-created — same, for the daily scanner. Written by both `daily_scanner.py` and `combined_scanner.py`. |
-| `data/flip_log.json` | Auto-created — persistent log of every BUY/SELL flip (weekly and daily), append-only with dedup. Every scanner adds to it. Powers the **"Recent Flips (Last 7 Days)"** panel in the combined report; entries older than 180 days are pruned automatically. |
+| `data/flip_log.json` | Auto-created — persistent log of every BUY/SELL flip (weekly and daily), append-only with dedup. Every scanner adds to it. Each entry stores `quality_score` (0-100), `quality_volume_ratio`, `quality_momentum_pct`, and `quality_prior_run` so the panel can rank without re-computing. Powers the **"Recent Buy Flips (Last 7 Days)"** panel; entries older than 180 days are pruned automatically. |
 | `output/weekly/report_<date>.html` | Auto-created weekly reports. Each run prunes anything older than 30 days from this folder. |
 | `output/daily/report_<date>.html` | Auto-created daily reports. Same 30-day retention. |
 | `output/combined/report_<date>.html` | Auto-created merged (weekly + daily) reports. Same 30-day retention. |
@@ -146,7 +145,14 @@ Open that file in any browser (double-click it, or `open output/weekly/report_20
 Layout is the same shape but shows both timeframes in one view:
 
 - **Alert banner** — held stocks flagged bearish in *either* the weekly or daily scan, each row tagged `WEEKLY` or `DAILY` so you can see which timeframe fired.
-- **Recent Flips (Last 7 Days)** — a rolling log of every BUY/SELL flip captured across all your recent runs, grouped by day, newest date first. Each card shows ticker, `W`/`D` tag, signal, direction, and close/Supertrend. Anything older than 7 days rolls off this panel automatically (the full history stays in `data/flip_log.json`, pruned only at 180 days). This is what lets you "see this week's flips at a glance" even if you run the combined scanner daily.
+- **Recent Buy Flips (Last 7 Days)** — a rolling, long-only log of every BUY flip captured across the last 7 days of runs, grouped by day, newest date first. Each card shows ticker, `W`/`D` tag, direction, close/Supertrend, and a **quality score** (0-100). SELL flips are filtered out of this panel by design (they still trigger the held-bearish alert banner and are still stored in `data/flip_log.json` for the record) — this keeps the panel focused on entries, not exits. When a single day has **more than 5 BUY flips**, the top 3 by quality are marked with a **★**, so you know where to look first. Anything older than 7 days rolls off automatically.
+
+  **Quality score components** (0-100 total):
+  - **Volume surge** (0-35 pts) — the flip bar's volume vs. its 20-bar average. Real breakouts happen on rising volume; drift-through flips on thin volume are downgraded.
+  - **5-bar momentum** (0-30 pts) — percent price change over the last 5 bars. Rewards flips already showing follow-through.
+  - **Prior-trend maturity** (0-35 pts) — how long the opposite-direction trend ran immediately before this flip. A 15-bar bear followed by a fresh bull flip is a clean reversal; a 1-bar bear that flips back is whipsaw. This is the whipsaw filter.
+
+  **Buckets shown on cards**: ≥70 = green (High), 40-69 = amber (Medium), <40 = grey (Low). Hover the badge for the raw volume ratio, momentum %, and prior-trend length that produced the score. Cards within a day are always sorted by quality descending, whether or not there are more than 5.
 - **Stats row** — total tickers, then Weekly Buy / Sell, Daily Buy / Sell, and a **Confluence** pair (Buy on both, Sell on both).
 - **Buying Opportunities** panel with three sub-sections:
   1. **★ Confluence Buy** — a fresh BUY flip on *both* the weekly and daily charts on this run. Rare and the strongest signal the tool can raise.
@@ -304,19 +310,19 @@ unreliable, running locally (as before) remains the fallback.
 
 ### Troubleshooting Pages: "No such file or directory @ dir_chdir0 - /github/workspace/docs"
 
-If your **pages-build-deployment** action fails with a Jekyll error like
-that one, it means GitHub Pages is trying to run Jekyll on `docs/` and
-choking on the SCSS theme build. Our HTML pages are already complete
-and self-contained — Jekyll shouldn't run at all. The fix is a single
-empty file:
+This error has one of two causes — check them in order:
 
-```
-docs/.nojekyll
-```
+**1. The `docs/` folder doesn't exist in your repo yet.** Pages is
+configured to build from `/docs`, but the combined workflow hasn't
+run yet (or ran but failed before writing anything), so there's
+nothing at that path. Fix: follow the **bootstrap step** in
+"Publishing to a live website via GitHub Pages" above — commit
+`docs/index.html` and `docs/.nojekyll` by hand, then trigger the
+combined workflow manually.
 
-This project already includes it (`docs/.nojekyll`), and
-`publish.py` re-creates it every run in case it gets deleted. If your
-current repo doesn't have it yet:
+**2. `docs/` exists but `docs/.nojekyll` is missing.** Pages tries to
+run Jekyll on your HTML files and the theme's SCSS build chokes on
+the layout. Fix: add an empty `.nojekyll` file:
 
 ```bash
 touch docs/.nojekyll
@@ -325,7 +331,28 @@ git commit -m "Skip Jekyll on Pages"
 git push
 ```
 
-That's it — the next Pages build will succeed, no other changes needed.
+This project already includes both files, and `publish.py` re-creates
+`.nojekyll` every run so it can't disappear later. The next Pages
+build will succeed.
+
+### Troubleshooting: "! [rejected] main -> main (fetch first)"
+
+If the workflow log shows a push rejection with `Updates were rejected
+because the remote contains work that you do not have locally`, it
+means another workflow (usually the weekly or daily scanner) pushed to
+`main` while this one was mid-run — a race, not a bug in the code.
+
+`combined-scan.yml` now handles this automatically: the commit step
+loops up to 5 times with `git pull --rebase --autostash -X theirs`
+between retries, so the race resolves itself and the run finishes
+green. If you still see the error, the message will now say
+`Push failed after 5 attempts` — that's the point to check whether
+some other workflow is stuck in a push storm.
+
+If your `weekly-scan.yml` and `daily-scan.yml` hit the same issue, the
+same retry block can be copied into them — same shape, same commit
+command, just replace the `git add` list with what each workflow
+touches.
 
 ### Troubleshooting: two combined workflows
 
@@ -358,15 +385,38 @@ locally instead.
 
 To turn it on:
 
-1. In the repo on GitHub: **Settings → Pages → Build and deployment**
+1. **Bootstrap the `docs/` folder** — commit a placeholder so Pages has
+   something to serve before your first combined run:
+
+   ```bash
+   # from your local repo
+   mkdir -p docs
+   # copy in docs/index.html and docs/.nojekyll from this project
+   git add docs/index.html docs/.nojekyll
+   git commit -m "Bootstrap docs/ for GitHub Pages"
+   git push
+   ```
+
+   The placeholder just says "waiting for first run" — the first
+   combined scan will overwrite it with the real report.
+2. In the repo on GitHub: **Settings → Pages → Build and deployment**
    → Source: **Deploy from a branch** → Branch: **main**, folder:
    **/docs** → Save. This is a one-time click; nothing to do in code.
-2. That's it — `.github/workflows/combined-scan.yml` already sets
-   `COMBINED_PUBLISH_PAGE=1`, so the next combined run writes
-   `docs/index.html` (the latest report) and
-   `docs/reports/report_<date>.html` (dated archive). Pages picks up
-   the change within a minute or two and serves it at
-   `https://<your-username>.github.io/<repo-name>/`.
+3. **Trigger the first combined run** — from your repo: **Actions →
+   Combined Supertrend Scan → Run workflow**. Wait 1–2 minutes for it
+   to finish. It'll commit the real `docs/index.html` into `main`, and
+   Pages picks up the change within another minute or two, serving it
+   at `https://<your-username>.github.io/<repo-name>/`. After this
+   first bootstrap, subsequent scheduled runs update the page
+   automatically.
+
+**Why the bootstrap step?** GitHub Pages tries to build every push to
+`main` from the folder you told it to serve. If `docs/` doesn't exist
+yet (because no combined run has completed), the Pages build fails
+with `Error: No such file or directory @ dir_chdir0 - .../docs`.
+Committing the placeholder gives it a working starting state; the
+`.nojekyll` file next to it tells Pages to skip Jekyll processing so
+your HTML is served as-is.
 
 Local runs of `combined_scanner.py` do **not** write to `docs/` unless
 you also set `COMBINED_PUBLISH_PAGE=1` — so you can develop and test

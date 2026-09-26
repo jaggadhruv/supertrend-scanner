@@ -160,6 +160,13 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
             "recorded_at": run_date,           # the run that first saw it
             "close": r.get("close"),
             "supertrend": r.get("supertrend"),
+            # Quality (BUY-oriented) — stored so the panel can rank without
+            # re-computing. Present on new entries; older entries filed
+            # before this feature will have these keys missing.
+            "quality_score": r.get("quality_score"),
+            "quality_volume_ratio": r.get("quality_volume_ratio"),
+            "quality_momentum_pct": r.get("quality_momentum_pct"),
+            "quality_prior_run": r.get("quality_prior_run"),
         })
         existing.add(key)
         added += 1
@@ -247,6 +254,103 @@ def fetch_data(ticker, interval, period):
         return None
 
 
+def _compute_quality(st_df, bars_in_trend: int):
+    """
+    Rate the "quality" of the CURRENT trend (bull or bear) as a 0-100 score,
+    for showing on BUY flip cards where too many candidates need triage.
+    A high score means: the flip happened on strong volume, the price is
+    already up meaningfully over the last week, and the prior opposite
+    trend was long enough that this reversal isn't just noise.
+
+    Components (each independently sensible; sum to a 100-max score):
+      • Volume surge (35 pts) - latest bar volume vs 20-bar average.
+        Strong volume on a flip = real buying, not drift.
+      • 5-bar momentum (30 pts) - percent change over the last 5 bars.
+        Rewards flips already showing follow-through.
+      • Prior-trend maturity (35 pts) - length of the opposite-direction
+        run immediately before the current one. A one-bar prior bear that
+        flips bull is usually whipsaw; a 15-bar prior bear that finally
+        flips is a genuine reversal.
+
+    Returns a dict of the score plus the raw components, so the UI can
+    show why a score is what it is. If any input is unavailable (short
+    history, no Volume column) the affected component falls back to a
+    neutral partial credit instead of NaN.
+    """
+    n = len(st_df)
+
+    # --- Volume surge (0-35) -----------------------------------------
+    vol_ratio = None
+    if "Volume" in st_df.columns and n >= 20:
+        try:
+            recent_vol = float(st_df["Volume"].iloc[-1])
+            avg_vol = float(st_df["Volume"].iloc[-20:].mean())
+            vol_ratio = recent_vol / avg_vol if avg_vol > 0 else None
+        except (TypeError, ValueError):
+            vol_ratio = None
+    if vol_ratio is None:
+        vol_score = 15                                 # neutral fallback
+    elif vol_ratio >= 2.0: vol_score = 35
+    elif vol_ratio >= 1.5: vol_score = 28
+    elif vol_ratio >= 1.2: vol_score = 22
+    elif vol_ratio >= 1.0: vol_score = 15
+    else:                  vol_score = 7
+
+    # --- 5-bar momentum (0-30) --------------------------------------
+    mom_pct = None
+    if n >= 6:
+        try:
+            c5 = float(st_df["Close"].iloc[-6])
+            c_now = float(st_df["Close"].iloc[-1])
+            if c5 > 0:
+                mom_pct = (c_now / c5 - 1.0) * 100.0
+        except (TypeError, ValueError):
+            mom_pct = None
+    if mom_pct is None:
+        mom_score = 12                                 # neutral fallback
+    elif mom_pct >= 5:   mom_score = 30
+    elif mom_pct >= 2:   mom_score = 22
+    elif mom_pct >= 0:   mom_score = 12
+    elif mom_pct >= -2:  mom_score = 5
+    else:                mom_score = 0
+
+    # --- Prior-trend maturity (0-35) --------------------------------
+    # bars_in_trend bars back is where the CURRENT run began. Immediately
+    # before that is the last bar of the opposite trend; walk back
+    # counting how long that ran.
+    prior_run = 0
+    try:
+        dir_series = st_df["Direction"].to_numpy()
+        current_dir = dir_series[-1]
+        end_of_prior = n - bars_in_trend - 1
+        if end_of_prior >= 0:
+            prior_dir = dir_series[end_of_prior]
+            if prior_dir != current_dir:
+                # Walk back from end_of_prior while direction stays == prior_dir
+                for i in range(end_of_prior, -1, -1):
+                    if dir_series[i] == prior_dir:
+                        prior_run += 1
+                    else:
+                        break
+    except (KeyError, IndexError, TypeError, ValueError):
+        prior_run = 0
+
+    if   prior_run >= 15: mat_score = 35
+    elif prior_run >= 10: mat_score = 28
+    elif prior_run >= 5:  mat_score = 20
+    elif prior_run >= 3:  mat_score = 12
+    elif prior_run >= 1:  mat_score = 5
+    else:                 mat_score = 0
+
+    total = vol_score + mom_score + mat_score
+    return {
+        "quality_score": int(total),
+        "quality_volume_ratio": round(vol_ratio, 2) if vol_ratio is not None else None,
+        "quality_momentum_pct": round(mom_pct, 2) if mom_pct is not None else None,
+        "quality_prior_run": int(prior_run),
+    }
+
+
 def analyze_ticker(ticker, history_store, cfg: ScanConfig):
     """
     Returns a result dict describing this ticker's current Supertrend state.
@@ -283,6 +387,10 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "bars_in_trend": None,     # how many consecutive most-recent bars share the current direction
         "trend_start_date": None,  # date of the first bar in that run (i.e. the bar the trend started on)
         "bar_unit": "d" if cfg.interval.endswith("d") else "w",
+        "quality_score": None,     # 0-100 rating for BUY flips (volume + momentum + prior-trend maturity)
+        "quality_volume_ratio": None,
+        "quality_momentum_pct": None,
+        "quality_prior_run": None,
     }
 
     data = fetch_data(ticker, cfg.interval, cfg.lookback_period)
@@ -334,6 +442,8 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
     trend_start_idx = len(dir_series) - bars_in_trend
     trend_start_date = st.index[trend_start_idx].strftime("%Y-%m-%d")
 
+    quality = _compute_quality(st, bars_in_trend)
+
     result.update(
         {
             "close": round(float(last["Close"]), 2),
@@ -349,6 +459,7 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
             "changed_since_last_run": changed_since_last_run,
             "bars_in_trend": bars_in_trend,
             "trend_start_date": trend_start_date,
+            **quality,
         }
     )
     return result

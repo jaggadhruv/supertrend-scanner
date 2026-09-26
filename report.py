@@ -510,6 +510,25 @@ COMBINED_CSS_EXTRA = """
   .flip-card .flip-meta { color: var(--muted); font-size: 11.5px; font-family: var(--mono); }
   .flip-card .flip-tag { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
 
+  /* Quality badges on flip cards */
+  .flip-card .q-badge {
+    margin-left: auto;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px; letter-spacing: 0.02em;
+    cursor: help;
+  }
+  .q-high   { background: rgba(47,191,113,0.18); color: var(--bull); }
+  .q-med    { background: rgba(240,169,61,0.18); color: var(--amber); }
+  .q-low    { background: rgba(231,236,243,0.06); color: var(--muted); }
+  .q-star   { color: var(--amber); margin-right: 4px; font-weight: 700; }
+
+  .flip-mode-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
+  .flip-topbadge {
+    display:inline-block; margin-left: 10px; background: rgba(47,191,113,0.16);
+    color: var(--bull); padding: 1px 8px; border-radius: 999px;
+    font-size: 10.5px; letter-spacing: 0.03em; font-weight: 700;
+  }
+
   tr.hidden-row { display: none; }
 </style>
 """
@@ -794,31 +813,75 @@ def _combined_alert_html(a, timeframe_label):
     </div>"""
 
 
-def _flip_card_html(entry):
-    """One card for the rolling 'Recent Flips' panel."""
+def _quality_bucket(score):
+    """Categorize a 0-100 quality score into High/Medium/Low."""
+    if score is None:
+        return None, None
+    if score >= 70:
+        return "high", "q-high"
+    if score >= 40:
+        return "med", "q-med"
+    return "low", "q-low"
+
+
+def _flip_card_html(entry, is_top_quality: bool = False):
+    """
+    One card for the rolling 'Recent Flips' panel. Only BUY entries reach
+    here — the panel filters SELLs out at the source, since the user's
+    strategy is long-only. Quality badge is shown when the entry has a
+    quality_score; is_top_quality adds a ★ marker (used to auto-highlight
+    the top 3 when a day has more than 5 BUYs).
+    """
     ticker = _esc(entry.get("ticker", ""))
     timeframe = _esc(entry.get("timeframe", "")).lower()
-    signal = _esc(entry.get("signal", ""))
     direction = _esc(entry.get("direction", ""))
     close = entry.get("close")
     close_str = _fmt_num(close)
     st = _fmt_num(entry.get("supertrend"))
     tf_cls = "tf-tag-w" if timeframe == "weekly" else "tf-tag-d"
-    card_cls = "flip-buy" if signal == "BUY" else "flip-sell"
+
+    q = entry.get("quality_score")
+    _, q_cls = _quality_bucket(q)
+    if q is not None:
+        vol = entry.get("quality_volume_ratio")
+        mom = entry.get("quality_momentum_pct")
+        prior = entry.get("quality_prior_run")
+        vol_txt = f"{vol}x avg" if vol is not None else "n/a"
+        mom_txt = f"{mom:+.1f}% 5-bar" if isinstance(mom, (int, float)) else "n/a"
+        prior_txt = f"{prior}-bar prior trend" if prior is not None else "n/a"
+        tip = f"Quality {q}/100 — volume {vol_txt}, momentum {mom_txt}, {prior_txt}"
+        badge = f'<span class="q-badge {q_cls}" title="{_esc(tip)}">{q}</span>'
+    else:
+        badge = ""
+
+    star = '<span class="q-star" title="Top-ranked BUY on this day">★</span>' if is_top_quality else ""
+
     return f"""
-    <div class="flip-card {card_cls}">
+    <div class="flip-card flip-buy">
       <span class="flip-tag {tf_cls}">{timeframe.upper()[:1]}</span>
-      <span class="flip-tkr">{ticker}</span>
-      <span class="flip-meta">{signal} · {direction} · Close {close_str} · ST {st}</span>
+      <span class="flip-tkr">{star}{ticker}</span>
+      <span class="flip-meta">BUY · {direction} · Close {close_str} · ST {st}</span>
+      {badge}
     </div>"""
 
 
-def _recent_flips_panel_html(flip_log, run_date, days=7):
+def _recent_flips_panel_html(flip_log, run_date, days=7, buy_only=True, auto_rank_threshold=5):
     """
     Rolling 'flips in the last N days' panel. Reads the shared flip log,
     keeps entries whose flip_date is within `days` calendar days of
     run_date, groups them by day (newest first), and renders each as a
-    card. Weekly and daily flips are shown together, tagged W/D.
+    card.
+
+    buy_only=True (default): filter out SELL entries entirely. The user's
+    strategy is long-only, so SELL flips are noise here — they still get
+    surfaced via the held-bearish alert banner when they matter, and
+    they're still in flip_log.json for the record.
+
+    auto_rank_threshold: when a single DAY has more than this many BUY
+    flips, sort them by quality_score descending and mark the top 3 with
+    a ★ so the eye goes to the high-quality candidates first. Below the
+    threshold, cards are shown by quality still (highest first) but
+    without the star.
     """
     if flip_log is None:
         flip_log = []
@@ -829,6 +892,8 @@ def _recent_flips_panel_html(flip_log, run_date, days=7):
     cutoff = (run_d - timedelta(days=days)).isoformat()
 
     kept = [e for e in flip_log if (e.get("flip_date") or "") >= cutoff]
+    if buy_only:
+        kept = [e for e in kept if (e.get("signal") or "").upper() == "BUY"]
 
     # Group by flip_date, newest date first
     by_day = {}
@@ -836,29 +901,56 @@ def _recent_flips_panel_html(flip_log, run_date, days=7):
         by_day.setdefault(e["flip_date"], []).append(e)
     day_order = sorted(by_day.keys(), reverse=True)
 
-    subtle = f"Anything older than {days} days rolls off this list automatically. Full history in <code>data/flip_log.json</code>."
+    mode_note = (
+        'Long-only view — SELL flips are hidden here (they still trigger the held-bearish alert). '
+        'Sorted by quality within each day; ★ marks the top 3 when a day has more than '
+        f'{auto_rank_threshold} candidates.'
+    )
+    subtle_tail = f"Anything older than {days} days rolls off this list automatically. Full history in <code>data/flip_log.json</code>."
 
     if not kept:
         return f"""
         <div class="panel flip-log-panel">
           <div class="panel-head">
-            <h2>Recent Flips (Last {days} Days)</h2>
-            <span class="subtle">{subtle}</span>
+            <h2>Recent Buy Flips (Last {days} Days)</h2>
+            <span class="subtle">{subtle_tail}</span>
           </div>
-          <div class="empty-note">No BUY or SELL flips recorded in the last {days} days — the log picks them up automatically on the next run.</div>
+          <div class="flip-mode-note">{mode_note}</div>
+          <div class="empty-note" style="margin-top:10px;">No BUY flips recorded in the last {days} days — the log picks them up automatically on the next run.</div>
         </div>"""
 
     day_blocks = []
     for d in day_order:
         entries = by_day[d]
-        # Within a day, keep the log's implicit order (weekly first, then
-        # daily, sorted by ticker for stability).
-        entries.sort(key=lambda e: (e.get("timeframe", ""), e.get("ticker", "")))
+        # Sort by quality DESCENDING within each day; ties break by
+        # timeframe (weekly first) and ticker for stability. Entries
+        # missing a quality_score sort to the bottom.
+        def _key(e):
+            q = e.get("quality_score")
+            return (-(q if q is not None else -1),
+                    e.get("timeframe", ""),
+                    e.get("ticker", ""))
+        entries.sort(key=_key)
+
+        # Auto-highlight the top 3 by quality when the day is crowded.
+        top_set = set()
+        if len(entries) > auto_rank_threshold:
+            for e in entries[:3]:
+                if e.get("quality_score") is not None:
+                    top_set.add((e.get("ticker"), e.get("timeframe"), e.get("flip_date")))
+
         today_tag = ' <span class="today-tag">today</span>' if d == run_date else ""
-        cards = "".join(_flip_card_html(e) for e in entries)
+        crowded_tag = (
+            f' <span class="flip-topbadge">★ top 3 of {len(entries)}</span>'
+            if len(entries) > auto_rank_threshold else ""
+        )
+        cards = "".join(
+            _flip_card_html(e, is_top_quality=(e.get("ticker"), e.get("timeframe"), e.get("flip_date")) in top_set)
+            for e in entries
+        )
         day_blocks.append(
             f"""<div class="flip-day">
-              <div class="flip-day-head">{_esc(d)}{today_tag}</div>
+              <div class="flip-day-head">{_esc(d)}{today_tag}{crowded_tag}</div>
               <div class="flip-grid">{cards}</div>
             </div>"""
         )
@@ -866,9 +958,10 @@ def _recent_flips_panel_html(flip_log, run_date, days=7):
     return f"""
     <div class="panel flip-log-panel">
       <div class="panel-head">
-        <h2>Recent Flips (Last {days} Days)</h2>
-        <span class="subtle">{len(kept)} flip(s) across {len(day_order)} day(s). {subtle}</span>
+        <h2>Recent Buy Flips (Last {days} Days)</h2>
+        <span class="subtle">{len(kept)} BUY flip(s) across {len(day_order)} day(s). {subtle_tail}</span>
       </div>
+      <div class="flip-mode-note">{mode_note}</div>
       {''.join(day_blocks)}
     </div>"""
 
