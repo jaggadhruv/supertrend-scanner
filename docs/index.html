@@ -146,6 +146,25 @@
   .flip-card .flip-meta { color: var(--muted); font-size: 11.5px; font-family: var(--mono); }
   .flip-card .flip-tag { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
 
+  /* Quality badges on flip cards */
+  .flip-card .q-badge {
+    margin-left: auto;
+    font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px; letter-spacing: 0.02em;
+    cursor: help;
+  }
+  .q-high   { background: rgba(47,191,113,0.18); color: var(--bull); }
+  .q-med    { background: rgba(240,169,61,0.18); color: var(--amber); }
+  .q-low    { background: rgba(231,236,243,0.06); color: var(--muted); }
+  .q-star   { color: var(--amber); margin-right: 4px; font-weight: 700; }
+
+  .flip-mode-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
+  .flip-topbadge {
+    display:inline-block; margin-left: 10px; background: rgba(47,191,113,0.16);
+    color: var(--bull); padding: 1px 8px; border-radius: 999px;
+    font-size: 10.5px; letter-spacing: 0.03em; font-weight: 700;
+  }
+
   tr.hidden-row { display: none; }
 </style>
 
@@ -155,7 +174,7 @@
 
   <div class="topbar">
     <h1>Supertrend Combined Scanner · Public view</h1>
-    <div class="params">ATR(10) &times; 2.5 &middot; Weekly + Daily &middot; Generated 2026-09-26 12:02</div>
+    <div class="params">ATR(10) &times; 2.5 &middot; Weekly + Daily &middot; Generated 2026-09-26 14:06</div>
     <div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>
   </div>
 
@@ -163,9 +182,10 @@
   
     <div class="panel flip-log-panel">
       <div class="panel-head">
-        <h2>Recent Flips (Last 7 Days)</h2>
-        <span class="subtle">69 flip(s) across 5 day(s). Anything older than 7 days rolls off this list automatically. Full history in <code>data/flip_log.json</code>.</span>
+        <h2>Recent Buy Flips (Last 7 Days)</h2>
+        <span class="subtle">36 BUY flip(s) across 4 day(s). Anything older than 7 days rolls off this list automatically. Full history in <code>data/flip_log.json</code>.</span>
       </div>
+      <div class="flip-mode-note">Long-only view — SELL flips are hidden here (they still trigger the held-bearish alert). Sorted by quality within each day; ★ marks the top 3 when a day has more than 5 candidates.</div>
       <div class="flip-day">
               <div class="flip-day-head">2026-09-25</div>
               <div class="flip-grid">
@@ -173,358 +193,226 @@
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">AAL</span>
       <span class="flip-meta">BUY · Bullish · Close 13.87 · ST 12.62</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">BABA</span>
-      <span class="flip-meta">SELL · Bearish · Close 109.74 · ST 118.18</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">EMR</span>
       <span class="flip-meta">BUY · Bullish · Close 158.23 · ST 149.29</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">MCHP</span>
       <span class="flip-meta">BUY · Bullish · Close 78.69 · ST 70.13</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">MCK</span>
-      <span class="flip-meta">SELL · Bearish · Close 866.64 · ST 916.78</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">TT</span>
       <span class="flip-meta">BUY · Bullish · Close 454.44 · ST 421.70</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">WMB</span>
-      <span class="flip-meta">SELL · Bearish · Close 69.26 · ST 74.05</span>
+      
     </div></div>
             </div><div class="flip-day">
-              <div class="flip-day-head">2026-09-24</div>
-              <div class="flip-grid">
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">AMT</span>
-      <span class="flip-meta">SELL · Bearish · Close 167.26 · ST 178.76</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">EXPD</span>
-      <span class="flip-meta">SELL · Bearish · Close 183.66 · ST 195.56</span>
-    </div></div>
-            </div><div class="flip-day">
-              <div class="flip-day-head">2026-09-23</div>
+              <div class="flip-day-head">2026-09-23 <span class="flip-topbadge">★ top 3 of 12</span></div>
               <div class="flip-grid">
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">AME</span>
       <span class="flip-meta">BUY · Bullish · Close 246.45 · ST 233.07</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">AMGN</span>
       <span class="flip-meta">BUY · Bullish · Close 406.09 · ST 381.86</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">ASML</span>
       <span class="flip-meta">BUY · Bullish · Close 1,744.61 · ST 1,595.10</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">CDNS</span>
       <span class="flip-meta">BUY · Bullish · Close 309.09 · ST 283.33</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">FAST</span>
       <span class="flip-meta">BUY · Bullish · Close 50.99 · ST 47.86</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">HON</span>
       <span class="flip-meta">BUY · Bullish · Close 212.57 · ST 199.41</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">MDB</span>
       <span class="flip-meta">BUY · Bullish · Close 428.36 · ST 374.43</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">MPC</span>
-      <span class="flip-meta">SELL · Bearish · Close 388.38 · ST 429.57</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">PANW</span>
       <span class="flip-meta">BUY · Bullish · Close 393.30 · ST 335.10</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">PLTR</span>
       <span class="flip-meta">BUY · Bullish · Close 191.79 · ST 171.08</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">SNPS</span>
       <span class="flip-meta">BUY · Bullish · Close 413.06 · ST 377.26</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">TJX</span>
       <span class="flip-meta">BUY · Bullish · Close 131.59 · ST 123.87</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">TXN</span>
       <span class="flip-meta">BUY · Bullish · Close 272.62 · ST 248.33</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">V</span>
-      <span class="flip-meta">SELL · Bearish · Close 361.52 · ST 377.77</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">VLO</span>
-      <span class="flip-meta">SELL · Bearish · Close 375.84 · ST 415.01</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">WFC</span>
-      <span class="flip-meta">SELL · Bearish · Close 81.90 · ST 88.37</span>
+      
     </div></div>
             </div><div class="flip-day">
-              <div class="flip-day-head">2026-09-22</div>
+              <div class="flip-day-head">2026-09-22 <span class="flip-topbadge">★ top 3 of 14</span></div>
               <div class="flip-grid">
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">AMAT</span>
       <span class="flip-meta">BUY · Bullish · Close 472.46 · ST 412.12</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">AME</span>
       <span class="flip-meta">BUY · Bullish · Close 245.41 · ST 231.25</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">AMGN</span>
       <span class="flip-meta">BUY · Bullish · Close 410.24 · ST 378.26</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">ASML</span>
       <span class="flip-meta">BUY · Bullish · Close 1,747.90 · ST 1,588.41</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">CDNS</span>
       <span class="flip-meta">BUY · Bullish · Close 302.95 · ST 274.25</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">DAL</span>
       <span class="flip-meta">BUY · Bullish · Close 83.92 · ST 77.92</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">DRAM</span>
       <span class="flip-meta">BUY · Bullish · Close 63.62 · ST 55.76</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">HON</span>
       <span class="flip-meta">BUY · Bullish · Close 211.85 · ST 197.65</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">HOOD</span>
       <span class="flip-meta">BUY · Bullish · Close 124.25 · ST 107.44</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">JPM</span>
-      <span class="flip-meta">SELL · Bearish · Close 340.00 · ST 363.58</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">LRCX</span>
       <span class="flip-meta">BUY · Bullish · Close 310.96 · ST 265.18</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">MDB</span>
       <span class="flip-meta">BUY · Bullish · Close 427.69 · ST 365.91</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">MPC</span>
-      <span class="flip-meta">SELL · Bearish · Close 389.68 · ST 434.15</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">NVDA</span>
       <span class="flip-meta">BUY · Bullish · Close 228.87 · ST 213.27</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">SHOP</span>
       <span class="flip-meta">BUY · Bullish · Close 147.74 · ST 130.43</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">T</span>
-      <span class="flip-meta">SELL · Bearish · Close 25.10 · ST 26.83</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">V</span>
-      <span class="flip-meta">SELL · Bearish · Close 362.04 · ST 381.07</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">VLO</span>
-      <span class="flip-meta">SELL · Bearish · Close 377.14 · ST 415.01</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">WFC</span>
-      <span class="flip-meta">SELL · Bearish · Close 83.15 · ST 90.25</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">WMT</span>
       <span class="flip-meta">BUY · Bullish · Close 110.12 · ST 103.95</span>
+      
     </div></div>
             </div><div class="flip-day">
-              <div class="flip-day-head">2026-09-21</div>
+              <div class="flip-day-head">2026-09-21 <span class="flip-topbadge">★ top 3 of 6</span></div>
               <div class="flip-grid">
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">ADI</span>
       <span class="flip-meta">BUY · Bullish · Close 383.00 · ST 348.87</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">BABA</span>
       <span class="flip-meta">BUY · Bullish · Close 115.75 · ST 107.24</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">COP</span>
-      <span class="flip-meta">SELL · Bearish · Close 127.53 · ST 138.20</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">CRM</span>
-      <span class="flip-meta">SELL · Bearish · Close 236.42 · ST 261.74</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">CVX</span>
-      <span class="flip-meta">SELL · Bearish · Close 203.67 · ST 218.10</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">DDOG</span>
       <span class="flip-meta">BUY · Bullish · Close 245.05 · ST 205.81</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">EOG</span>
-      <span class="flip-meta">SELL · Bearish · Close 141.38 · ST 151.69</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">GOOG</span>
       <span class="flip-meta">BUY · Bullish · Close 350.87 · ST 329.72</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-d">D</span>
       <span class="flip-tkr">MPWR</span>
       <span class="flip-meta">BUY · Bullish · Close 1,277.68 · ST 1,126.36</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-d">D</span>
-      <span class="flip-tkr">PGR</span>
-      <span class="flip-meta">SELL · Bearish · Close 212.24 · ST 223.82</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">ABNB</span>
-      <span class="flip-meta">SELL · Bearish · Close 149.58 · ST 188.94</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">ALL</span>
-      <span class="flip-meta">SELL · Bearish · Close 229.50 · ST 273.74</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">AVGO</span>
-      <span class="flip-meta">SELL · Bearish · Close 350.36 · ST 436.93</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">BRO</span>
-      <span class="flip-meta">SELL · Bearish · Close 61.70 · ST 74.66</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">CMCSA</span>
-      <span class="flip-meta">SELL · Bearish · Close 22.42 · ST 27.21</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">FDX</span>
-      <span class="flip-meta">SELL · Bearish · Close 279.54 · ST 335.95</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">GD</span>
-      <span class="flip-meta">SELL · Bearish · Close 343.39 · ST 386.81</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">GIS</span>
-      <span class="flip-meta">SELL · Bearish · Close 33.64 · ST 41.52</span>
+      
     </div>
     <div class="flip-card flip-buy">
       <span class="flip-tag tf-tag-w">W</span>
       <span class="flip-tkr">META</span>
       <span class="flip-meta">BUY · Bullish · Close 736.59 · ST 574.80</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">NVO</span>
-      <span class="flip-meta">SELL · Bearish · Close 39.40 · ST 48.79</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">PGR</span>
-      <span class="flip-meta">SELL · Bearish · Close 203.13 · ST 238.60</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">PSA</span>
-      <span class="flip-meta">SELL · Bearish · Close 286.73 · ST 328.38</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">UNH</span>
-      <span class="flip-meta">SELL · Bearish · Close 372.95 · ST 426.96</span>
-    </div>
-    <div class="flip-card flip-sell">
-      <span class="flip-tag tf-tag-w">W</span>
-      <span class="flip-tkr">UNP</span>
-      <span class="flip-meta">SELL · Bearish · Close 274.41 · ST 306.83</span>
+      
     </div></div>
             </div>
     </div>
