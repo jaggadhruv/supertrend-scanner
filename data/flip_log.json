@@ -1,5 +1,19 @@
 [
   {
+    "ticker": "WMT",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-30",
+    "recorded_at": "2026-09-30",
+    "close": 103.92,
+    "supertrend": 111.24,
+    "quality_score": 42,
+    "quality_volume_ratio": 1.23,
+    "quality_momentum_pct": -5.98,
+    "quality_prior_run": 6
+  },
+  {
     "ticker": "UNH",
     "timeframe": "weekly",
     "direction": "Bearish",
