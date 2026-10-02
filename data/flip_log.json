@@ -70,6 +70,48 @@
     "quality_prior_run": 6
   },
   {
+    "ticker": "ABT",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-28",
+    "recorded_at": "2026-10-02",
+    "close": 96.69,
+    "supertrend": 113.77,
+    "quality_score": 35,
+    "quality_volume_ratio": 0.6,
+    "quality_momentum_pct": -14.03,
+    "quality_prior_run": 11
+  },
+  {
+    "ticker": "PLD",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-28",
+    "recorded_at": "2026-10-02",
+    "close": 128.18,
+    "supertrend": 144.85,
+    "quality_score": 42,
+    "quality_volume_ratio": 0.98,
+    "quality_momentum_pct": -8.9,
+    "quality_prior_run": 19
+  },
+  {
+    "ticker": "SNPS",
+    "timeframe": "weekly",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-28",
+    "recorded_at": "2026-10-02",
+    "close": 490.54,
+    "supertrend": 330.12,
+    "quality_score": 80,
+    "quality_volume_ratio": 1.45,
+    "quality_momentum_pct": 10.83,
+    "quality_prior_run": 11
+  },
+  {
     "ticker": "AEG",
     "timeframe": "weekly",
     "direction": "Bearish",
