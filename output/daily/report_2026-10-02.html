@@ -1,0 +1,3454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supertrend Daily Scanner — 2026-10-02</title>
+
+<style>
+  :root {
+    --bg: #0B0E14;
+    --panel: #12161F;
+    --panel-2: #171C27;
+    --border: #232A38;
+    --text: #E7ECF3;
+    --muted: #7C8797;
+    --bull: #2FBF71;
+    --bull-bg: rgba(47,191,113,0.12);
+    --bear: #F0475D;
+    --bear-bg: rgba(240,71,93,0.12);
+    --amber: #F0A93D;
+    --amber-bg: rgba(240,169,61,0.10);
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Cascadia Code", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 32px 24px 80px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+  .topbar h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .topbar .params { color: var(--muted); font-family: var(--mono); font-size: 12.5px; }
+
+  .alert-banner { background: var(--bear-bg); border: 1px solid rgba(240,71,93,0.35); border-radius: 10px; padding: 16px 18px; margin-bottom: 22px; }
+  .alert-banner .alert-head { display:flex; align-items:center; gap:8px; font-weight:700; color: var(--bear); margin-bottom: 10px; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .alert-item { display:flex; gap:14px; padding: 8px 0; border-top: 1px solid rgba(240,71,93,0.18); }
+  .alert-item:first-of-type { border-top: none; }
+  .alert-ticker { font-family: var(--mono); font-weight: 700; min-width: 90px; color: var(--text); }
+  .alert-body { color: var(--text); font-size: 13.5px; }
+  .alert-trade { color: var(--muted); font-size: 12.5px; margin-top: 2px; font-family: var(--mono); }
+
+  .stats-row { display:flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .stat-chip { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; min-width: 120px; }
+  .stat-chip .num { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+  .stat-chip .label { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .stat-buy .num { color: var(--bull); }
+  .stat-sell .num { color: var(--bear); }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 22px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 0 0 14px; }
+  .buy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .buy-item { background: var(--bull-bg); border: 1px solid rgba(47,191,113,0.3); border-radius: 8px; padding: 10px 12px; }
+  .buy-ticker { font-family: var(--mono); font-weight: 700; color: var(--bull); }
+  .buy-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .empty-note { color: var(--muted); font-size: 13px; }
+
+  .controls { display:flex; gap: 10px; align-items:center; margin-bottom: 14px; flex-wrap: wrap; }
+  .chip-btn { background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 12.5px; cursor: pointer; font-family: var(--sans); }
+  .chip-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+  .search-box { margin-left: auto; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; color: var(--text); font-size: 13px; font-family: var(--mono); width: 200px; }
+  .search-box::placeholder { color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
+  thead th { text-align: left; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; padding: 10px 10px; border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; font-family: var(--sans); }
+  thead th:hover { color: var(--text); }
+  thead th.sorted-asc::after { content: " ↑"; }
+  thead th.sorted-desc::after { content: " ↓"; }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:hover { background: var(--panel-2); }
+  td.rail { width: 4px; padding: 0; }
+  .rail-bull { background: var(--bull); }
+  .rail-bear { background: var(--bear); }
+  .rail-none { background: var(--border); }
+  .col-ticker { font-weight: 700; }
+  .error-cell { color: var(--amber); font-family: var(--sans); font-size: 12.5px; }
+
+  .badge { display:inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em; }
+  .badge-buy { background: var(--bull-bg); color: var(--bull); }
+  .badge-sell { background: var(--bear-bg); color: var(--bear); }
+  .badge-none { background: transparent; color: var(--muted); font-weight: 400; }
+
+  .dir { font-size: 12.5px; }
+  .dir-bull { color: var(--bull); }
+  .dir-bear { color: var(--bear); }
+  .dir-none { color: var(--muted); }
+
+  .muted { color: var(--muted); }
+  .small { font-size: 11.5px; }
+  .held-yes { color: var(--amber); font-weight: 700; font-size: 12px; }
+  .flip-yes { color: var(--text); background: rgba(231,236,243,0.08); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  .flip-changed { color: var(--amber); background: var(--amber-bg); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; cursor: help; }
+  .in-trend { display:inline-block; padding: 2px 8px; border-radius: 999px; font-family: var(--mono); font-size: 11.5px; font-weight: 700; cursor: help; }
+  .trend-bull { color: var(--bull); background: var(--bull-bg); }
+  .trend-bear { color: var(--bear); background: var(--bear-bg); }
+  .pnl-pos { color: var(--bull); font-weight: 700; }
+  .pnl-neg { color: var(--bear); font-weight: 700; }
+
+  footer { margin-top: 30px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
+  tr.row-error { opacity: 0.7; }
+  tr.hidden-row { display: none; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <h1>Supertrend Daily Scanner</h1>
+    <div class="params">ATR(10) &times; 2.5 &middot; Daily chart &middot; Generated 2026-10-02 21:47</div>
+  </div>
+
+  
+  
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num">230</div><div class="label">Scanned</div></div>
+      <div class="stat-chip stat-buy"><div class="num">3</div><div class="label">Buy Signals</div></div>
+      <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Sell Signals</div></div>
+      <div class="stat-chip"><div class="num">0</div><div class="label">Newly Added</div></div>
+      <div class="stat-chip"><div class="num">4</div><div class="label">Errors</div></div>
+    </div>
+  
+        <div class="panel">
+          <h2>Buying Opportunities This Week</h2>
+          <div class="buy-grid">
+    <div class="buy-item">
+      <div class="buy-ticker">CAT</div>
+      <div class="buy-meta">Close 845.42 <span class="muted">·</span> Supertrend 791.11 <span class="muted">·</span> 2026-10-02</div>
+    </div>
+    <div class="buy-item">
+      <div class="buy-ticker">HUBB</div>
+      <div class="buy-meta">Close 475.52 <span class="muted">·</span> Supertrend 440.50 <span class="muted">·</span> 2026-10-02</div>
+    </div>
+    <div class="buy-item">
+      <div class="buy-ticker">PWR</div>
+      <div class="buy-meta">Close 676.56 <span class="muted">·</span> Supertrend 624.11 <span class="muted">·</span> 2026-10-02</div>
+    </div></div>
+        </div>
+
+  <div class="panel">
+    <h2>Full Watchlist Detail</h2>
+    <div class="controls">
+      <button class="chip-btn active" data-filter="all">All</button>
+      <button class="chip-btn" data-filter="buy">Buy Signals</button>
+      <button class="chip-btn" data-filter="sell">Sell Signals</button>
+      <button class="chip-btn" data-filter="flip">Flips Only</button>
+      <button class="chip-btn" data-filter="held">My Portfolio</button>
+      <input type="text" id="search-box" class="search-box" placeholder="Search ticker...">
+    </div>
+    <table id="scan-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Ticker</th>
+          <th>Close</th>
+          <th>Supertrend</th>
+          <th>Direction</th>
+          <th>Signal (Latest Bar)</th>
+          <th>Last Recorded</th>
+          <th>Flip</th>
+          <th title="How long the current direction has been running (bars in trend). d=trading days, w=weeks.">In Trend</th>
+          <th>Held</th>
+          <th>Position P/L</th>
+          <th>Bar Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+    <tr data-ticker="aapl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">AAPL</td>
+      <td data-sort="333.69">333.69</td>
+      <td data-sort="324.39">324.39</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bull" title="Direction has been Bullish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="msft" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MSFT</td>
+      <td data-sort="517.53">517.53</td>
+      <td data-sort="489.05">489.05</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="65"><span class="in-trend trend-bull" title="Direction has been Bullish for 65 days — since 2026-07-02.">65d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="goog" data-signal="none" data-flip="0" data-held="1">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">GOOG</td>
+      <td data-sort="340.35">340.35</td>
+      <td data-sort="331.28">331.28</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bull" title="Direction has been Bullish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="held-yes">● Held</span></td>
+      <td><span class="pnl-neg">-3.15%</span> <span class="muted">(qty 1.46 @ 351.43)</span></td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tsla" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TSLA</td>
+      <td data-sort="370.59">370.59</td>
+      <td data-sort="351.86">351.86</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="32"><span class="in-trend trend-bull" title="Direction has been Bullish for 32 days — since 2026-08-19.">32d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nvda" data-signal="none" data-flip="0" data-held="1">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">NVDA</td>
+      <td data-sort="233.95">233.95</td>
+      <td data-sort="221.43">221.43</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="held-yes">● Held</span></td>
+      <td><span class="pnl-pos">+3.07%</span> <span class="muted">(qty 2.33 @ 226.99)</span></td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="meta" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">META</td>
+      <td data-sort="728.08">728.08</td>
+      <td data-sort="689.66">689.66</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="21"><span class="in-trend trend-bull" title="Direction has been Bullish for 21 days — since 2026-09-03.">21d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="amzn" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AMZN</td>
+      <td data-sort="251.52">251.52</td>
+      <td data-sort="259.98">259.98</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="lrcx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">LRCX</td>
+      <td data-sort="347.49">347.49</td>
+      <td data-sort="315.93">315.93</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="avgo" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AVGO</td>
+      <td data-sort="355.14">355.14</td>
+      <td data-sort="368.28">368.28</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="33"><span class="in-trend trend-bear" title="Direction has been Bearish for 33 days — since 2026-08-18.">33d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="now" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">NOW</td>
+      <td data-sort="134.38">134.38</td>
+      <td data-sort="128.88">128.88</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="47"><span class="in-trend trend-bull" title="Direction has been Bullish for 47 days — since 2026-07-29.">47d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pltr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">PLTR</td>
+      <td data-sort="188.75">188.75</td>
+      <td data-sort="176.61">176.61</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="8"><span class="in-trend trend-bull" title="Direction has been Bullish for 8 days — since 2026-09-23.">8d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ibkr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">IBKR</td>
+      <td data-sort="88.3">88.30</td>
+      <td data-sort="92.18">92.18</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="14"><span class="in-trend trend-bear" title="Direction has been Bearish for 14 days — since 2026-09-15.">14d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="amd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">AMD</td>
+      <td data-sort="633.91">633.91</td>
+      <td data-sort="577.27">577.27</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bull" title="Direction has been Bullish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nbis" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">NBIS</td>
+      <td data-sort="242.81">242.81</td>
+      <td data-sort="203.28">203.28</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bull" title="Direction has been Bullish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hood" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">HOOD</td>
+      <td data-sort="112.74">112.74</td>
+      <td data-sort="108.19">108.19</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="arm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ARM</td>
+      <td data-sort="307.49">307.49</td>
+      <td data-sort="338.32">338.32</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="5"><span class="in-trend trend-bear" title="Direction has been Bearish for 5 days — since 2026-09-28.">5d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ma" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MA</td>
+      <td data-sort="552.26">552.26</td>
+      <td data-sort="573.04">573.04</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="v" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">V</td>
+      <td data-sort="360.66">360.66</td>
+      <td data-sort="373.02">373.02</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bear" title="Direction has been Bearish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="asml" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ASML</td>
+      <td data-sort="1867.31">1,867.31</td>
+      <td data-sort="1734.78">1,734.78</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ge" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">GE</td>
+      <td data-sort="309.56">309.56</td>
+      <td data-sort="332.97">332.97</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="32"><span class="in-trend trend-bear" title="Direction has been Bearish for 32 days — since 2026-08-19.">32d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nvo" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">NVO</td>
+      <td data-sort="37.32">37.32</td>
+      <td data-sort="39.88">39.88</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="45"><span class="in-trend trend-bear" title="Direction has been Bearish for 45 days — since 2026-07-31.">45d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="orcl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ORCL</td>
+      <td data-sort="142.3">142.30</td>
+      <td data-sort="150.79">150.79</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="15"><span class="in-trend trend-bear" title="Direction has been Bearish for 15 days — since 2026-09-14.">15d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mu" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MU</td>
+      <td data-sort="1074.89">1,074.89</td>
+      <td data-sort="978.56">978.56</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="34"><span class="in-trend trend-bull" title="Direction has been Bullish for 34 days — since 2026-08-17.">34d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mnst" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MNST</td>
+      <td data-sort="42.94">42.94</td>
+      <td data-sort="44.11">44.11</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="lly" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">LLY</td>
+      <td data-sort="1142.85">1,142.85</td>
+      <td data-sort="1196.13">1,196.13</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="aeg" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AEG</td>
+      <td data-sort="8.45">8.45</td>
+      <td data-sort="8.83">8.83</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bear" title="Direction has been Bearish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="snow" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">SNOW</td>
+      <td data-sort="341.04">341.04</td>
+      <td data-sort="320.86">320.86</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="66"><span class="in-trend trend-bull" title="Direction has been Bullish for 66 days — since 2026-07-01.">66d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="crm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CRM</td>
+      <td data-sort="234.69">234.69</td>
+      <td data-sort="247.96">247.96</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bear" title="Direction has been Bearish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hwm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">HWM</td>
+      <td data-sort="231.27">231.27</td>
+      <td data-sort="243.68">243.68</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bear" title="Direction has been Bearish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="spcx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">SPCX</td>
+      <td data-sort="158.96">158.96</td>
+      <td data-sort="138.08">138.08</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="40"><span class="in-trend trend-bull" title="Direction has been Bullish for 40 days — since 2026-08-07.">40d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="panw" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">PANW</td>
+      <td data-sort="403.24">403.24</td>
+      <td data-sort="362.45">362.45</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="8"><span class="in-trend trend-bull" title="Direction has been Bullish for 8 days — since 2026-09-23.">8d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="unh" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">UNH</td>
+      <td data-sort="371.9">371.90</td>
+      <td data-sort="388.13">388.13</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="43"><span class="in-trend trend-bear" title="Direction has been Bearish for 43 days — since 2026-08-04.">43d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="sndk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">SNDK</td>
+      <td data-sort="1719.99">1,719.99</td>
+      <td data-sort="1572.58">1,572.58</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="35"><span class="in-trend trend-bull" title="Direction has been Bullish for 35 days — since 2026-08-14.">35d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="intc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">INTC</td>
+      <td data-sort="119.33">119.33</td>
+      <td data-sort="109.02">109.02</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bull" title="Direction has been Bullish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nflx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">NFLX</td>
+      <td data-sort="67.06">67.06</td>
+      <td data-sort="72.01">72.01</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mrvl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MRVL</td>
+      <td data-sort="272.29">272.29</td>
+      <td data-sort="244.79">244.79</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="43"><span class="in-trend trend-bull" title="Direction has been Bullish for 43 days — since 2026-08-04.">43d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="sofi" data-signal="none" data-flip="0" data-held="1">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SOFI</td>
+      <td data-sort="15.77">15.77</td>
+      <td data-sort="17.31">17.31</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="13"><span class="in-trend trend-bear" title="Direction has been Bearish for 13 days — since 2026-09-16.">13d</span></td>
+      <td><span class="held-yes">● Held</span></td>
+      <td><span class="pnl-neg">-12.87%</span> <span class="muted">(qty 27.63 @ 18.1)</span></td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="dram" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">DRAM</td>
+      <td data-sort="61.78">61.78</td>
+      <td data-sort="56.13">56.13</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tsm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TSM</td>
+      <td data-sort="472.78">472.78</td>
+      <td data-sort="443.51">443.51</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="37"><span class="in-trend trend-bull" title="Direction has been Bullish for 37 days — since 2026-08-12.">37d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wdc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WDC</td>
+      <td data-sort="415.29">415.29</td>
+      <td data-sort="483.38">483.38</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="69"><span class="in-trend trend-bear" title="Direction has been Bearish for 69 days — since 2026-06-26.">69d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="qcom" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">QCOM</td>
+      <td data-sort="184.87">184.87</td>
+      <td data-sort="177.71">177.71</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bull" title="Direction has been Bullish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wmt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WMT</td>
+      <td data-sort="104.26">104.26</td>
+      <td data-sort="109.82">109.82</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-sell">SELL</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="3"><span class="in-trend trend-bear" title="Direction has been Bearish for 3 days — since 2026-09-30.">3d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hpe" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">HPE</td>
+      <td data-sort="69.33">69.33</td>
+      <td data-sort="58.41">58.41</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bull" title="Direction has been Bullish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ddog" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">DDOG</td>
+      <td data-sort="277.22">277.22</td>
+      <td data-sort="249.48">249.48</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bull" title="Direction has been Bullish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="jpm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">JPM</td>
+      <td data-sort="332.38">332.38</td>
+      <td data-sort="346.22">346.22</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bear" title="Direction has been Bearish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="amat" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">AMAT</td>
+      <td data-sort="540.04">540.04</td>
+      <td data-sort="494.96">494.96</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="shop" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">SHOP</td>
+      <td data-sort="151.39">151.39</td>
+      <td data-sort="135.71">135.71</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="csco" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CSCO</td>
+      <td data-sort="112.2">112.20</td>
+      <td data-sort="113.06">113.06</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="36"><span class="in-trend trend-bear" title="Direction has been Bearish for 36 days — since 2026-08-13.">36d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="gev" data-signal="none" data-flip="1" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">GEV</td>
+      <td data-sort="988.7">988.70</td>
+      <td data-sort="893.79">893.79</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed since last run</span></td>
+      <td data-sort="2"><span class="in-trend trend-bull" title="Direction has been Bullish for 2 days — since 2026-10-01.">2d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="adi" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ADI</td>
+      <td data-sort="417.15">417.15</td>
+      <td data-sort="389.69">389.69</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bull" title="Direction has been Bullish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="txn" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TXN</td>
+      <td data-sort="293.8">293.80</td>
+      <td data-sort="272.7">272.70</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="8"><span class="in-trend trend-bull" title="Direction has been Bullish for 8 days — since 2026-09-23.">8d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="crwd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">CRWD</td>
+      <td data-sort="270.04">270.04</td>
+      <td data-sort="242.67">242.67</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bull" title="Direction has been Bullish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="adbe" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ADBE</td>
+      <td data-sort="237.69">237.69</td>
+      <td data-sort="251.35">251.35</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="team" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TEAM</td>
+      <td data-sort="187.89">187.89</td>
+      <td data-sort="174.79">174.79</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="59"><span class="in-trend trend-bull" title="Direction has been Bullish for 59 days — since 2026-07-13.">59d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ftnt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">FTNT</td>
+      <td data-sort="180.95">180.95</td>
+      <td data-sort="166.31">166.31</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="115"><span class="in-trend trend-bull" title="Direction has been Bullish for 115 days — since 2026-04-21.">115d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wday" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">WDAY</td>
+      <td data-sort="186.14">186.14</td>
+      <td data-sort="182.15">182.15</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="65"><span class="in-trend trend-bull" title="Direction has been Bullish for 65 days — since 2026-07-02.">65d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="bac" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BAC</td>
+      <td data-sort="53.75">53.75</td>
+      <td data-sort="56.47">56.47</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bear" title="Direction has been Bearish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wfc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WFC</td>
+      <td data-sort="80.45">80.45</td>
+      <td data-sort="83.95">83.95</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bear" title="Direction has been Bearish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="c" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">C</td>
+      <td data-sort="128.5">128.50</td>
+      <td data-sort="134.77">134.77</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="5"><span class="in-trend trend-bear" title="Direction has been Bearish for 5 days — since 2026-09-28.">5d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nu" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">NU</td>
+      <td data-sort="13.43">13.43</td>
+      <td data-sort="13.72">13.72</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="13"><span class="in-trend trend-bear" title="Direction has been Bearish for 13 days — since 2026-09-16.">13d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pypl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PYPL</td>
+      <td data-sort="52.8">52.80</td>
+      <td data-sort="56.05">56.05</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="25"><span class="in-trend trend-bear" title="Direction has been Bearish for 25 days — since 2026-08-28.">25d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="coin" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">COIN</td>
+      <td data-sort="183.0">183.00</td>
+      <td data-sort="171.24">171.24</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bull" title="Direction has been Bullish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="afrm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AFRM</td>
+      <td data-sort="70.77">70.77</td>
+      <td data-sort="77.14">77.14</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="53"><span class="in-trend trend-bear" title="Direction has been Bearish for 53 days — since 2026-07-21.">53d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="gs" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">GS</td>
+      <td data-sort="902.56">902.56</td>
+      <td data-sort="949.99">949.99</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="48"><span class="in-trend trend-bear" title="Direction has been Bearish for 48 days — since 2026-07-28.">48d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ms" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MS</td>
+      <td data-sort="190.31">190.31</td>
+      <td data-sort="197.1">197.10</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="54"><span class="in-trend trend-bear" title="Direction has been Bearish for 54 days — since 2026-07-20.">54d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tgt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">TGT</td>
+      <td data-sort="156.0">156.00</td>
+      <td data-sort="164.91">164.91</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="14"><span class="in-trend trend-bear" title="Direction has been Bearish for 14 days — since 2026-09-15.">14d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="bkng" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BKNG</td>
+      <td data-sort="159.02">159.02</td>
+      <td data-sort="173.7">173.70</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="baba" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BABA</td>
+      <td data-sort="105.85">105.85</td>
+      <td data-sort="112.63">112.63</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bear" title="Direction has been Bearish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pdd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PDD</td>
+      <td data-sort="75.38">75.38</td>
+      <td data-sort="79.84">79.84</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="36"><span class="in-trend trend-bear" title="Direction has been Bearish for 36 days — since 2026-08-13.">36d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mrk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MRK</td>
+      <td data-sort="144.3">144.30</td>
+      <td data-sort="142.16">142.16</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="92"><span class="in-trend trend-bull" title="Direction has been Bullish for 92 days — since 2026-05-22.">92d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="isrg" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ISRG</td>
+      <td data-sort="391.95">391.95</td>
+      <td data-sort="382.95">382.95</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="12"><span class="in-trend trend-bull" title="Direction has been Bullish for 12 days — since 2026-09-17.">12d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cat" data-signal="buy" data-flip="1" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">CAT</td>
+      <td data-sort="845.42">845.42</td>
+      <td data-sort="791.11">791.11</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-buy">BUY</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="flip-yes">✓ Flip</span></td>
+      <td data-sort="1"><span class="in-trend trend-bull" title="Direction has been Bullish for 1 day — since 2026-10-02.">1d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ba" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BA</td>
+      <td data-sort="193.56">193.56</td>
+      <td data-sort="203.91">203.91</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bear" title="Direction has been Bearish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="lmt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">LMT</td>
+      <td data-sort="505.41">505.41</td>
+      <td data-sort="530.88">530.88</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="30"><span class="in-trend trend-bear" title="Direction has been Bearish for 30 days — since 2026-08-21.">30d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ups" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">UPS</td>
+      <td data-sort="93.02">93.02</td>
+      <td data-sort="98.65">98.65</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="48"><span class="in-trend trend-bear" title="Direction has been Bearish for 48 days — since 2026-07-28.">48d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="fdx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">FDX</td>
+      <td data-sort="290.36">290.36</td>
+      <td data-sort="301.62">301.62</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="22"><span class="in-trend trend-bear" title="Direction has been Bearish for 22 days — since 2026-09-02.">22d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="aal" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">AAL</td>
+      <td data-sort="12.94">12.94</td>
+      <td data-sort="12.62">12.62</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bull" title="Direction has been Bullish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="dal" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">DAL</td>
+      <td data-sort="84.09">84.09</td>
+      <td data-sort="78.85">78.85</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="abbv" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ABBV</td>
+      <td data-sort="262.82">262.82</td>
+      <td data-sort="253.18">253.18</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="12"><span class="in-trend trend-bull" title="Direction has been Bullish for 12 days — since 2026-09-17.">12d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="abnb" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ABNB</td>
+      <td data-sort="162.43">162.43</td>
+      <td data-sort="165.78">165.78</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="abt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ABT</td>
+      <td data-sort="97.5">97.50</td>
+      <td data-sort="101.9">101.90</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="adp" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ADP</td>
+      <td data-sort="257.68">257.68</td>
+      <td data-sort="273.46">273.46</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="adsk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ADSK</td>
+      <td data-sort="212.0">212.00</td>
+      <td data-sort="222.25">222.25</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="21"><span class="in-trend trend-bear" title="Direction has been Bearish for 21 days — since 2026-09-03.">21d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="aep" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AEP</td>
+      <td data-sort="119.57">119.57</td>
+      <td data-sort="122.32">122.32</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="54"><span class="in-trend trend-bear" title="Direction has been Bearish for 54 days — since 2026-07-20.">54d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ajg" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AJG</td>
+      <td data-sort="226.11">226.11</td>
+      <td data-sort="242.72">242.72</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="all" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ALL</td>
+      <td data-sort="223.74">223.74</td>
+      <td data-sort="236.28">236.28</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="37"><span class="in-trend trend-bear" title="Direction has been Bearish for 37 days — since 2026-08-12.">37d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ame" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">AME</td>
+      <td data-sort="251.93">251.93</td>
+      <td data-sort="239.38">239.38</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="amgn" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">AMGN</td>
+      <td data-sort="403.04">403.04</td>
+      <td data-sort="398.82">398.82</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="amt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AMT</td>
+      <td data-sort="162.2">162.20</td>
+      <td data-sort="172.37">172.37</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="7"><span class="in-trend trend-bear" title="Direction has been Bearish for 7 days — since 2026-09-24.">7d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="anet" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ANET</td>
+      <td data-sort="207.35">207.35</td>
+      <td data-sort="190.56">190.56</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="43"><span class="in-trend trend-bull" title="Direction has been Bullish for 43 days — since 2026-08-04.">43d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="aon" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AON</td>
+      <td data-sort="269.45">269.45</td>
+      <td data-sort="290.93">290.93</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="34"><span class="in-trend trend-bear" title="Direction has been Bearish for 34 days — since 2026-08-17.">34d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="app" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">APP</td>
+      <td data-sort="268.22">268.22</td>
+      <td data-sort="311.26">311.26</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="59"><span class="in-trend trend-bear" title="Direction has been Bearish for 59 days — since 2026-07-13.">59d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="axp" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AXP</td>
+      <td data-sort="302.78">302.78</td>
+      <td data-sort="315.63">315.63</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="azo" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">AZO</td>
+      <td data-sort="2792.03">2,792.03</td>
+      <td data-sort="3003.95">3,003.95</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="100"><span class="in-trend trend-bear" title="Direction has been Bearish for 100 days — since 2026-05-12.">100d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="bdx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BDX</td>
+      <td data-sort="176.8">176.80</td>
+      <td data-sort="185.77">185.77</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="blk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BLK</td>
+      <td data-sort="1059.63">1,059.63</td>
+      <td data-sort="1102.57">1,102.57</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="22"><span class="in-trend trend-bear" title="Direction has been Bearish for 22 days — since 2026-09-02.">22d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="br" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BR</td>
+      <td data-sort="156.93">156.93</td>
+      <td data-sort="168.18">168.18</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="bro" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BRO</td>
+      <td data-sort="59.91">59.91</td>
+      <td data-sort="64.27">64.27</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="bsx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">BSX</td>
+      <td data-sort="42.6">42.60</td>
+      <td data-sort="45.92">45.92</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="27"><span class="in-trend trend-bear" title="Direction has been Bearish for 27 days — since 2026-08-26.">27d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cb" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CB</td>
+      <td data-sort="330.89">330.89</td>
+      <td data-sort="340.36">340.36</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="37"><span class="in-trend trend-bear" title="Direction has been Bearish for 37 days — since 2026-08-12.">37d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cbre" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CBRE</td>
+      <td data-sort="129.58">129.58</td>
+      <td data-sort="139.27">139.27</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cdns" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">CDNS</td>
+      <td data-sort="351.35">351.35</td>
+      <td data-sort="317.08">317.08</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="chd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CHD</td>
+      <td data-sort="94.31">94.31</td>
+      <td data-sort="97.76">97.76</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="chtr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CHTR</td>
+      <td data-sort="109.29">109.29</td>
+      <td data-sort="124.28">124.28</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CL</td>
+      <td data-sort="84.26">84.26</td>
+      <td data-sort="87.87">87.87</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="clx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CLX</td>
+      <td data-sort="80.41">80.41</td>
+      <td data-sort="86.08">86.08</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cmcsa" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CMCSA</td>
+      <td data-sort="21.57">21.57</td>
+      <td data-sort="23.2">23.20</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cme" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CME</td>
+      <td data-sort="263.14">263.14</td>
+      <td data-sort="276.94">276.94</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="12"><span class="in-trend trend-bear" title="Direction has been Bearish for 12 days — since 2026-09-17.">12d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cop" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">COP</td>
+      <td data-sort="126.75">126.75</td>
+      <td data-sort="133.29">133.29</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bear" title="Direction has been Bearish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cor" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">COR</td>
+      <td data-sort="309.05">309.05</td>
+      <td data-sort="320.56">320.56</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="13"><span class="in-trend trend-bear" title="Direction has been Bearish for 13 days — since 2026-09-16.">13d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cost" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">COST</td>
+      <td data-sort="920.65">920.65</td>
+      <td data-sort="925.93">925.93</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="21"><span class="in-trend trend-bear" title="Direction has been Bearish for 21 days — since 2026-09-03.">21d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cprt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CPRT</td>
+      <td data-sort="27.22">27.22</td>
+      <td data-sort="29.15">29.15</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="17"><span class="in-trend trend-bear" title="Direction has been Bearish for 17 days — since 2026-09-10.">17d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="csgp" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CSGP</td>
+      <td data-sort="27.38">27.38</td>
+      <td data-sort="29.67">29.67</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="11"><span class="in-trend trend-bear" title="Direction has been Bearish for 11 days — since 2026-09-18.">11d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="csl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CSL</td>
+      <td data-sort="329.34">329.34</td>
+      <td data-sort="340.28">340.28</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="csx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CSX</td>
+      <td data-sort="47.43">47.43</td>
+      <td data-sort="48.32">48.32</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="44"><span class="in-trend trend-bear" title="Direction has been Bearish for 44 days — since 2026-08-03.">44d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ctas" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CTAS</td>
+      <td data-sort="193.02">193.02</td>
+      <td data-sort="204.08">204.08</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="42"><span class="in-trend trend-bear" title="Direction has been Bearish for 42 days — since 2026-08-05.">42d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="cvx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">CVX</td>
+      <td data-sort="206.69">206.69</td>
+      <td data-sort="214.21">214.21</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bear" title="Direction has been Bearish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="d" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">D</td>
+      <td data-sort="61.31">61.31</td>
+      <td data-sort="62.9">62.90</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="44"><span class="in-trend trend-bear" title="Direction has been Bearish for 44 days — since 2026-08-03.">44d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="de" data-signal="none" data-flip="1" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">DE</td>
+      <td data-sort="687.0">687.00</td>
+      <td data-sort="698.75">698.75</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed since last run</span></td>
+      <td data-sort="2"><span class="in-trend trend-bear" title="Direction has been Bearish for 2 days — since 2026-10-01.">2d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="deck" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">DECK</td>
+      <td data-sort="79.12">79.12</td>
+      <td data-sort="83.14">83.14</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="75"><span class="in-trend trend-bear" title="Direction has been Bearish for 75 days — since 2026-06-17.">75d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="dhr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">DHR</td>
+      <td data-sort="214.06">214.06</td>
+      <td data-sort="211.7">211.70</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="51"><span class="in-trend trend-bull" title="Direction has been Bullish for 51 days — since 2026-07-23.">51d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="dis" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">DIS</td>
+      <td data-sort="102.19">102.19</td>
+      <td data-sort="107.12">107.12</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="dlr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">DLR</td>
+      <td data-sort="178.55">178.55</td>
+      <td data-sort="185.98">185.98</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="25"><span class="in-trend trend-bear" title="Direction has been Bearish for 25 days — since 2026-08-28.">25d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="dri" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">DRI</td>
+      <td data-sort="200.33">200.33</td>
+      <td data-sort="208.42">208.42</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bear" title="Direction has been Bearish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="duk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">DUK</td>
+      <td data-sort="114.13">114.13</td>
+      <td data-sort="117.02">117.02</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="44"><span class="in-trend trend-bear" title="Direction has been Bearish for 44 days — since 2026-08-03.">44d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+        <tr class="row-error" data-ticker="ea" data-signal="none" data-flip="0" data-held="0">
+          <td class="rail rail-none"></td>
+          <td class="col-ticker">EA</td>
+          <td colspan="8" class="error-cell">⚠ Only 1 bars available, need at least 15</td>
+        </tr>
+    <tr data-ticker="emr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">EMR</td>
+      <td data-sort="161.61">161.61</td>
+      <td data-sort="152.12">152.12</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bull" title="Direction has been Bullish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="eog" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">EOG</td>
+      <td data-sort="141.38">141.38</td>
+      <td data-sort="147.16">147.16</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bear" title="Direction has been Bearish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="eqix" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">EQIX</td>
+      <td data-sort="1025.72">1,025.72</td>
+      <td data-sort="1069.86">1,069.86</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="etn" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ETN</td>
+      <td data-sort="436.11">436.11</td>
+      <td data-sort="408.5">408.50</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="16"><span class="in-trend trend-bull" title="Direction has been Bullish for 16 days — since 2026-09-11.">16d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ew" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">EW</td>
+      <td data-sort="85.15">85.15</td>
+      <td data-sort="90.6">90.60</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="expd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">EXPD</td>
+      <td data-sort="192.47">192.47</td>
+      <td data-sort="195.56">195.56</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="7"><span class="in-trend trend-bear" title="Direction has been Bearish for 7 days — since 2026-09-24.">7d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="fast" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">FAST</td>
+      <td data-sort="50.75">50.75</td>
+      <td data-sort="48.39">48.39</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="8"><span class="in-trend trend-bull" title="Direction has been Bullish for 8 days — since 2026-09-23.">8d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="fds" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">FDS</td>
+      <td data-sort="266.0">266.00</td>
+      <td data-sort="289.97">289.97</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ffiv" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">FFIV</td>
+      <td data-sort="454.04">454.04</td>
+      <td data-sort="421.76">421.76</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="14"><span class="in-trend trend-bull" title="Direction has been Bullish for 14 days — since 2026-09-15.">14d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="fico" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">FICO</td>
+      <td data-sort="661.25">661.25</td>
+      <td data-sort="745.13">745.13</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="46"><span class="in-trend trend-bear" title="Direction has been Bearish for 46 days — since 2026-07-30.">46d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="gd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">GD</td>
+      <td data-sort="330.09">330.09</td>
+      <td data-sort="345.47">345.47</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="28"><span class="in-trend trend-bear" title="Direction has been Bearish for 28 days — since 2026-08-25.">28d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="gild" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">GILD</td>
+      <td data-sort="144.74">144.74</td>
+      <td data-sort="142.98">142.98</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="63"><span class="in-trend trend-bull" title="Direction has been Bullish for 63 days — since 2026-07-07.">63d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="gis" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">GIS</td>
+      <td data-sort="32.01">32.01</td>
+      <td data-sort="34.54">34.54</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="20"><span class="in-trend trend-bear" title="Direction has been Bearish for 20 days — since 2026-09-04.">20d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="gnrc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">GNRC</td>
+      <td data-sort="216.8">216.80</td>
+      <td data-sort="190.46">190.46</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="12"><span class="in-trend trend-bull" title="Direction has been Bullish for 12 days — since 2026-09-17.">12d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">HD</td>
+      <td data-sort="282.85">282.85</td>
+      <td data-sort="296.82">296.82</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bear" title="Direction has been Bearish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hon" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">HON</td>
+      <td data-sort="213.99">213.99</td>
+      <td data-sort="204.05">204.05</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bull" title="Direction has been Bullish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hrl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">HRL</td>
+      <td data-sort="20.25">20.25</td>
+      <td data-sort="20.9">20.90</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="38"><span class="in-trend trend-bear" title="Direction has been Bearish for 38 days — since 2026-08-11.">38d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hsy" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">HSY</td>
+      <td data-sort="160.19">160.19</td>
+      <td data-sort="166.98">166.98</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hubb" data-signal="buy" data-flip="1" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">HUBB</td>
+      <td data-sort="475.52">475.52</td>
+      <td data-sort="440.5">440.50</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-buy">BUY</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="flip-yes">✓ Flip</span></td>
+      <td data-sort="1"><span class="in-trend trend-bull" title="Direction has been Bullish for 1 day — since 2026-10-02.">1d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="hubs" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">HUBS</td>
+      <td data-sort="214.53">214.53</td>
+      <td data-sort="233.98">233.98</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="17"><span class="in-trend trend-bear" title="Direction has been Bearish for 17 days — since 2026-09-10.">17d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="idxx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">IDXX</td>
+      <td data-sort="518.39">518.39</td>
+      <td data-sort="542.9">542.90</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="35"><span class="in-trend trend-bear" title="Direction has been Bearish for 35 days — since 2026-08-14.">35d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="intu" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">INTU</td>
+      <td data-sort="281.08">281.08</td>
+      <td data-sort="297.96">297.96</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="20"><span class="in-trend trend-bear" title="Direction has been Bearish for 20 days — since 2026-09-04.">20d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="itw" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ITW</td>
+      <td data-sort="262.92">262.92</td>
+      <td data-sort="272.13">272.13</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="25"><span class="in-trend trend-bear" title="Direction has been Bearish for 25 days — since 2026-08-28.">25d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="jnj" data-signal="none" data-flip="1" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">JNJ</td>
+      <td data-sort="256.03">256.03</td>
+      <td data-sort="269.92">269.92</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed since last run</span></td>
+      <td data-sort="2"><span class="in-trend trend-bear" title="Direction has been Bearish for 2 days — since 2026-10-01.">2d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="klac" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">KLAC</td>
+      <td data-sort="206.89">206.89</td>
+      <td data-sort="188.3">188.30</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="5"><span class="in-trend trend-bull" title="Direction has been Bullish for 5 days — since 2026-09-28.">5d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="kmb" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">KMB</td>
+      <td data-sort="94.36">94.36</td>
+      <td data-sort="99.96">99.96</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="58"><span class="in-trend trend-bear" title="Direction has been Bearish for 58 days — since 2026-07-14.">58d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="kmi" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">KMI</td>
+      <td data-sort="31.07">31.07</td>
+      <td data-sort="31.8">31.80</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="30"><span class="in-trend trend-bear" title="Direction has been Bearish for 30 days — since 2026-08-21.">30d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ko" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">KO</td>
+      <td data-sort="85.65">85.65</td>
+      <td data-sort="88.77">88.77</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="low" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">LOW</td>
+      <td data-sort="180.8">180.80</td>
+      <td data-sort="192.35">192.35</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bear" title="Direction has been Bearish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="lulu" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">LULU</td>
+      <td data-sort="94.46">94.46</td>
+      <td data-sort="104.26">104.26</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="34"><span class="in-trend trend-bear" title="Direction has been Bearish for 34 days — since 2026-08-17.">34d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mcd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MCD</td>
+      <td data-sort="231.89">231.89</td>
+      <td data-sort="242.8">242.80</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="57"><span class="in-trend trend-bear" title="Direction has been Bearish for 57 days — since 2026-07-15.">57d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mchp" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MCHP</td>
+      <td data-sort="81.32">81.32</td>
+      <td data-sort="75.04">75.04</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bull" title="Direction has been Bullish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mck" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MCK</td>
+      <td data-sort="902.28">902.28</td>
+      <td data-sort="907.38">907.38</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bear" title="Direction has been Bearish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mco" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MCO</td>
+      <td data-sort="441.36">441.36</td>
+      <td data-sort="470.54">470.54</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mdb" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MDB</td>
+      <td data-sort="357.96">357.96</td>
+      <td data-sort="397.67">397.67</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="5"><span class="in-trend trend-bear" title="Direction has been Bearish for 5 days — since 2026-09-28.">5d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mdlz" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MDLZ</td>
+      <td data-sort="58.19">58.19</td>
+      <td data-sort="60.67">60.67</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="21"><span class="in-trend trend-bear" title="Direction has been Bearish for 21 days — since 2026-09-03.">21d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="meli" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MELI</td>
+      <td data-sort="1696.56">1,696.56</td>
+      <td data-sort="1827.1">1,827.10</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="14"><span class="in-trend trend-bear" title="Direction has been Bearish for 14 days — since 2026-09-15.">14d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+        <tr class="row-error" data-ticker="mmc" data-signal="none" data-flip="0" data-held="0">
+          <td class="rail rail-none"></td>
+          <td class="col-ticker">MMC</td>
+          <td colspan="8" class="error-cell">⚠ No data returned (check ticker symbol / exchange suffix)</td>
+        </tr>
+    <tr data-ticker="mpc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MPC</td>
+      <td data-sort="422.33">422.33</td>
+      <td data-sort="424.74">424.74</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bear" title="Direction has been Bearish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mpwr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MPWR</td>
+      <td data-sort="1439.73">1,439.73</td>
+      <td data-sort="1289.77">1,289.77</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bull" title="Direction has been Bullish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="msi" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">MSI</td>
+      <td data-sort="447.41">447.41</td>
+      <td data-sort="466.86">466.86</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="mtd" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">MTD</td>
+      <td data-sort="1486.19">1,486.19</td>
+      <td data-sort="1431.5">1,431.50</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="13"><span class="in-trend trend-bull" title="Direction has been Bullish for 13 days — since 2026-09-16.">13d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nee" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">NEE</td>
+      <td data-sort="76.83">76.83</td>
+      <td data-sort="78.71">78.71</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="41"><span class="in-trend trend-bear" title="Direction has been Bearish for 41 days — since 2026-08-06.">41d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="net" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">NET</td>
+      <td data-sort="349.07">349.07</td>
+      <td data-sort="312.92">312.92</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="15"><span class="in-trend trend-bull" title="Direction has been Bullish for 15 days — since 2026-09-14.">15d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="nke" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">NKE</td>
+      <td data-sort="33.87">33.87</td>
+      <td data-sort="35.95">35.95</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="37"><span class="in-trend trend-bear" title="Direction has been Bearish for 37 days — since 2026-08-12.">37d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="noc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">NOC</td>
+      <td data-sort="478.0">478.00</td>
+      <td data-sort="505.17">505.17</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="29"><span class="in-trend trend-bear" title="Direction has been Bearish for 29 days — since 2026-08-24.">29d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="o" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">O</td>
+      <td data-sort="54.13">54.13</td>
+      <td data-sort="55.94">55.94</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="43"><span class="in-trend trend-bear" title="Direction has been Bearish for 43 days — since 2026-08-04.">43d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="odfl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ODFL</td>
+      <td data-sort="180.48">180.48</td>
+      <td data-sort="186.83">186.83</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="46"><span class="in-trend trend-bear" title="Direction has been Bearish for 46 days — since 2026-07-30.">46d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="okta" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">OKTA</td>
+      <td data-sort="211.49">211.49</td>
+      <td data-sort="189.74">189.74</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bull" title="Direction has been Bullish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="orly" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ORLY</td>
+      <td data-sort="84.9">84.90</td>
+      <td data-sort="88.32">88.32</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="oxy" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">OXY</td>
+      <td data-sort="58.08">58.08</td>
+      <td data-sort="58.89">58.89</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="11"><span class="in-trend trend-bear" title="Direction has been Bearish for 11 days — since 2026-09-18.">11d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="payc" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PAYC</td>
+      <td data-sort="220.99">220.99</td>
+      <td data-sort="234.74">234.74</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pcty" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PCTY</td>
+      <td data-sort="144.47">144.47</td>
+      <td data-sort="152.99">152.99</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="peg" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PEG</td>
+      <td data-sort="68.07">68.07</td>
+      <td data-sort="69.47">69.47</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="56"><span class="in-trend trend-bear" title="Direction has been Bearish for 56 days — since 2026-07-16.">56d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pep" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PEP</td>
+      <td data-sort="125.89">125.89</td>
+      <td data-sort="131.19">131.19</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="20"><span class="in-trend trend-bear" title="Direction has been Bearish for 20 days — since 2026-09-04.">20d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pg" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">PG</td>
+      <td data-sort="144.91">144.91</td>
+      <td data-sort="142.74">142.74</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="5"><span class="in-trend trend-bull" title="Direction has been Bullish for 5 days — since 2026-09-28.">5d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pgr" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PGR</td>
+      <td data-sort="210.31">210.31</td>
+      <td data-sort="214.67">214.67</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="10"><span class="in-trend trend-bear" title="Direction has been Bearish for 10 days — since 2026-09-21.">10d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ph" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PH</td>
+      <td data-sort="972.55">972.55</td>
+      <td data-sort="983.65">983.65</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bear" title="Direction has been Bearish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pld" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PLD</td>
+      <td data-sort="128.91">128.91</td>
+      <td data-sort="133.71">133.71</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="43"><span class="in-trend trend-bear" title="Direction has been Bearish for 43 days — since 2026-08-04.">43d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pool" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">POOL</td>
+      <td data-sort="161.42">161.42</td>
+      <td data-sort="171.69">171.69</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="psa" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PSA</td>
+      <td data-sort="283.81">283.81</td>
+      <td data-sort="296.98">296.98</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bear" title="Direction has been Bearish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="psx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">PSX</td>
+      <td data-sort="264.58">264.58</td>
+      <td data-sort="271.94">271.94</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="5"><span class="in-trend trend-bear" title="Direction has been Bearish for 5 days — since 2026-09-28.">5d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="pwr" data-signal="buy" data-flip="1" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">PWR</td>
+      <td data-sort="676.56">676.56</td>
+      <td data-sort="624.11">624.11</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-buy">BUY</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="flip-yes">✓ Flip</span></td>
+      <td data-sort="1"><span class="in-trend trend-bull" title="Direction has been Bullish for 1 day — since 2026-10-02.">1d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="regn" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">REGN</td>
+      <td data-sort="735.2">735.20</td>
+      <td data-sort="791.58">791.58</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="17"><span class="in-trend trend-bear" title="Direction has been Bearish for 17 days — since 2026-09-10.">17d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="rok" data-signal="none" data-flip="1" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">ROK</td>
+      <td data-sort="454.35">454.35</td>
+      <td data-sort="425.37">425.37</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="flip-changed" title="Direction differs from your last run, though it did not cross on the very latest bar - you likely missed the exact day.">↺ Changed since last run</span></td>
+      <td data-sort="2"><span class="in-trend trend-bull" title="Direction has been Bullish for 2 days — since 2026-10-01.">2d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="rop" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ROP</td>
+      <td data-sort="354.32">354.32</td>
+      <td data-sort="373.36">373.36</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="rost" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ROST</td>
+      <td data-sort="228.54">228.54</td>
+      <td data-sort="238.09">238.09</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="34"><span class="in-trend trend-bear" title="Direction has been Bearish for 34 days — since 2026-08-17.">34d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+        <tr class="row-error" data-ticker="rsx" data-signal="none" data-flip="0" data-held="0">
+          <td class="rail rail-none"></td>
+          <td class="col-ticker">RSX</td>
+          <td colspan="8" class="error-cell">⚠ No data returned (check ticker symbol / exchange suffix)</td>
+        </tr>
+    <tr data-ticker="rtx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">RTX</td>
+      <td data-sort="184.68">184.68</td>
+      <td data-sort="193.35">193.35</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="31"><span class="in-trend trend-bear" title="Direction has been Bearish for 31 days — since 2026-08-20.">31d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="sbux" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SBUX</td>
+      <td data-sort="94.71">94.71</td>
+      <td data-sort="99.19">99.19</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="schw" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SCHW</td>
+      <td data-sort="96.7">96.70</td>
+      <td data-sort="102.89">102.89</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="26"><span class="in-trend trend-bear" title="Direction has been Bearish for 26 days — since 2026-08-27.">26d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="snps" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">SNPS</td>
+      <td data-sort="489.9">489.90</td>
+      <td data-sort="440.71">440.71</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="8"><span class="in-trend trend-bull" title="Direction has been Bullish for 8 days — since 2026-09-23.">8d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="so" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SO</td>
+      <td data-sort="83.72">83.72</td>
+      <td data-sort="85.57">85.57</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="44"><span class="in-trend trend-bear" title="Direction has been Bearish for 44 days — since 2026-08-03.">44d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="spg" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SPG</td>
+      <td data-sort="200.95">200.95</td>
+      <td data-sort="207.27">207.27</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="43"><span class="in-trend trend-bear" title="Direction has been Bearish for 43 days — since 2026-08-04.">43d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="spgi" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SPGI</td>
+      <td data-sort="386.27">386.27</td>
+      <td data-sort="408.02">408.02</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="17"><span class="in-trend trend-bear" title="Direction has been Bearish for 17 days — since 2026-09-10.">17d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="spot" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SPOT</td>
+      <td data-sort="472.89">472.89</td>
+      <td data-sort="523.22">523.22</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="11"><span class="in-trend trend-bear" title="Direction has been Bearish for 11 days — since 2026-09-18.">11d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="sre" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SRE</td>
+      <td data-sort="78.38">78.38</td>
+      <td data-sort="81.11">81.11</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="54"><span class="in-trend trend-bear" title="Direction has been Bearish for 54 days — since 2026-07-20.">54d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="syk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">SYK</td>
+      <td data-sort="275.43">275.43</td>
+      <td data-sort="292.3">292.30</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="t" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">T</td>
+      <td data-sort="24.3">24.30</td>
+      <td data-sort="25.58">25.58</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bear" title="Direction has been Bearish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+        <tr class="row-error" data-ticker="tdx" data-signal="none" data-flip="0" data-held="0">
+          <td class="rail rail-none"></td>
+          <td class="col-ticker">TDX</td>
+          <td colspan="8" class="error-cell">⚠ No data returned (check ticker symbol / exchange suffix)</td>
+        </tr>
+    <tr data-ticker="tjx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TJX</td>
+      <td data-sort="132.68">132.68</td>
+      <td data-sort="126.15">126.15</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="8"><span class="in-trend trend-bull" title="Direction has been Bullish for 8 days — since 2026-09-23.">8d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tmo" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TMO</td>
+      <td data-sort="654.8">654.80</td>
+      <td data-sort="639.66">639.66</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="89"><span class="in-trend trend-bull" title="Direction has been Bullish for 89 days — since 2026-05-28.">89d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tmus" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">TMUS</td>
+      <td data-sort="163.64">163.64</td>
+      <td data-sort="173.17">173.17</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="51"><span class="in-trend trend-bear" title="Direction has been Bearish for 51 days — since 2026-07-23.">51d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="trv" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">TRV</td>
+      <td data-sort="360.38">360.38</td>
+      <td data-sort="374.66">374.66</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="37"><span class="in-trend trend-bear" title="Direction has been Bearish for 37 days — since 2026-08-12.">37d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tsco" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">TSCO</td>
+      <td data-sort="31.09">31.09</td>
+      <td data-sort="33.71">33.71</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="16"><span class="in-trend trend-bear" title="Direction has been Bearish for 16 days — since 2026-09-11.">16d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tt" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">TT</td>
+      <td data-sort="463.91">463.91</td>
+      <td data-sort="434.73">434.73</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bull" title="Direction has been Bullish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="ttwo" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">TTWO</td>
+      <td data-sort="202.73">202.73</td>
+      <td data-sort="217.11">217.11</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="tyl" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">TYL</td>
+      <td data-sort="322.81">322.81</td>
+      <td data-sort="346.43">346.43</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="uber" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">UBER</td>
+      <td data-sort="68.11">68.11</td>
+      <td data-sort="72.1">72.10</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="unp" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">UNP</td>
+      <td data-sort="278.28">278.28</td>
+      <td data-sort="282.38">282.38</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="23"><span class="in-trend trend-bear" title="Direction has been Bearish for 23 days — since 2026-09-01.">23d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="veev" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">VEEV</td>
+      <td data-sort="273.33">273.33</td>
+      <td data-sort="264.32">264.32</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="69"><span class="in-trend trend-bull" title="Direction has been Bullish for 69 days — since 2026-06-26.">69d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="vlo" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">VLO</td>
+      <td data-sort="406.3">406.30</td>
+      <td data-sort="415.01">415.01</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="9"><span class="in-trend trend-bear" title="Direction has been Bearish for 9 days — since 2026-09-22.">9d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="vlto" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">VLTO</td>
+      <td data-sort="94.68">94.68</td>
+      <td data-sort="98.51">98.51</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="17"><span class="in-trend trend-bear" title="Direction has been Bearish for 17 days — since 2026-09-10.">17d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="vrsk" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">VRSK</td>
+      <td data-sort="163.88">163.88</td>
+      <td data-sort="178.84">178.84</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="45"><span class="in-trend trend-bear" title="Direction has been Bearish for 45 days — since 2026-07-31.">45d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="vrtx" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">VRTX</td>
+      <td data-sort="504.73">504.73</td>
+      <td data-sort="534.08">534.08</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="18"><span class="in-trend trend-bear" title="Direction has been Bearish for 18 days — since 2026-09-09.">18d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="vz" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">VZ</td>
+      <td data-sort="45.92">45.92</td>
+      <td data-sort="48.24">48.24</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="12"><span class="in-trend trend-bear" title="Direction has been Bearish for 12 days — since 2026-09-17.">12d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wcn" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WCN</td>
+      <td data-sort="153.82">153.82</td>
+      <td data-sort="159.36">159.36</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="19"><span class="in-trend trend-bear" title="Direction has been Bearish for 19 days — since 2026-09-08.">19d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="well" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WELL</td>
+      <td data-sort="227.71">227.71</td>
+      <td data-sort="239.3">239.30</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="46"><span class="in-trend trend-bear" title="Direction has been Bearish for 46 days — since 2026-07-30.">46d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WM</td>
+      <td data-sort="204.45">204.45</td>
+      <td data-sort="211.05">211.05</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="46"><span class="in-trend trend-bear" title="Direction has been Bearish for 46 days — since 2026-07-30.">46d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wmb" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WMB</td>
+      <td data-sort="70.54">70.54</td>
+      <td data-sort="72.44">72.44</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="6"><span class="in-trend trend-bear" title="Direction has been Bearish for 6 days — since 2026-09-25.">6d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="wsm" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">WSM</td>
+      <td data-sort="232.3">232.30</td>
+      <td data-sort="239.38">239.38</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="24"><span class="in-trend trend-bear" title="Direction has been Bearish for 24 days — since 2026-08-31.">24d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="xel" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">XEL</td>
+      <td data-sort="71.4">71.40</td>
+      <td data-sort="72.45">72.45</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="46"><span class="in-trend trend-bear" title="Direction has been Bearish for 46 days — since 2026-07-30.">46d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="xom" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bull"></td>
+      <td class="col-ticker">XOM</td>
+      <td data-sort="164.01">164.01</td>
+      <td data-sort="157.85">157.85</td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bull">▲ Bullish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="17"><span class="in-trend trend-bull" title="Direction has been Bullish for 17 days — since 2026-09-10.">17d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+    <tr data-ticker="zts" data-signal="none" data-flip="0" data-held="0">
+      <td class="rail rail-bear"></td>
+      <td class="col-ticker">ZTS</td>
+      <td data-sort="69.69">69.69</td>
+      <td data-sort="73.89">73.89</td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="badge badge-none">—</span></td>
+      <td><span class="dir dir-bear">▼ Bearish</span></td>
+      <td><span class="muted">—</span></td>
+      <td data-sort="144"><span class="in-trend trend-bear" title="Direction has been Bearish for 144 days — since 2026-03-10.">144d</span></td>
+      <td><span class="muted">—</span></td>
+      <td>—</td>
+      <td class="muted small">2026-10-02</td>
+    </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Parameters: ATR period 10, multiplier 2.5, daily interval. Data via Yahoo Finance (yfinance).
+    "Last Recorded" reflects the signal saved the previous time you ran this scanner (blank if the stock was just added).
+    "Flip" covers both a fresh cross on the latest bar and a direction that differs from your last run even if you
+    missed the exact day it happened — so it stays accurate even if you skip a run.
+    This report is a personal analysis tool, not investment advice — verify signals independently before trading.
+  </footer>
+
+</div>
+
+<script>
+  (function() {
+    var currentFilter = 'all';
+    var searchTerm = '';
+
+    function applyFilters() {
+      var rows = document.querySelectorAll('#scan-table tbody tr');
+      rows.forEach(function(row) {
+        var signal = row.getAttribute('data-signal');
+        var flip = row.getAttribute('data-flip');
+        var held = row.getAttribute('data-held');
+        var ticker = row.getAttribute('data-ticker') || '';
+
+        var matchesFilter = true;
+        if (currentFilter === 'buy') matchesFilter = signal === 'buy';
+        else if (currentFilter === 'sell') matchesFilter = signal === 'sell';
+        else if (currentFilter === 'flip') matchesFilter = flip === '1';
+        else if (currentFilter === 'held') matchesFilter = held === '1';
+
+        var matchesSearch = ticker.indexOf(searchTerm) !== -1;
+
+        row.classList.toggle('hidden-row', !(matchesFilter && matchesSearch));
+      });
+    }
+
+    document.querySelectorAll('.chip-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.chip-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    var search = document.getElementById('search-box');
+    if (search) {
+      search.addEventListener('input', function() {
+        searchTerm = search.value.trim().toLowerCase();
+        applyFilters();
+      });
+    }
+
+    var sortState = {};
+    document.querySelectorAll('#scan-table thead th').forEach(function(th, colIndex) {
+      th.addEventListener('click', function() {
+        var table = document.getElementById('scan-table');
+        var tbody = table.querySelector('tbody');
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+
+        var asc = !(sortState[colIndex] === 'asc');
+        sortState = {};
+        sortState[colIndex] = asc ? 'asc' : 'desc';
+
+        document.querySelectorAll('#scan-table thead th').forEach(function(h) {
+          h.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+
+        rows.sort(function(a, b) {
+          var cellA = a.children[colIndex];
+          var cellB = b.children[colIndex];
+          if (!cellA || !cellB) return 0;
+          var va = cellA.getAttribute('data-sort');
+          var vb = cellB.getAttribute('data-sort');
+          if (va !== null && vb !== null) {
+            va = parseFloat(va); vb = parseFloat(vb);
+            return asc ? va - vb : vb - va;
+          }
+          var ta = cellA.textContent.trim().toLowerCase();
+          var tb = cellB.textContent.trim().toLowerCase();
+          if (ta < tb) return asc ? -1 : 1;
+          if (ta > tb) return asc ? 1 : -1;
+          return 0;
+        });
+
+        rows.forEach(function(r) { tbody.appendChild(r); });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

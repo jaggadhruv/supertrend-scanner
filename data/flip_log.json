@@ -1,5 +1,47 @@
 [
   {
+    "ticker": "CAT",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-02",
+    "recorded_at": "2026-10-02",
+    "close": 845.42,
+    "supertrend": 791.11,
+    "quality_score": 72,
+    "quality_volume_ratio": 1.02,
+    "quality_momentum_pct": 2.9,
+    "quality_prior_run": 62
+  },
+  {
+    "ticker": "HUBB",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-02",
+    "recorded_at": "2026-10-02",
+    "close": 475.52,
+    "supertrend": 440.5,
+    "quality_score": 54,
+    "quality_volume_ratio": 0.95,
+    "quality_momentum_pct": 1.91,
+    "quality_prior_run": 31
+  },
+  {
+    "ticker": "PWR",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-02",
+    "recorded_at": "2026-10-02",
+    "close": 676.56,
+    "supertrend": 624.11,
+    "quality_score": 72,
+    "quality_volume_ratio": 1.05,
+    "quality_momentum_pct": 4.23,
+    "quality_prior_run": 28
+  },
+  {
     "ticker": "GEV",
     "timeframe": "daily",
     "direction": "Bullish",
