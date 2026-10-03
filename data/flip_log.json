@@ -112,6 +112,48 @@
     "quality_prior_run": 6
   },
   {
+    "ticker": "AJG",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-28",
+    "recorded_at": "2026-10-03",
+    "close": 226.11,
+    "supertrend": 267.91,
+    "quality_score": 43,
+    "quality_volume_ratio": 1.17,
+    "quality_momentum_pct": -15.49,
+    "quality_prior_run": 13
+  },
+  {
+    "ticker": "CDNS",
+    "timeframe": "weekly",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-09-28",
+    "recorded_at": "2026-10-03",
+    "close": 351.35,
+    "supertrend": 258.57,
+    "quality_score": 57,
+    "quality_volume_ratio": 1.1,
+    "quality_momentum_pct": 3.22,
+    "quality_prior_run": 7
+  },
+  {
+    "ticker": "MCO",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-09-28",
+    "recorded_at": "2026-10-03",
+    "close": 441.36,
+    "supertrend": 517.61,
+    "quality_score": 50,
+    "quality_volume_ratio": 1.36,
+    "quality_momentum_pct": -14.29,
+    "quality_prior_run": 11
+  },
+  {
     "ticker": "ABT",
     "timeframe": "weekly",
     "direction": "Bearish",
