@@ -32,7 +32,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 233.95,
-    "supertrend": 193.13
+    "supertrend": 193.14
   },
   "META": {
     "last_run_date": "2026-10-03",
@@ -459,7 +459,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 159.02,
-    "supertrend": 200.12
+    "supertrend": 200.11
   },
   "BABA": {
     "last_run_date": "2026-10-03",
@@ -501,7 +501,7 @@
     "direction": "Bearish",
     "signal": "SELL",
     "close": 193.56,
-    "supertrend": 224.1
+    "supertrend": 224.12
   },
   "LMT": {
     "last_run_date": "2026-10-03",
@@ -704,7 +704,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 129.58,
-    "supertrend": 153.33
+    "supertrend": 153.67
   },
   "CDNS": {
     "last_run_date": "2026-10-03",
@@ -837,7 +837,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 79.12,
-    "supertrend": 95.08
+    "supertrend": 95.14
   },
   "DHR": {
     "last_run_date": "2026-10-03",
@@ -1082,7 +1082,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 94.46,
-    "supertrend": 124.89
+    "supertrend": 124.88
   },
   "MCD": {
     "last_run_date": "2026-10-03",
@@ -1327,7 +1327,7 @@
     "direction": "Bearish",
     "signal": "SELL",
     "close": 354.32,
-    "supertrend": 414.72
+    "supertrend": 414.78
   },
   "ROST": {
     "last_run_date": "2026-10-03",
@@ -1481,7 +1481,7 @@
     "direction": "Bearish",
     "signal": "NONE",
     "close": 278.28,
-    "supertrend": 305.87
+    "supertrend": 305.91
   },
   "VEEV": {
     "last_run_date": "2026-10-03",
