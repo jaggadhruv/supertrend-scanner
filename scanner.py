@@ -6,9 +6,9 @@ Weekly Supertrend positional-trade scan. Run this file directly:
     python scanner.py
 
 Best run on a weekend, after Friday's close, so every weekly candle is
-fully closed. Uses the shared logic in engine.py. Writes its report to
-output/weekly/report_<date>.html and remembers state in
-data/weekly_history.json.
+fully closed. Reads tickers from stocks.csv — your single curated
+watchlist. Add or remove rows there whenever you want; the scanner
+picks up changes on the next run.
 """
 
 import os
@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG = ScanConfig(
     label="Weekly",
     interval="1wk",
-    lookback_period="3y",       # ~3 years of weekly bars
+    lookback_period="3y",
     atr_period=10,
     atr_multiplier=2.5,
     stocks_file=os.path.join(BASE_DIR, "stocks.csv"),

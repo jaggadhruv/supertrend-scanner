@@ -1,14 +1,25 @@
 """
 engine.py
 ---------
-Shared scan engine. scanner.py (weekly) and daily_scanner.py (daily) both
-call run_scan() with their own ScanConfig - the fetching / indicator /
-alerting / reporting logic itself doesn't care which timeframe it's on.
+Shared scan engine. scanner.py (weekly), daily_scanner.py (daily), and
+combined_scanner.py all call run_analysis()/run_scan() with their own
+ScanConfig. The fetching, indicator math, alerting, flip logging, and
+cleanup logic doesn't care which timeframe it's on.
 
-Skip-safety: nothing here assumes you run on a fixed schedule. Every run
-re-downloads a full lookback window and recomputes Supertrend from
+Skip-safety: nothing here assumes you run on a fixed schedule. Every
+run re-downloads a full lookback window and recomputes Supertrend from
 scratch, so there's nothing that can go "stale" or break if you miss a
 day (or a week). See analyze_ticker() for exactly how that's handled.
+
+Watchlist layering: cfg.stocks_file can be a single CSV path OR a list
+of CSV paths. All of them are read, deduped (case-insensitive on the
+ticker), and merged in list order. Missing files are silently skipped
+so you can refer to data/universe.csv even on a brand-new repo.
+
+Flip log: data/flip_log.json records every BUY/SELL flip across runs.
+BUY logging is gated on quality_score >= min_quality (default 60) so
+noise doesn't accumulate. SELL logging has no quality gate because the
+held-bearish alert path depends on it.
 """
 
 import json
@@ -16,8 +27,9 @@ import os
 import re
 import time
 import traceback
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
+from typing import Union, List, Optional, Set
 
 import pandas as pd
 import yfinance as yf
@@ -25,14 +37,17 @@ import yfinance as yf
 from supertrend import calculate_supertrend
 
 
+# --------------------------------------------------------------------------
+# Config
+# --------------------------------------------------------------------------
 @dataclass
 class ScanConfig:
-    label: str              # "Weekly" or "Daily" - shown in the report title
-    interval: str            # yfinance interval: "1wk" or "1d"
-    lookback_period: str     # yfinance period: e.g. "3y" or "1y"
+    label: str                # "Weekly" or "Daily" - shown in the report title
+    interval: str              # yfinance interval: "1wk" or "1d"
+    lookback_period: str       # yfinance period: e.g. "3y" or "1y"
     atr_period: int
     atr_multiplier: float
-    stocks_file: str
+    stocks_file: Union[str, List[str]]   # single path or list of paths; see load_stock_list
     trades_file: str
     history_file: str
     output_dir: str
@@ -46,26 +61,38 @@ class ScanConfig:
 # --------------------------------------------------------------------------
 # IO helpers (timeframe-agnostic)
 # --------------------------------------------------------------------------
-def load_stock_list(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Watchlist not found: {path}")
-    df = pd.read_csv(path)
-    col = df.columns[0]
-    tickers = (
-        df[col]
-        .dropna()
-        .astype(str)
-        .str.strip()
-        .replace("", pd.NA)
-        .dropna()
-        .tolist()
-    )
+def load_stock_list(path_or_paths):
+    """
+    Load tickers from one CSV or a list of CSVs. Dedupes case-insensitively
+    while preserving first-seen order. Missing files are silently skipped —
+    useful because data/universe.csv won't exist until refresh_universe.py
+    has run at least once.
+
+    Each CSV must have a header row and tickers in the first column.
+    Raises FileNotFoundError only if NO source could be read.
+    """
+    paths = [path_or_paths] if isinstance(path_or_paths, str) else list(path_or_paths)
     seen = set()
     out = []
-    for t in tickers:
-        if t.upper() not in seen:
-            seen.add(t.upper())
-            out.append(t)
+    read_any = False
+    for path in paths:
+        if not os.path.exists(path):
+            continue
+        read_any = True
+        df = pd.read_csv(path)
+        if df.empty or len(df.columns) == 0:
+            continue
+        col = df.columns[0]
+        for t in df[col].dropna().astype(str):
+            t = t.strip()
+            if not t:
+                continue
+            key = t.upper()
+            if key not in seen:
+                seen.add(key)
+                out.append(t)
+    if not read_any:
+        raise FileNotFoundError(f"No watchlist file found. Looked in: {paths}")
     return out
 
 
@@ -97,18 +124,14 @@ def save_history(path, history):
 
 
 # --------------------------------------------------------------------------
-# Flip log — a persistent, timeframe-spanning record of every BUY/SELL flip
-#
-# Every entry point (scanner.py, daily_scanner.py, combined_scanner.py) feeds
-# the SAME file: data/flip_log.json (path derived from cfg.history_file's
-# directory). Entries are deduplicated on (ticker, timeframe, flip_date) so
-# it's safe to re-run any scanner as often as you like.
+# Flip log
 # --------------------------------------------------------------------------
 FLIP_LOG_MAX_AGE_DAYS = 180
+DEFAULT_MIN_FLIP_QUALITY = 60      # BUY flips below this score are not logged
+WEEKLY_CONFLUENCE_BONUS = 15       # extra quality for daily BUYs whose weekly agrees
 
 
 def _flip_log_path(cfg: "ScanConfig") -> str:
-    """Both weekly and daily scanners share one flip log next to their histories."""
     return os.path.join(os.path.dirname(cfg.history_file), "flip_log.json")
 
 
@@ -130,12 +153,27 @@ def save_flip_log(path: str, log: list) -> None:
 
 
 def record_flips(cfg: "ScanConfig", results: list, run_date: str,
-                 max_age_days: int = FLIP_LOG_MAX_AGE_DAYS) -> int:
+                 min_quality: Optional[int] = None,
+                 weekly_bullish_tickers: Optional[Set[str]] = None,
+                 max_age_days: int = FLIP_LOG_MAX_AGE_DAYS) -> dict:
     """
-    Append fresh BUY/SELL flips (r["signal"] in {"BUY","SELL"}) to
-    data/flip_log.json. Dedupes on (ticker, timeframe, flip_date), prunes
-    entries older than max_age_days, and re-sorts newest first. Returns
-    the number of NEW entries added on this call.
+    Append fresh BUY/SELL flips to data/flip_log.json. Dedupes on
+    (ticker, timeframe, flip_date), prunes entries older than
+    max_age_days, and re-sorts newest first.
+
+    Quality gate (BUY only):
+      - If min_quality is set, a BUY is logged only when its final
+        quality_score (after weekly-confluence boost) is >= min_quality.
+      - SELLs are always logged — the held-bearish alert depends on
+        them regardless of score.
+
+    Weekly confluence boost (daily BUYs only):
+      - If weekly_bullish_tickers is provided, any daily BUY whose
+        ticker is in that set gets a +WEEKLY_CONFLUENCE_BONUS boost on
+        its logged quality_score, capped at 100. The boosted value is
+        what the quality gate above checks.
+
+    Returns a dict: {"added": int, "skipped_low_quality": int}.
     """
     path = _flip_log_path(cfg)
     log = load_flip_log(path)
@@ -143,6 +181,7 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
 
     existing = {(e.get("ticker"), e.get("timeframe"), e.get("flip_date")) for e in log}
     added = 0
+    skipped_low_q = 0
     for r in results:
         if r.get("status") != "ok":
             continue
@@ -151,22 +190,44 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
         key = (r["ticker"], timeframe, r["last_bar_date"])
         if key in existing:
             continue
+
+        # Base quality + optional weekly-confluence boost (daily BUYs only)
+        base_q = r.get("quality_score")
+        boosted_q = base_q
+        has_confluence = False
+        if (base_q is not None
+                and timeframe == "daily"
+                and r.get("signal") == "BUY"
+                and weekly_bullish_tickers is not None
+                and r["ticker"] in weekly_bullish_tickers):
+            boosted_q = min(100, int(base_q) + WEEKLY_CONFLUENCE_BONUS)
+            has_confluence = True
+
+        # Quality gate (BUY only) — low-quality BUYs are detected but not
+        # persisted. The user still sees them this run if the report
+        # happens to look at results directly, but they don't accumulate.
+        if (min_quality is not None
+                and r.get("signal") == "BUY"
+                and boosted_q is not None
+                and boosted_q < min_quality):
+            skipped_low_q += 1
+            continue
+
         log.append({
             "ticker": r["ticker"],
             "timeframe": timeframe,
             "direction": r["direction"],
             "signal": r["signal"],
-            "flip_date": r["last_bar_date"],   # the actual bar the flip landed on
-            "recorded_at": run_date,           # the run that first saw it
+            "flip_date": r["last_bar_date"],
+            "recorded_at": run_date,
             "close": r.get("close"),
             "supertrend": r.get("supertrend"),
-            # Quality (BUY-oriented) — stored so the panel can rank without
-            # re-computing. Present on new entries; older entries filed
-            # before this feature will have these keys missing.
-            "quality_score": r.get("quality_score"),
+            "quality_score": boosted_q,
+            "quality_base_score": base_q,
             "quality_volume_ratio": r.get("quality_volume_ratio"),
             "quality_momentum_pct": r.get("quality_momentum_pct"),
             "quality_prior_run": r.get("quality_prior_run"),
+            "weekly_confluence": has_confluence,
         })
         existing.add(key)
         added += 1
@@ -178,31 +239,29 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
         cutoff = "0000-00-00"
     log = [e for e in log if (e.get("flip_date") or "0000-00-00") >= cutoff]
 
-    # Newest first — the report reads this file top-down.
     log.sort(key=lambda e: (e.get("flip_date") or "", e.get("recorded_at") or ""), reverse=True)
-
     save_flip_log(path, log)
-    return added
+    return {"added": added, "skipped_low_quality": skipped_low_q}
+
+
+def recent_flips(log: list, days: int = 7, run_date: Optional[str] = None):
+    """Filter to flips within `days` calendar days of run_date."""
+    if run_date is None:
+        run_date = date.today().isoformat()
+    try:
+        cutoff = (date.fromisoformat(run_date) - timedelta(days=days)).isoformat()
+    except ValueError:
+        return []
+    return [e for e in log if (e.get("flip_date") or "") >= cutoff]
 
 
 # --------------------------------------------------------------------------
 # Output-folder cleanup
-#
-# Report files pile up: one HTML per run per timeframe. This helper deletes
-# report_YYYY-MM-DD.html files whose date is older than `days` from run_date,
-# so `output/weekly/`, `output/daily/`, `output/combined/`, and the published
-# `docs/reports/` folder stay bounded.
 # --------------------------------------------------------------------------
 _REPORT_FILENAME_RE = re.compile(r"^report_(\d{4}-\d{2}-\d{2})\.html$")
 
 
-def prune_old_reports(output_dir: str, days: int = 30, run_date: str = None) -> int:
-    """
-    Delete report_YYYY-MM-DD.html files whose date is more than `days`
-    days before run_date. Returns the number of files removed. Silent if
-    the directory doesn't exist. Anything not matching the report_<date>.html
-    pattern (README.txt, index.html, subfolders, ad-hoc files) is left alone.
-    """
+def prune_old_reports(output_dir: str, days: int = 30, run_date: Optional[str] = None) -> int:
     if not os.path.isdir(output_dir):
         return 0
     if run_date is None:
@@ -211,7 +270,6 @@ def prune_old_reports(output_dir: str, days: int = 30, run_date: str = None) -> 
         cutoff = (date.fromisoformat(run_date) - timedelta(days=days)).isoformat()
     except ValueError:
         return 0
-
     removed = 0
     for name in os.listdir(output_dir):
         m = _REPORT_FILENAME_RE.match(name)
@@ -224,21 +282,6 @@ def prune_old_reports(output_dir: str, days: int = 30, run_date: str = None) -> 
             except OSError:
                 pass
     return removed
-
-
-def recent_flips(log: list, days: int = 7, run_date: str | None = None):
-    """
-    Filter to flips whose flip_date is within `days` calendar days of
-    run_date (defaults to today). Preserves the log's existing sort order
-    (newest first).
-    """
-    if run_date is None:
-        run_date = date.today().isoformat()
-    try:
-        cutoff = (date.fromisoformat(run_date) - timedelta(days=days)).isoformat()
-    except ValueError:
-        return []
-    return [e for e in log if (e.get("flip_date") or "") >= cutoff]
 
 
 # --------------------------------------------------------------------------
@@ -256,30 +299,15 @@ def fetch_data(ticker, interval, period):
 
 def _compute_quality(st_df, bars_in_trend: int):
     """
-    Rate the "quality" of the CURRENT trend (bull or bear) as a 0-100 score,
-    for showing on BUY flip cards where too many candidates need triage.
-    A high score means: the flip happened on strong volume, the price is
-    already up meaningfully over the last week, and the prior opposite
-    trend was long enough that this reversal isn't just noise.
-
-    Components (each independently sensible; sum to a 100-max score):
-      • Volume surge (35 pts) - latest bar volume vs 20-bar average.
-        Strong volume on a flip = real buying, not drift.
-      • 5-bar momentum (30 pts) - percent change over the last 5 bars.
-        Rewards flips already showing follow-through.
-      • Prior-trend maturity (35 pts) - length of the opposite-direction
-        run immediately before the current one. A one-bar prior bear that
-        flips bull is usually whipsaw; a 15-bar prior bear that finally
-        flips is a genuine reversal.
-
-    Returns a dict of the score plus the raw components, so the UI can
-    show why a score is what it is. If any input is unavailable (short
-    history, no Volume column) the affected component falls back to a
-    neutral partial credit instead of NaN.
+    Rate the current trend's quality as a 0-100 score. Three components:
+      - Volume surge (0-35): latest bar vol / 20-bar avg
+      - 5-bar momentum (0-30): % change over last 5 bars
+      - Prior-trend maturity (0-35): length of opposite-direction run
+    See _compute_quality's inline comments for the exact bands.
     """
     n = len(st_df)
 
-    # --- Volume surge (0-35) -----------------------------------------
+    # Volume
     vol_ratio = None
     if "Volume" in st_df.columns and n >= 20:
         try:
@@ -288,15 +316,14 @@ def _compute_quality(st_df, bars_in_trend: int):
             vol_ratio = recent_vol / avg_vol if avg_vol > 0 else None
         except (TypeError, ValueError):
             vol_ratio = None
-    if vol_ratio is None:
-        vol_score = 15                                 # neutral fallback
-    elif vol_ratio >= 2.0: vol_score = 35
-    elif vol_ratio >= 1.5: vol_score = 28
-    elif vol_ratio >= 1.2: vol_score = 22
-    elif vol_ratio >= 1.0: vol_score = 15
-    else:                  vol_score = 7
+    if vol_ratio is None:   vol_score = 15
+    elif vol_ratio >= 2.0:  vol_score = 35
+    elif vol_ratio >= 1.5:  vol_score = 28
+    elif vol_ratio >= 1.2:  vol_score = 22
+    elif vol_ratio >= 1.0:  vol_score = 15
+    else:                   vol_score = 7
 
-    # --- 5-bar momentum (0-30) --------------------------------------
+    # Momentum
     mom_pct = None
     if n >= 6:
         try:
@@ -306,18 +333,14 @@ def _compute_quality(st_df, bars_in_trend: int):
                 mom_pct = (c_now / c5 - 1.0) * 100.0
         except (TypeError, ValueError):
             mom_pct = None
-    if mom_pct is None:
-        mom_score = 12                                 # neutral fallback
-    elif mom_pct >= 5:   mom_score = 30
-    elif mom_pct >= 2:   mom_score = 22
-    elif mom_pct >= 0:   mom_score = 12
-    elif mom_pct >= -2:  mom_score = 5
-    else:                mom_score = 0
+    if mom_pct is None:   mom_score = 12
+    elif mom_pct >= 5:    mom_score = 30
+    elif mom_pct >= 2:    mom_score = 22
+    elif mom_pct >= 0:    mom_score = 12
+    elif mom_pct >= -2:   mom_score = 5
+    else:                 mom_score = 0
 
-    # --- Prior-trend maturity (0-35) --------------------------------
-    # bars_in_trend bars back is where the CURRENT run began. Immediately
-    # before that is the last bar of the opposite trend; walk back
-    # counting how long that ran.
+    # Prior-trend maturity
     prior_run = 0
     try:
         dir_series = st_df["Direction"].to_numpy()
@@ -326,7 +349,6 @@ def _compute_quality(st_df, bars_in_trend: int):
         if end_of_prior >= 0:
             prior_dir = dir_series[end_of_prior]
             if prior_dir != current_dir:
-                # Walk back from end_of_prior while direction stays == prior_dir
                 for i in range(end_of_prior, -1, -1):
                     if dir_series[i] == prior_dir:
                         prior_run += 1
@@ -342,9 +364,8 @@ def _compute_quality(st_df, bars_in_trend: int):
     elif prior_run >= 1:  mat_score = 5
     else:                 mat_score = 0
 
-    total = vol_score + mom_score + mat_score
     return {
-        "quality_score": int(total),
+        "quality_score": int(vol_score + mom_score + mat_score),
         "quality_volume_ratio": round(vol_ratio, 2) if vol_ratio is not None else None,
         "quality_momentum_pct": round(mom_pct, 2) if mom_pct is not None else None,
         "quality_prior_run": int(prior_run),
@@ -352,23 +373,6 @@ def _compute_quality(st_df, bars_in_trend: int):
 
 
 def analyze_ticker(ticker, history_store, cfg: ScanConfig):
-    """
-    Returns a result dict describing this ticker's current Supertrend state.
-
-    Two distinct signals are computed, on purpose:
-      - "signal": a fresh BUY/SELL cross detected on the very latest bar
-        (comparing the last two bars in the freshly-downloaded series).
-        This is precise ("it flipped on this exact close") but says
-        nothing about older flips.
-      - "changed_since_last_run": True if the Bullish/Bearish state now
-        differs from what was saved in history.json the last time you
-        ran the scanner - regardless of which bar it actually flipped
-        on. This is what keeps the tool safe to run irregularly: even
-        if you skip several sessions and miss the exact flip bar, the
-        next run will still tell you "this changed while you were away".
-    "flip" (used for the table's Flip column / filter) is the union of
-    both, so nothing slips through either way.
-    """
     result = {
         "ticker": ticker,
         "status": "ok",
@@ -384,10 +388,10 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "is_new": ticker not in history_store,
         "flip": False,
         "changed_since_last_run": False,
-        "bars_in_trend": None,     # how many consecutive most-recent bars share the current direction
-        "trend_start_date": None,  # date of the first bar in that run (i.e. the bar the trend started on)
+        "bars_in_trend": None,
+        "trend_start_date": None,
         "bar_unit": "d" if cfg.interval.endswith("d") else "w",
-        "quality_score": None,     # 0-100 rating for BUY flips (volume + momentum + prior-trend maturity)
+        "quality_score": None,
         "quality_volume_ratio": None,
         "quality_momentum_pct": None,
         "quality_prior_run": None,
@@ -416,7 +420,6 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
 
     direction_now = "Bullish" if last["Direction"] == 1 else "Bearish"
     direction_prev = "Bullish" if prev["Direction"] == 1 else "Bearish"
-
     if direction_prev == "Bearish" and direction_now == "Bullish":
         signal_now = "BUY"
     elif direction_prev == "Bullish" and direction_now == "Bearish":
@@ -428,9 +431,6 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
     last_recorded_direction = prior.get("direction") if prior else None
     changed_since_last_run = (last_recorded_direction is not None) and (last_recorded_direction != direction_now)
 
-    # How long the current trend has been running: walk back from the last
-    # bar and count consecutive bars that share the current direction. The
-    # count includes the last bar itself, so a fresh flip today reads as 1.
     dir_series = st["Direction"].to_numpy()
     last_dir = dir_series[-1]
     bars_in_trend = 1
@@ -444,24 +444,22 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
 
     quality = _compute_quality(st, bars_in_trend)
 
-    result.update(
-        {
-            "close": round(float(last["Close"]), 2),
-            "supertrend": round(float(last["Supertrend"]), 2),
-            "last_bar_date": last.name.strftime("%Y-%m-%d"),
-            "direction": direction_now,
-            "signal": signal_now,
-            "last_recorded_direction": last_recorded_direction,
-            "last_recorded_signal": prior.get("signal") if prior else None,
-            "last_recorded_date": prior.get("last_run_date") if prior else None,
-            "is_new": prior is None,
-            "flip": (signal_now in ("BUY", "SELL")) or changed_since_last_run,
-            "changed_since_last_run": changed_since_last_run,
-            "bars_in_trend": bars_in_trend,
-            "trend_start_date": trend_start_date,
-            **quality,
-        }
-    )
+    result.update({
+        "close": round(float(last["Close"]), 2),
+        "supertrend": round(float(last["Supertrend"]), 2),
+        "last_bar_date": last.name.strftime("%Y-%m-%d"),
+        "direction": direction_now,
+        "signal": signal_now,
+        "last_recorded_direction": last_recorded_direction,
+        "last_recorded_signal": prior.get("signal") if prior else None,
+        "last_recorded_date": prior.get("last_run_date") if prior else None,
+        "is_new": prior is None,
+        "flip": (signal_now in ("BUY", "SELL")) or changed_since_last_run,
+        "changed_since_last_run": changed_since_last_run,
+        "bars_in_trend": bars_in_trend,
+        "trend_start_date": trend_start_date,
+        **quality,
+    })
     return result
 
 
@@ -472,7 +470,7 @@ def cross_reference_trades(results, trades_df):
         if matches is not None and len(matches) > 0:
             r["held"] = True
             r["open_trades"] = matches.to_dict("records")
-            if r["close"] is not None:
+            if r.get("close") is not None:
                 for t in r["open_trades"]:
                     try:
                         entry = float(t["EntryPrice"])
@@ -486,26 +484,18 @@ def cross_reference_trades(results, trades_df):
 
 
 def build_alerts(results):
-    """
-    Held stock, currently Bearish, and that's new information: either it
-    crossed on the very latest bar (signal == SELL) or it was already
-    Bearish by the time you checked but differs from what you last saw
-    (changed_since_last_run). Either way you get told about it once -
-    after this run updates history.json, it won't re-alert unless it
-    flips again.
-    """
     alerts = []
     for r in results:
-        if r["status"] != "ok" or not r["held"] or r["direction"] != "Bearish":
+        if r.get("status") != "ok" or not r.get("held") or r.get("direction") != "Bearish":
             continue
-        if r["signal"] == "SELL" or r["changed_since_last_run"]:
+        if r.get("signal") == "SELL" or r.get("changed_since_last_run"):
             alerts.append(r)
     return alerts
 
 
 def update_history(history_store, results, run_date):
     for r in results:
-        if r["status"] != "ok":
+        if r.get("status") != "ok":
             continue
         history_store[r["ticker"]] = {
             "last_run_date": run_date,
@@ -521,24 +511,6 @@ def update_history(history_store, results, run_date):
 # Orchestration
 # --------------------------------------------------------------------------
 def run_analysis(cfg: ScanConfig, verbose: bool = True):
-    """
-    Runs the fetch + Supertrend + trade-cross-reference pipeline for one
-    timeframe and returns everything needed downstream. Pure with respect
-    to disk beyond the reads it does - it does NOT write history or any
-    report. Callers decide when to save state and how (or whether) to
-    render output.
-
-    Returns a dict:
-      {
-        "cfg": ScanConfig,
-        "run_date": "YYYY-MM-DD",
-        "results": [...],       # per-ticker result dicts, trades already cross-referenced
-        "alerts": [...],        # held bearish alerts derived from results
-        "history_store": {...}, # the PRIOR history read from disk (not yet updated)
-      }
-
-    Returns None if the watchlist is empty (mirrors run_scan's behaviour).
-    """
     if verbose:
         print(f"Supertrend {cfg.label} Scanner — ATR({cfg.atr_period}) x {cfg.atr_multiplier}, {cfg.interval} bars")
     run_date = date.today().isoformat()
@@ -546,10 +518,11 @@ def run_analysis(cfg: ScanConfig, verbose: bool = True):
     tickers = load_stock_list(cfg.stocks_file)
     if not tickers:
         if verbose:
-            print("No tickers found in stocks.csv — add some tickers first.")
+            print("No tickers found — add some to stocks.csv first.")
         return None
     if verbose:
-        print(f"Watchlist: {len(tickers)} stocks")
+        src_count = 1 if isinstance(cfg.stocks_file, str) else len([p for p in cfg.stocks_file if os.path.exists(p)])
+        print(f"Watchlist: {len(tickers)} unique stocks from {src_count} source(s)")
 
     trades_df = load_trades(cfg.trades_file)
     history_store = load_history(cfg.history_file)
@@ -566,7 +539,7 @@ def run_analysis(cfg: ScanConfig, verbose: bool = True):
         if verbose:
             print(r.get("status"))
         results.append(r)
-        time.sleep(0.3)  # be polite to the free data endpoint
+        time.sleep(0.3)
 
     results = cross_reference_trades(results, trades_df)
     alerts = build_alerts(results)
@@ -581,31 +554,44 @@ def run_analysis(cfg: ScanConfig, verbose: bool = True):
 
 
 def commit_history(cfg: ScanConfig, scan: dict) -> None:
-    """Advance the on-disk history store using this run's results."""
     updated = update_history(scan["history_store"], scan["results"], scan["run_date"])
     save_history(cfg.history_file, updated)
 
 
+def _min_quality_from_env():
+    """MIN_FLIP_QUALITY env var overrides the default. Clamped to [0, 100]."""
+    try:
+        raw = os.environ.get("MIN_FLIP_QUALITY")
+        if raw is None:
+            return DEFAULT_MIN_FLIP_QUALITY
+        return max(0, min(100, int(raw)))
+    except (TypeError, ValueError):
+        return DEFAULT_MIN_FLIP_QUALITY
+
+
 def run_scan(cfg: ScanConfig):
     """
-    One-timeframe scan: analyze, save history, append any fresh flips to
-    the shared flip log, and render the individual HTML report to
-    cfg.output_dir. Used by scanner.py and daily_scanner.py.
-    combined_scanner.py bypasses this and drives run_analysis directly so
-    it can produce a single merged report instead (and records flips itself).
+    One-timeframe scan path (scanner.py / daily_scanner.py). Running a
+    single timeframe can't do the weekly-confluence boost - that needs
+    both scans at once (combined_scanner.py). So BUY flips here are
+    gated purely on their base quality score.
     """
     scan = run_analysis(cfg)
     if scan is None:
         return None
 
     commit_history(cfg, scan)
-    added = record_flips(cfg, scan["results"], scan["run_date"])
-    if added:
-        print(f"Flip log: +{added} new {cfg.label.lower()} flip(s) recorded")
 
-    # Keep this timeframe's output folder bounded — deletes report_*.html
-    # dated more than 30 days before this run. Only touches files matching
-    # our own naming convention, never anything else.
+    min_q = _min_quality_from_env()
+    stats = record_flips(cfg, scan["results"], scan["run_date"], min_quality=min_q)
+    msg_bits = []
+    if stats["added"]:
+        msg_bits.append(f"+{stats['added']} new {cfg.label.lower()} flip(s)")
+    if stats["skipped_low_quality"]:
+        msg_bits.append(f"skipped {stats['skipped_low_quality']} BUY(s) below quality {min_q}")
+    if msg_bits:
+        print("Flip log: " + ", ".join(msg_bits))
+
     removed = prune_old_reports(cfg.output_dir, days=30, run_date=scan["run_date"])
     if removed:
         print(f"Cleanup: removed {removed} report(s) older than 30 days from {cfg.output_dir}")
@@ -614,7 +600,6 @@ def run_scan(cfg: ScanConfig):
     out_path = os.path.join(cfg.output_dir, f"report_{scan['run_date']}.html")
 
     from report import generate_html_report
-
     generate_html_report(
         results=scan["results"],
         alerts=scan["alerts"],
