@@ -112,6 +112,22 @@
     "weekly_confluence": true
   },
   {
+    "ticker": "XEL",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-06",
+    "recorded_at": "2026-10-06",
+    "close": 72.73,
+    "supertrend": 68.83,
+    "quality_score": 85,
+    "quality_base_score": 85,
+    "quality_volume_ratio": 1.53,
+    "quality_momentum_pct": 2.89,
+    "quality_prior_run": 47,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "MRVL",
     "timeframe": "weekly",
     "direction": "Bullish",
