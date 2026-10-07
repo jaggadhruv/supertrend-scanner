@@ -1,5 +1,21 @@
 [
   {
+    "ticker": "QCOM",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-10-07",
+    "recorded_at": "2026-10-07",
+    "close": 177.12,
+    "supertrend": 196.21,
+    "quality_score": 42,
+    "quality_base_score": 42,
+    "quality_volume_ratio": 0.56,
+    "quality_momentum_pct": -3.76,
+    "quality_prior_run": 26,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "AVGO",
     "timeframe": "daily",
     "direction": "Bullish",
