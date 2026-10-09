@@ -1,5 +1,37 @@
 [
   {
+    "ticker": "PGR",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-08",
+    "recorded_at": "2026-10-09",
+    "close": 218.73,
+    "supertrend": 206.36,
+    "quality_score": 72,
+    "quality_base_score": 57,
+    "quality_volume_ratio": 0.9,
+    "quality_momentum_pct": 3.68,
+    "quality_prior_run": 13,
+    "weekly_confluence": true
+  },
+  {
+    "ticker": "PSX",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-08",
+    "recorded_at": "2026-10-09",
+    "close": 281.6,
+    "supertrend": 256.53,
+    "quality_score": 72,
+    "quality_base_score": 57,
+    "quality_volume_ratio": 0.74,
+    "quality_momentum_pct": 6.57,
+    "quality_prior_run": 8,
+    "weekly_confluence": true
+  },
+  {
     "ticker": "HOOD",
     "timeframe": "daily",
     "direction": "Bearish",
