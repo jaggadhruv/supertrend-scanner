@@ -192,6 +192,22 @@
     "weekly_confluence": false
   },
   {
+    "ticker": "KKR",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-10-12",
+    "recorded_at": "2026-10-14",
+    "close": 87.16,
+    "supertrend": 108.29,
+    "quality_score": 27,
+    "quality_base_score": 27,
+    "quality_volume_ratio": 0.71,
+    "quality_momentum_pct": -13.77,
+    "quality_prior_run": 9,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "PYPL",
     "timeframe": "daily",
     "direction": "Bullish",
