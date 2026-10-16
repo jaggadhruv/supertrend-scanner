@@ -624,6 +624,22 @@
     "weekly_confluence": false
   },
   {
+    "ticker": "EXPD",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-14",
+    "recorded_at": "2026-10-16",
+    "close": 196.38,
+    "supertrend": 186.11,
+    "quality_score": 72,
+    "quality_base_score": 57,
+    "quality_volume_ratio": 0.92,
+    "quality_momentum_pct": 2.9,
+    "quality_prior_run": 14,
+    "weekly_confluence": true
+  },
+  {
     "ticker": "AMD",
     "timeframe": "daily",
     "direction": "Bearish",
