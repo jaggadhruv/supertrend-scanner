@@ -11,7 +11,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 529.05,
-    "supertrend": 469.46
+    "supertrend": 469.42
   },
   "GOOG": {
     "last_run_date": "2026-10-17",
@@ -809,7 +809,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 213.69,
-    "supertrend": 184.62
+    "supertrend": 184.65
   },
   "CVX": {
     "last_run_date": "2026-10-17",
@@ -879,14 +879,14 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 161.47,
-    "supertrend": 137.57
+    "supertrend": 137.58
   },
   "EOG": {
     "last_run_date": "2026-10-17",
     "direction": "Bullish",
     "signal": "NONE",
     "close": 158.01,
-    "supertrend": 132.13
+    "supertrend": 132.14
   },
   "EQIX": {
     "last_run_date": "2026-10-17",
