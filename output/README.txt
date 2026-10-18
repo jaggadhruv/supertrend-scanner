@@ -1,4 +1,3 @@
-Each run writes a new dated report here, in a weekly/ or daily/
-subfolder depending on which scanner you ran. Open any of them in a
-browser - old reports are never deleted, so this becomes a running
-archive.
+Each run writes a new dated report here, in a weekly/, daily/, or combined/
+subfolder depending on which scanner you ran. Reports older than 30 days
+are pruned automatically on each run.

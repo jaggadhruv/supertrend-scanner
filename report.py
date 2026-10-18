@@ -433,6 +433,38 @@ COMBINED_CSS_EXTRA = """
   .stats-group-label { color: var(--muted); font-size: 11px; text-transform: uppercase;
                        letter-spacing: 0.05em; padding: 0 4px; align-self: center; }
 
+  /* Long/Short/Archive nav bar at the top of a sided page */
+  .side-nav { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border);
+              padding-bottom: 0; }
+  .side-nav a { padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--muted);
+                text-decoration: none; border-bottom: 2px solid transparent; transition: color 100ms; }
+  .side-nav a:hover { color: var(--text); }
+  .side-nav a.active { color: var(--text); border-bottom-color: var(--text); }
+  .side-nav a.active.long-active { color: var(--bull); border-bottom-color: var(--bull); }
+  .side-nav a.active.short-active { color: var(--bear); border-bottom-color: var(--bear); }
+  .side-badge { display:inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px;
+                font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-left: 10px;
+                vertical-align: middle; }
+  .side-badge.long-badge  { background: var(--bull-bg); color: var(--bull); }
+  .side-badge.short-badge { background: var(--bear-bg); color: var(--bear); }
+
+  /* Tabbed single-page layout (used by the published docs/index.html) */
+  .tab-nav { display: flex; gap: 2px; align-items: center; margin-bottom: 20px;
+             border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab-nav button { background: none; border: none; padding: 10px 18px;
+                    font-size: 13px; font-weight: 600; color: var(--muted);
+                    cursor: pointer; border-bottom: 2px solid transparent;
+                    font-family: inherit; transition: color 100ms; }
+  .tab-nav button:hover { color: var(--text); }
+  .tab-nav button.active.long-active  { color: var(--bull); border-bottom-color: var(--bull); }
+  .tab-nav button.active.short-active { color: var(--bear); border-bottom-color: var(--bear); }
+  .tab-nav .archive-link { margin-left: auto; padding: 10px 14px;
+                           color: var(--muted); text-decoration: none; font-size: 13px; }
+  .tab-nav .archive-link:hover { color: var(--text); }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
   /* Recent Buy Flips panel */
   .flip-log-panel { border: 1px solid var(--border); }
   .flip-log-panel .panel-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 12px; }
@@ -732,42 +764,70 @@ def _quality_bucket(score):
 
 def _build_reason_html(entry):
     """
-    Build the inline 'why this score' line for a BUY card.
-
-    Shows the three components that produced the score, in human-readable
-    form: volume vs its average, 5-bar price change, and the length of
-    the prior opposite-direction run. Also surfaces the +15 weekly-
-    confluence boost when present. Everything is skipped silently if
-    the component is unknown (legacy entries from before the quality
-    feature render with no reason line, by design).
-
-    Example output: "vol +138% · mom +4.5% 5-bar · 12-bar prior bear · W↑ confluence +15"
+    Inline 'why this score' line for a flip card. Shows the components
+    that have data; missing fields are silently skipped. For a BUY the
+    "prior" direction is bear; for a SELL it's bull. Signs are colored
+    (green = favorable for the signal, red = unfavorable).
     """
     bits = []
+    signal = (entry.get("signal") or "").upper()
+    is_buy = signal == "BUY"
 
-    # Volume delta vs 20-bar average
+    # 1. Volume accumulation (5-bar vs 20-bar average)
     vol = entry.get("quality_volume_ratio")
     if isinstance(vol, (int, float)):
-        delta_pct = (vol - 1.0) * 100.0
-        cls = "r-pos" if delta_pct > 0 else "r-neg" if delta_pct < 0 else ""
-        sign = "+" if delta_pct > 0 else ""
-        bits.append(f'vol <span class="{cls}">{sign}{delta_pct:.0f}%</span> vs 20-bar avg')
+        delta = (vol - 1.0) * 100.0
+        cls = "r-pos" if delta > 0 else "r-neg" if delta < 0 else ""
+        sign = "+" if delta > 0 else ""
+        bits.append(f'vol <span class="{cls}">{sign}{delta:.0f}%</span> (5/20 avg)')
 
-    # 5-bar momentum
-    mom = entry.get("quality_momentum_pct")
-    if isinstance(mom, (int, float)):
-        cls = "r-pos" if mom > 0 else "r-neg" if mom < 0 else ""
-        bits.append(f'mom <span class="{cls}">{mom:+.1f}%</span> 5-bar')
+    # 2. Momentum: 5-bar AND 10-bar return
+    m5 = entry.get("quality_momentum_pct")
+    m10 = entry.get("quality_momentum_10_pct")
+    if isinstance(m5, (int, float)) or isinstance(m10, (int, float)):
+        parts = []
+        if isinstance(m5, (int, float)):
+            cls = ("r-pos" if m5 > 0 else "r-neg") if is_buy else ("r-pos" if m5 < 0 else "r-neg")
+            parts.append(f'<span class="{cls}">{m5:+.1f}%</span>/5b')
+        if isinstance(m10, (int, float)):
+            cls = ("r-pos" if m10 > 0 else "r-neg") if is_buy else ("r-pos" if m10 < 0 else "r-neg")
+            parts.append(f'<span class="{cls}">{m10:+.1f}%</span>/10b')
+        bits.append("mom " + ", ".join(parts))
 
-    # Prior-trend length — for BUYs the prior trend was bearish
+    # 3. Prior-trend length
     prior = entry.get("quality_prior_run")
-    signal = (entry.get("signal") or "").upper()
     if isinstance(prior, int) and prior > 0:
-        prior_dir = "bear" if signal == "BUY" else "bull" if signal == "SELL" else "opposite"
+        prior_dir = "bear" if is_buy else "bull"
         strong = ' class="r-strong"' if prior >= 10 else ""
         bits.append(f'<span{strong}>{prior}-bar prior {prior_dir}</span>')
 
-    # Weekly-confluence boost tag (daily BUYs only; recorded by combined_scanner)
+    # 4. RSI with sweet-spot highlighting
+    rsi = entry.get("quality_rsi")
+    if isinstance(rsi, (int, float)):
+        if is_buy:
+            sweet = 50 <= rsi <= 65
+            danger = rsi > 75
+        else:
+            sweet = 35 <= rsi <= 50
+            danger = rsi < 25
+        if sweet:    cls = "r-pos"
+        elif danger: cls = "r-neg"
+        else:        cls = "r-strong"
+        bits.append(f'RSI <span class="{cls}">{rsi:.0f}</span>')
+
+    # 5. Breakout proximity (vs 20-bar high / low)
+    hd = entry.get("quality_high_distance_pct")
+    if isinstance(hd, (int, float)):
+        if is_buy:
+            if   hd >=  0: bits.append('<span class="r-pos">new 20-bar high</span>')
+            elif hd >= -2: bits.append(f'within <span class="r-strong">{abs(hd):.1f}%</span> of 20-bar high')
+            elif hd >= -5: bits.append(f'<span class="r-neg">{abs(hd):.1f}%</span> below 20-bar high')
+        else:
+            if   hd <=  0: bits.append('<span class="r-pos">new 20-bar low</span>')
+            elif hd <=  2: bits.append(f'within <span class="r-strong">{hd:.1f}%</span> of 20-bar low')
+            elif hd <=  5: bits.append(f'<span class="r-neg">{hd:.1f}%</span> above 20-bar low')
+
+    # 6. Weekly-confluence boost tag
     if entry.get("weekly_confluence"):
         bits.append('<span class="r-conf">W↑ confluence +15</span>')
 
@@ -778,40 +838,36 @@ def _build_reason_html(entry):
 
 def _flip_card_html(entry, is_top_quality: bool = False):
     """
-    One card for the Recent Buy Flips panel. Three stacked rows:
+    One card for the Recent Flips panel. Three stacked rows:
       1. [tag][★?][ticker]                        [quality badge]
-      2. BUY · <Direction> · Close X · ST Y
-      3. The reason: vol +XX%, momentum +Y%, N-bar prior bear, confluence
-    Only BUY entries reach here (the panel filters SELLs out).
+      2. <SIGNAL> · <Direction> · Close X · ST Y
+      3. The reason line (vol / mom / prior / RSI / breakout / confluence)
+    Styling flips to red for SELL entries.
     """
     ticker = _esc(entry.get("ticker", ""))
     timeframe = _esc(entry.get("timeframe", "")).lower()
     direction = _esc(entry.get("direction", ""))
+    signal = (entry.get("signal") or "").upper()
     close = entry.get("close")
     close_str = _fmt_num(close)
     st = _fmt_num(entry.get("supertrend"))
     tf_cls = "tf-tag-w" if timeframe == "weekly" else "tf-tag-d"
+    card_cls = "flip-buy" if signal == "BUY" else "flip-sell"
 
     q = entry.get("quality_score")
     _, q_cls = _quality_bucket(q)
     if q is not None:
-        vol = entry.get("quality_volume_ratio")
-        mom = entry.get("quality_momentum_pct")
-        prior = entry.get("quality_prior_run")
-        vol_txt = f"{vol}x avg" if vol is not None else "n/a"
-        mom_txt = f"{mom:+.1f}% 5-bar" if isinstance(mom, (int, float)) else "n/a"
-        prior_txt = f"{prior}-bar prior trend" if prior is not None else "n/a"
-        tip = f"Quality {q}/100 — volume {vol_txt}, momentum {mom_txt}, {prior_txt}"
+        tip = f"Quality {q}/100 — hover reason for details"
         badge = f'<span class="q-badge {q_cls}" title="{_esc(tip)}">{q}</span>'
     else:
         badge = ""
 
-    star = '<span class="q-star" title="Top-ranked BUY on this day">★</span>' if is_top_quality else ""
+    star = '<span class="q-star" title="Top-ranked flip on this day">★</span>' if is_top_quality else ""
     reason_html = _build_reason_html(entry)
-    main_html = f'<div class="flip-main">BUY · {direction} · Close {close_str} · <span class="muted">ST {st}</span></div>'
+    main_html = f'<div class="flip-main">{signal} · {direction} · Close {close_str} · <span class="muted">ST {st}</span></div>'
 
     return f"""
-    <div class="flip-card flip-buy">
+    <div class="flip-card {card_cls}">
       <div class="flip-head">
         <span class="flip-tag {tf_cls}">{timeframe.upper()[:1]}</span>
         <span class="flip-tkr">{star}{ticker}</span>
@@ -822,7 +878,27 @@ def _flip_card_html(entry, is_top_quality: bool = False):
     </div>"""
 
 
-def _recent_flips_panel_html(flip_log, run_date, days=7, buy_only=True, auto_rank_threshold=5):
+def _recent_flips_panel_html(flip_log, run_date, days=7, side="long",
+                             allowed_tickers=None, auto_rank_threshold=5):
+    """
+    Rolling 'flips in the last N days' panel. Reads the shared flip log,
+    keeps entries whose flip_date is within `days` calendar days of
+    run_date, groups them by day (newest first), and renders each as a
+    card.
+
+    side:
+      - "long"  → keep BUY flips only (long section's "Recent Buy Flips")
+      - "short" → keep SELL flips only (short section's "Recent Sell Flips")
+      - "all"   → keep both signals (archive view)
+    allowed_tickers:
+      If provided, further restricts the panel to flips whose ticker is
+      in this set. The long page passes the set of currently-confluence-
+      bull tickers so you only see BUYs that are still trading in that
+      regime right now.
+    auto_rank_threshold:
+      When a single DAY has more flips than this, sort by quality_score
+      and ★-mark the top 3 so the eye goes to the strongest candidates.
+    """
     if flip_log is None:
         flip_log = []
     try:
@@ -832,30 +908,50 @@ def _recent_flips_panel_html(flip_log, run_date, days=7, buy_only=True, auto_ran
     cutoff = (run_d - timedelta(days=days)).isoformat()
 
     kept = [e for e in flip_log if (e.get("flip_date") or "") >= cutoff]
-    if buy_only:
+    if side == "long":
         kept = [e for e in kept if (e.get("signal") or "").upper() == "BUY"]
+        panel_title = f"Recent Buy Flips (Last {days} Days)"
+        signal_word = "BUY"
+    elif side == "short":
+        kept = [e for e in kept if (e.get("signal") or "").upper() == "SELL"]
+        panel_title = f"Recent Sell Flips (Last {days} Days)"
+        signal_word = "SELL"
+    else:
+        panel_title = f"Recent Flips (Last {days} Days)"
+        signal_word = "BUY/SELL"
+
+    if allowed_tickers is not None:
+        kept = [e for e in kept if e.get("ticker") in allowed_tickers]
 
     by_day = {}
     for e in kept:
         by_day.setdefault(e["flip_date"], []).append(e)
     day_order = sorted(by_day.keys(), reverse=True)
 
-    mode_note = (
-        'Long-only view — SELL flips are hidden here (they still trigger the held-bearish alert). '
-        'Sorted by quality within each day; each card shows the reason for its score; ★ marks the top 3 '
-        f'when a day has more than {auto_rank_threshold} candidates.'
-    )
+    if side == "long":
+        mode_note = (
+            'Showing only tickers that are currently in weekly bullish confluence. '
+            f'Sorted by quality within each day; ★ marks the top 3 when a day has more than {auto_rank_threshold} candidates.'
+        )
+    elif side == "short":
+        mode_note = (
+            'Showing only tickers that are currently in weekly bearish confluence. '
+            f'Sorted by quality within each day; ★ marks the top 3 when a day has more than {auto_rank_threshold} candidates.'
+        )
+    else:
+        mode_note = f'Sorted by quality within each day; ★ marks the top 3 when a day has more than {auto_rank_threshold} candidates.'
+
     subtle_tail = f"Anything older than {days} days rolls off this list automatically. Full history in <code>data/flip_log.json</code>."
 
     if not kept:
         return f"""
         <div class="panel flip-log-panel">
           <div class="panel-head">
-            <h2>Recent Buy Flips (Last {days} Days)</h2>
+            <h2>{panel_title}</h2>
             <span class="subtle">{subtle_tail}</span>
           </div>
           <div class="flip-mode-note">{mode_note}</div>
-          <div class="empty-note" style="margin-top:10px;">No BUY flips recorded in the last {days} days — the log picks them up automatically on the next run.</div>
+          <div class="empty-note" style="margin-top:10px;">No {signal_word} flips in the last {days} days that match this section's filter.</div>
         </div>"""
 
     day_blocks = []
@@ -891,8 +987,8 @@ def _recent_flips_panel_html(flip_log, run_date, days=7, buy_only=True, auto_ran
     return f"""
     <div class="panel flip-log-panel">
       <div class="panel-head">
-        <h2>Recent Buy Flips (Last {days} Days)</h2>
-        <span class="subtle">{len(kept)} BUY flip(s) across {len(day_order)} day(s). {subtle_tail}</span>
+        <h2>{panel_title}</h2>
+        <span class="subtle">{len(kept)} {signal_word} flip(s) across {len(day_order)} day(s). {subtle_tail}</span>
       </div>
       <div class="flip-mode-note">{mode_note}</div>
       {''.join(day_blocks)}
@@ -900,11 +996,22 @@ def _recent_flips_panel_html(flip_log, run_date, days=7, buy_only=True, auto_ran
 
 
 def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multiplier, output_path,
-                                  flip_log=None, public_view=False):
+                                  flip_log=None, public_view=False, side="full"):
     """
-    Combined weekly+daily report. public_view=True strips Held/P/L and
-    the held-bearish alert banner so the HTML is safe to publish to
-    a public URL (GitHub Pages).
+    Combined weekly+daily report.
+
+    side:
+      "full"  → every ticker, both BUY and SELL flips (archive view).
+      "long"  → tickers whose current weekly direction is Bullish AND
+                current daily direction is Bullish ("uptrend confluence").
+                Recent Flips panel is BUY-only; Buy Opportunities and the
+                table are filtered to this set. The alert banner still
+                appears (held longs going bearish is critical info).
+      "short" → mirror: confluence-bear tickers, Recent Flips SELL-only,
+                Sell Opportunities, filtered table. No alert banner.
+
+    public_view=True strips Held/P/L columns and the held-bearish alert
+    banner from the output, for safe publishing to a public URL.
     """
     weekly_results = weekly_scan["results"]
     daily_results = daily_scan["results"]
@@ -929,30 +1036,56 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
         all_tickers.add(r["ticker"])
     for r in daily_results:
         all_tickers.add(r["ticker"])
-    order = sorted(all_tickers, key=_sort_key)
+
+    # Confluence sets (both timeframes currently agreeing on direction).
+    def _dir_of(by, ticker):
+        r = by.get(ticker)
+        return r.get("direction") if r and r.get("status") == "ok" else None
+    confluence_bull_tickers = {t for t in all_tickers
+                               if _dir_of(w_by, t) == "Bullish" and _dir_of(d_by, t) == "Bullish"}
+    confluence_bear_tickers = {t for t in all_tickers
+                               if _dir_of(w_by, t) == "Bearish" and _dir_of(d_by, t) == "Bearish"}
+
+    # Apply the side filter to the table.
+    if side == "long":
+        table_tickers = confluence_bull_tickers
+    elif side == "short":
+        table_tickers = confluence_bear_tickers
+    else:
+        table_tickers = all_tickers
+    order = sorted(table_tickers, key=_sort_key)
 
     def _ok(rs): return [r for r in rs if r.get("status") == "ok"]
     w_ok = _ok(weekly_results); d_ok = _ok(daily_results)
-    w_buys = [r for r in w_ok if r["signal"] == "BUY"]
-    w_sells = [r for r in w_ok if r["signal"] == "SELL"]
-    d_buys = [r for r in d_ok if r["signal"] == "BUY"]
-    d_sells = [r for r in d_ok if r["signal"] == "SELL"]
+    # Scope the flip counts to the current side when applicable.
+    def _in_side(r):
+        if side == "full": return True
+        if side == "long":  return r["ticker"] in confluence_bull_tickers
+        if side == "short": return r["ticker"] in confluence_bear_tickers
+        return True
+    w_buys  = [r for r in w_ok if r["signal"] == "BUY"  and _in_side(r)]
+    w_sells = [r for r in w_ok if r["signal"] == "SELL" and _in_side(r)]
+    d_buys  = [r for r in d_ok if r["signal"] == "BUY"  and _in_side(r)]
+    d_sells = [r for r in d_ok if r["signal"] == "SELL" and _in_side(r)]
     error_count = sum(1 for r in weekly_results if r.get("status") != "ok") + \
                   sum(1 for r in daily_results if r.get("status") != "ok")
 
-    w_buy_set = {r["ticker"] for r in w_buys}
-    d_buy_set = {r["ticker"] for r in d_buys}
+    w_buy_set  = {r["ticker"] for r in w_buys}
+    d_buy_set  = {r["ticker"] for r in d_buys}
     w_sell_set = {r["ticker"] for r in w_sells}
     d_sell_set = {r["ticker"] for r in d_sells}
-    confluence_buy_tickers = w_buy_set & d_buy_set
-    confluence_sell_tickers = w_sell_set & d_sell_set
+    confluence_buy_fresh  = w_buy_set & d_buy_set
+    confluence_sell_fresh = w_sell_set & d_sell_set
 
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     weekly_alerts = weekly_scan.get("alerts", [])
     daily_alerts = daily_scan.get("alerts", [])
     all_alerts = [(a, "Weekly") for a in weekly_alerts] + [(a, "Daily") for a in daily_alerts]
-    if all_alerts and not public_view:
+    # Hide the alert banner on the short page (she holds longs only) and
+    # on public view (banner names held positions).
+    show_alerts = all_alerts and not public_view and side != "short"
+    if show_alerts:
         alert_items = "".join(_combined_alert_html(a, tf) for (a, tf) in all_alerts)
         alert_banner = f"""
         <div class="alert-banner">
@@ -962,49 +1095,114 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     else:
         alert_banner = ""
 
-    stats_html = f"""
-    <div class="stats-row">
-      <div class="stat-chip"><div class="num">{len(order)}</div><div class="label">Tickers</div></div>
-      <div class="stats-group-label">Weekly</div>
-      <div class="stat-chip stat-buy"><div class="num">{len(w_buys)}</div><div class="label">Buy</div></div>
-      <div class="stat-chip stat-sell"><div class="num">{len(w_sells)}</div><div class="label">Sell</div></div>
-      <div class="stats-group-label">Daily</div>
-      <div class="stat-chip stat-buy"><div class="num">{len(d_buys)}</div><div class="label">Buy</div></div>
-      <div class="stat-chip stat-sell"><div class="num">{len(d_sells)}</div><div class="label">Sell</div></div>
-      <div class="stats-group-label">Confluence</div>
-      <div class="stat-chip stat-buy"><div class="num">{len(confluence_buy_tickers)}</div><div class="label">Buy (both)</div></div>
-      <div class="stat-chip stat-sell"><div class="num">{len(confluence_sell_tickers)}</div><div class="label">Sell (both)</div></div>
-      <div class="stat-chip"><div class="num">{error_count}</div><div class="label">Errors</div></div>
-    </div>"""
-
+    # Build the side-aware opportunity panels and stats row.
+    is_short = (side == "short")
     def _buy_grid(rs):
         if not rs:
-            return '<div class="empty-note">Nothing fresh.</div>'
+            return '<div class="empty-note">Nothing fresh matching this section.</div>'
         return '<div class="buy-grid">' + "".join(_buy_html(r) for r in rs) + '</div>'
 
-    confluence_buy_results = [r for r in d_buys if r["ticker"] in confluence_buy_tickers] \
-                             or [r for r in w_buys if r["ticker"] in confluence_buy_tickers]
+    if side == "short":
+        confluence_results = [r for r in d_sells if r["ticker"] in confluence_sell_fresh] \
+                             or [r for r in w_sells if r["ticker"] in confluence_sell_fresh]
+        opp_panels = f"""
+        <div class="panel">
+          <h2>Selling Opportunities</h2>
+          <div class="buy-panels">
+            <div class="buy-subpanel confluence-panel" style="border-color: rgba(240,71,93,0.35); background: rgba(240,71,93,0.05);">
+              <h3 style="color: var(--bear);">★ Confluence Sell (fresh SELL on both weekly &amp; daily) <span class="count">{len(confluence_sell_fresh)}</span></h3>
+              {_buy_grid(confluence_results)}
+            </div>
+            <div class="buy-subpanel">
+              <h3><span class="tf-tag tf-tag-w">Weekly</span> Sell Flips <span class="count">{len(w_sells)}</span></h3>
+              {_buy_grid(w_sells)}
+            </div>
+            <div class="buy-subpanel">
+              <h3><span class="tf-tag tf-tag-d">Daily</span> Sell Flips <span class="count">{len(d_sells)}</span></h3>
+              {_buy_grid(d_sells)}
+            </div>
+          </div>
+        </div>"""
+        stats_html = f"""
+        <div class="stats-row">
+          <div class="stat-chip"><div class="num">{len(table_tickers)}</div><div class="label">Short-side Tickers</div></div>
+          <div class="stats-group-label">Fresh</div>
+          <div class="stat-chip stat-sell"><div class="num">{len(w_sells)}</div><div class="label">Weekly Sell</div></div>
+          <div class="stat-chip stat-sell"><div class="num">{len(d_sells)}</div><div class="label">Daily Sell</div></div>
+          <div class="stat-chip stat-sell"><div class="num">{len(confluence_sell_fresh)}</div><div class="label">Confluence Sell</div></div>
+        </div>"""
+        recent_side = "short"
+        allowed = confluence_bear_tickers
+    else:
+        confluence_results = [r for r in d_buys if r["ticker"] in confluence_buy_fresh] \
+                             or [r for r in w_buys if r["ticker"] in confluence_buy_fresh]
+        if side == "long":
+            opp_panels = f"""
+            <div class="panel">
+              <h2>Buying Opportunities</h2>
+              <div class="buy-panels">
+                <div class="buy-subpanel confluence-panel">
+                  <h3>★ Confluence Buy (fresh BUY on both weekly &amp; daily) <span class="count">{len(confluence_buy_fresh)}</span></h3>
+                  {_buy_grid(confluence_results)}
+                </div>
+                <div class="buy-subpanel">
+                  <h3><span class="tf-tag tf-tag-w">Weekly</span> Buy Flips <span class="count">{len(w_buys)}</span></h3>
+                  {_buy_grid(w_buys)}
+                </div>
+                <div class="buy-subpanel">
+                  <h3><span class="tf-tag tf-tag-d">Daily</span> Buy Flips <span class="count">{len(d_buys)}</span></h3>
+                  {_buy_grid(d_buys)}
+                </div>
+              </div>
+            </div>"""
+            stats_html = f"""
+            <div class="stats-row">
+              <div class="stat-chip"><div class="num">{len(table_tickers)}</div><div class="label">Long-side Tickers</div></div>
+              <div class="stats-group-label">Fresh</div>
+              <div class="stat-chip stat-buy"><div class="num">{len(w_buys)}</div><div class="label">Weekly Buy</div></div>
+              <div class="stat-chip stat-buy"><div class="num">{len(d_buys)}</div><div class="label">Daily Buy</div></div>
+              <div class="stat-chip stat-buy"><div class="num">{len(confluence_buy_fresh)}</div><div class="label">Confluence Buy</div></div>
+            </div>"""
+            recent_side = "long"
+            allowed = confluence_bull_tickers
+        else:  # full / archive
+            opp_panels = f"""
+            <div class="panel">
+              <h2>Buying Opportunities</h2>
+              <div class="buy-panels">
+                <div class="buy-subpanel confluence-panel">
+                  <h3>★ Confluence Buy (fresh BUY on both weekly &amp; daily) <span class="count">{len(confluence_buy_fresh)}</span></h3>
+                  {_buy_grid(confluence_results)}
+                </div>
+                <div class="buy-subpanel">
+                  <h3><span class="tf-tag tf-tag-w">Weekly</span> Buy Flips <span class="count">{len(w_buys)}</span></h3>
+                  {_buy_grid(w_buys)}
+                </div>
+                <div class="buy-subpanel">
+                  <h3><span class="tf-tag tf-tag-d">Daily</span> Buy Flips <span class="count">{len(d_buys)}</span></h3>
+                  {_buy_grid(d_buys)}
+                </div>
+              </div>
+            </div>"""
+            stats_html = f"""
+            <div class="stats-row">
+              <div class="stat-chip"><div class="num">{len(order)}</div><div class="label">Tickers</div></div>
+              <div class="stats-group-label">Weekly</div>
+              <div class="stat-chip stat-buy"><div class="num">{len(w_buys)}</div><div class="label">Buy</div></div>
+              <div class="stat-chip stat-sell"><div class="num">{len(w_sells)}</div><div class="label">Sell</div></div>
+              <div class="stats-group-label">Daily</div>
+              <div class="stat-chip stat-buy"><div class="num">{len(d_buys)}</div><div class="label">Buy</div></div>
+              <div class="stat-chip stat-sell"><div class="num">{len(d_sells)}</div><div class="label">Sell</div></div>
+              <div class="stats-group-label">Confluence</div>
+              <div class="stat-chip stat-buy"><div class="num">{len(confluence_buy_fresh)}</div><div class="label">Buy (both)</div></div>
+              <div class="stat-chip stat-sell"><div class="num">{len(confluence_sell_fresh)}</div><div class="label">Sell (both)</div></div>
+              <div class="stat-chip"><div class="num">{error_count}</div><div class="label">Errors</div></div>
+            </div>"""
+            recent_side = "all"
+            allowed = None
 
-    buy_panels = f"""
-    <div class="panel">
-      <h2>Buying Opportunities</h2>
-      <div class="buy-panels">
-        <div class="buy-subpanel confluence-panel">
-          <h3>★ Confluence Buy (fresh BUY on both weekly &amp; daily) <span class="count">{len(confluence_buy_tickers)}</span></h3>
-          {_buy_grid(confluence_buy_results)}
-        </div>
-        <div class="buy-subpanel">
-          <h3><span class="tf-tag tf-tag-w">Weekly</span> Buy Flips <span class="count">{len(w_buys)}</span></h3>
-          {_buy_grid(w_buys)}
-        </div>
-        <div class="buy-subpanel">
-          <h3><span class="tf-tag tf-tag-d">Daily</span> Buy Flips <span class="count">{len(d_buys)}</span></h3>
-          {_buy_grid(d_buys)}
-        </div>
-      </div>
-    </div>"""
-
-    recent_flips_panel = _recent_flips_panel_html(flip_log, run_date, days=7)
+    recent_flips_panel = _recent_flips_panel_html(flip_log, run_date, days=7,
+                                                   side=recent_side, allowed_tickers=allowed)
     rows_html = "".join(_combined_row_html(t, w_by.get(t), d_by.get(t), public_view=public_view) for t in order)
 
     portfolio_headers = "" if public_view else """
@@ -1012,26 +1210,56 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
           <th>Position P/L</th>"""
     portfolio_chip = "" if public_view else """
       <button class="chip-btn" data-filter="held">My Portfolio</button>"""
-    title_suffix = " · Public view" if public_view else ""
+
+    # Title + nav bar + side badge
+    if side == "long":
+        title_suffix = ""
+        side_badge = '<span class="side-badge long-badge">▲ Long · Uptrend Confluence</span>'
+    elif side == "short":
+        title_suffix = ""
+        side_badge = '<span class="side-badge short-badge">▼ Short · Downtrend Confluence</span>'
+    else:
+        title_suffix = " · Full Archive"
+        side_badge = ""
+    if public_view:
+        title_suffix += " · Public view"
+
+    # Nav bar: only on the sided (public) pages
+    if side in ("long", "short"):
+        nav_bar = f"""
+    <nav class="side-nav">
+      <a href="index.html" class="{'active long-active' if side == 'long' else ''}">▲ Long (Uptrend Confluence)</a>
+      <a href="short.html" class="{'active short-active' if side == 'short' else ''}">▼ Short (Downtrend Confluence)</a>
+      <a href="archive.html">Archive</a>
+    </nav>"""
+    else:
+        nav_bar = ""
+
     public_notice = ("" if not public_view else
         '<div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>')
+
+    title_h1 = {"long": "Supertrend · Long Side", "short": "Supertrend · Short Side"}.get(side, "Supertrend Combined Scanner")
+    table_h2 = {"long": "Full Long-side Watchlist — Weekly &amp; Daily Side-by-Side",
+                "short": "Full Short-side Watchlist — Weekly &amp; Daily Side-by-Side"}.get(
+                    side, "Full Watchlist — Weekly &amp; Daily Side-by-Side")
 
     body = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Supertrend Combined Scanner — {run_date}</title>
+<title>Supertrend Scanner — {run_date}{title_suffix}</title>
 {CSS_JS}{COMBINED_CSS_EXTRA}</head><body><div class="wrap">
+  {nav_bar}
   <div class="topbar">
-    <h1>Supertrend Combined Scanner{title_suffix}</h1>
+    <h1>{title_h1}{side_badge}{title_suffix}</h1>
     <div class="params">ATR({atr_period}) &times; {atr_multiplier} &middot; Weekly + Daily &middot; Generated {generated_at}</div>
     {public_notice}
   </div>
   {alert_banner}
   {recent_flips_panel}
   {stats_html}
-  {buy_panels}
+  {opp_panels}
   <div class="panel">
-    <h2>Full Watchlist — Weekly &amp; Daily Side-by-Side</h2>
+    <h2>{table_h2}</h2>
     <div class="controls">
       <button class="chip-btn active" data-filter="all">All</button>
       <button class="chip-btn" data-filter="recent7">Recent (7d)</button>
@@ -1060,11 +1288,385 @@ def generate_combined_html_report(weekly_scan, daily_scan, atr_period, atr_multi
     — so nothing is missed if you skip a run. "In-trend" counts the consecutive bars the current direction has
     been running (d = trading days, w = weeks; hover for the start date). "Confluence" agrees when both
     weekly and daily point the same way. The table is sorted by daily flip recency by default (freshest first);
-    click any column header to re-sort — Confluence sorts bull → bear → mixed → none. The "Recent Buy Flips" panel
+    click any column header to re-sort — Confluence sorts bull → bear → mixed → none. The "Recent Flips" panel
     reads from <code>data/flip_log.json</code>, which every run of any scanner appends to.
     This report is a personal analysis tool, not investment advice — verify signals independently before trading.
   </footer>
 </div>{COMBINED_JS}</body></html>"""
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(body)
+    return output_path
+
+
+# --------------------------------------------------------------------------
+# Tabbed single-page report
+# --------------------------------------------------------------------------
+# Shared JS factory: initialises one pane's filter chips, search box, and
+# table-column sorting. Called once per pane in the browser so the Long and
+# Short panes don't cross-contaminate each other's state.
+TABBED_JS = """
+<script>
+  (function() {
+    // --- Tab switching ---
+    var tabButtons = document.querySelectorAll('.tab-nav button[data-tab]');
+    var panes = document.querySelectorAll('.tab-pane');
+    function showTab(tabId) {
+      tabButtons.forEach(function(b) {
+        b.classList.toggle('active', b.getAttribute('data-tab') === tabId);
+      });
+      panes.forEach(function(p) {
+        p.classList.toggle('active', p.id === 'pane-' + tabId);
+      });
+      try { localStorage.setItem('supertrend-side', tabId); } catch(e) {}
+    }
+    tabButtons.forEach(function(b) {
+      b.addEventListener('click', function() { showTab(b.getAttribute('data-tab')); });
+    });
+    try {
+      var saved = localStorage.getItem('supertrend-side');
+      if (saved === 'short' || saved === 'long') showTab(saved);
+    } catch(e) {}
+
+    // --- Per-pane filter + search + sort (scoped by pane) ---
+    function initPane(pane) {
+      var table = pane.querySelector('.scan-table');
+      if (!table) return;
+      var tbody = table.querySelector('tbody');
+      var chips = pane.querySelectorAll('.chip-btn');
+      var search = pane.querySelector('.search-box');
+      var currentFilter = 'all';
+      var searchTerm = '';
+
+      function applyFilters() {
+        tbody.querySelectorAll('tr').forEach(function(row) {
+          var wSig = row.getAttribute('data-w-signal');
+          var dSig = row.getAttribute('data-d-signal');
+          var wFlip = row.getAttribute('data-w-flip') === '1';
+          var dFlip = row.getAttribute('data-d-flip') === '1';
+          var held = row.getAttribute('data-held') === '1';
+          var confluence = row.getAttribute('data-confluence');
+          var ticker = row.getAttribute('data-ticker') || '';
+          var dRec = parseInt(row.getAttribute('data-d-recency') || '9999', 10);
+          var wRec = parseInt(row.getAttribute('data-w-recency') || '9999', 10);
+          var m = true;
+          switch (currentFilter) {
+            case 'recent7':      m = dRec <= 7 || wRec <= 1; break;
+            case 'any-buy':      m = wSig === 'buy' || dSig === 'buy'; break;
+            case 'any-sell':     m = wSig === 'sell' || dSig === 'sell'; break;
+            case 'conf-bull':    m = confluence === 'bull'; break;
+            case 'conf-bear':    m = confluence === 'bear'; break;
+            case 'weekly-flip':  m = wFlip; break;
+            case 'daily-flip':   m = dFlip; break;
+            case 'held':         m = held; break;
+            default:             m = true;
+          }
+          var matchesSearch = ticker.indexOf(searchTerm) !== -1;
+          row.classList.toggle('hidden-row', !(m && matchesSearch));
+        });
+      }
+
+      chips.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          chips.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentFilter = btn.getAttribute('data-filter');
+          applyFilters();
+        });
+      });
+
+      if (search) {
+        search.addEventListener('input', function() {
+          searchTerm = search.value.trim().toLowerCase();
+          applyFilters();
+        });
+      }
+
+      var sortState = {};
+      table.querySelectorAll('thead th').forEach(function(th, colIndex) {
+        th.addEventListener('click', function() {
+          var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+          var asc = !(sortState[colIndex] === 'asc');
+          sortState = {}; sortState[colIndex] = asc ? 'asc' : 'desc';
+          table.querySelectorAll('thead th').forEach(function(h) {
+            h.classList.remove('sorted-asc', 'sorted-desc');
+          });
+          th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+          rows.sort(function(a, b) {
+            var cellA = a.children[colIndex]; var cellB = b.children[colIndex];
+            if (!cellA || !cellB) return 0;
+            var va = cellA.getAttribute('data-sort'); var vb = cellB.getAttribute('data-sort');
+            if (va !== null && vb !== null) { va = parseFloat(va); vb = parseFloat(vb);
+              return asc ? va - vb : vb - va; }
+            var ta = cellA.textContent.trim().toLowerCase();
+            var tb = cellB.textContent.trim().toLowerCase();
+            if (ta < tb) return asc ? -1 : 1; if (ta > tb) return asc ? 1 : -1; return 0;
+          });
+          rows.forEach(function(r) { tbody.appendChild(r); });
+        });
+      });
+    }
+    panes.forEach(initPane);
+  })();
+</script>
+"""
+
+
+def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
+                   w_by, d_by, confluence_bull_tickers, confluence_bear_tickers,
+                   atr_period, atr_multiplier):
+    """
+    Build the inner HTML sections for one side (long or short):
+      - stats row scoped to that side
+      - opportunities panels (confluence + weekly + daily)
+      - recent flips panel (long = BUYs on confluence-bull tickers,
+                           short = SELLs on confluence-bear tickers)
+      - the full table (filtered to that side, class="scan-table")
+    Returns a dict of HTML strings.
+    """
+    run_date = daily_scan.get("run_date") or weekly_scan.get("run_date")
+    weekly_results = weekly_scan["results"]
+    daily_results = daily_scan["results"]
+
+    def _sort_key(ticker):
+        wr = w_by.get(ticker) or {}
+        dr = d_by.get(ticker) or {}
+        d_rec = dr.get("bars_in_trend") if dr.get("status") == "ok" else None
+        w_rec = wr.get("bars_in_trend") if wr.get("status") == "ok" else None
+        return (
+            d_rec if d_rec is not None else 9999,
+            w_rec if w_rec is not None else 9999,
+            ticker,
+        )
+
+    if side == "long":
+        table_tickers = confluence_bull_tickers
+        allowed = confluence_bull_tickers
+    else:
+        table_tickers = confluence_bear_tickers
+        allowed = confluence_bear_tickers
+    order = sorted(table_tickers, key=_sort_key)
+
+    def _ok(rs): return [r for r in rs if r.get("status") == "ok"]
+    w_ok = _ok(weekly_results); d_ok = _ok(daily_results)
+    in_side = lambda r: r["ticker"] in table_tickers
+    w_buys  = [r for r in w_ok if r["signal"] == "BUY"  and in_side(r)]
+    w_sells = [r for r in w_ok if r["signal"] == "SELL" and in_side(r)]
+    d_buys  = [r for r in d_ok if r["signal"] == "BUY"  and in_side(r)]
+    d_sells = [r for r in d_ok if r["signal"] == "SELL" and in_side(r)]
+
+    def _buy_grid(rs):
+        if not rs:
+            return '<div class="empty-note">Nothing fresh matching this section.</div>'
+        return '<div class="buy-grid">' + "".join(_buy_html(r) for r in rs) + '</div>'
+
+    if side == "long":
+        confluence_fresh = {r["ticker"] for r in w_buys} & {r["ticker"] for r in d_buys}
+        confluence_results = [r for r in d_buys if r["ticker"] in confluence_fresh] \
+                             or [r for r in w_buys if r["ticker"] in confluence_fresh]
+        opp_panels = f"""
+    <div class="panel">
+      <h2>Buying Opportunities</h2>
+      <div class="buy-panels">
+        <div class="buy-subpanel confluence-panel">
+          <h3>★ Confluence Buy (fresh BUY on both weekly &amp; daily) <span class="count">{len(confluence_fresh)}</span></h3>
+          {_buy_grid(confluence_results)}
+        </div>
+        <div class="buy-subpanel">
+          <h3><span class="tf-tag tf-tag-w">Weekly</span> Buy Flips <span class="count">{len(w_buys)}</span></h3>
+          {_buy_grid(w_buys)}
+        </div>
+        <div class="buy-subpanel">
+          <h3><span class="tf-tag tf-tag-d">Daily</span> Buy Flips <span class="count">{len(d_buys)}</span></h3>
+          {_buy_grid(d_buys)}
+        </div>
+      </div>
+    </div>"""
+        stats_html = f"""
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num">{len(table_tickers)}</div><div class="label">Long-side Tickers</div></div>
+      <div class="stats-group-label">Fresh</div>
+      <div class="stat-chip stat-buy"><div class="num">{len(w_buys)}</div><div class="label">Weekly Buy</div></div>
+      <div class="stat-chip stat-buy"><div class="num">{len(d_buys)}</div><div class="label">Daily Buy</div></div>
+      <div class="stat-chip stat-buy"><div class="num">{len(confluence_fresh)}</div><div class="label">Confluence Buy</div></div>
+    </div>"""
+        recent_side = "long"
+        table_h2 = "Full Long-side Watchlist — Weekly &amp; Daily Side-by-Side"
+    else:  # short
+        confluence_fresh = {r["ticker"] for r in w_sells} & {r["ticker"] for r in d_sells}
+        confluence_results = [r for r in d_sells if r["ticker"] in confluence_fresh] \
+                             or [r for r in w_sells if r["ticker"] in confluence_fresh]
+        opp_panels = f"""
+    <div class="panel">
+      <h2>Selling Opportunities</h2>
+      <div class="buy-panels">
+        <div class="buy-subpanel confluence-panel" style="border-color: rgba(240,71,93,0.35); background: rgba(240,71,93,0.05);">
+          <h3 style="color: var(--bear);">★ Confluence Sell (fresh SELL on both weekly &amp; daily) <span class="count">{len(confluence_fresh)}</span></h3>
+          {_buy_grid(confluence_results)}
+        </div>
+        <div class="buy-subpanel">
+          <h3><span class="tf-tag tf-tag-w">Weekly</span> Sell Flips <span class="count">{len(w_sells)}</span></h3>
+          {_buy_grid(w_sells)}
+        </div>
+        <div class="buy-subpanel">
+          <h3><span class="tf-tag tf-tag-d">Daily</span> Sell Flips <span class="count">{len(d_sells)}</span></h3>
+          {_buy_grid(d_sells)}
+        </div>
+      </div>
+    </div>"""
+        stats_html = f"""
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num">{len(table_tickers)}</div><div class="label">Short-side Tickers</div></div>
+      <div class="stats-group-label">Fresh</div>
+      <div class="stat-chip stat-sell"><div class="num">{len(w_sells)}</div><div class="label">Weekly Sell</div></div>
+      <div class="stat-chip stat-sell"><div class="num">{len(d_sells)}</div><div class="label">Daily Sell</div></div>
+      <div class="stat-chip stat-sell"><div class="num">{len(confluence_fresh)}</div><div class="label">Confluence Sell</div></div>
+    </div>"""
+        recent_side = "short"
+        table_h2 = "Full Short-side Watchlist — Weekly &amp; Daily Side-by-Side"
+
+    recent_flips_panel = _recent_flips_panel_html(flip_log, run_date, days=7,
+                                                  side=recent_side, allowed_tickers=allowed)
+    rows_html = "".join(_combined_row_html(t, w_by.get(t), d_by.get(t), public_view=public_view) for t in order)
+
+    portfolio_headers = "" if public_view else """
+          <th>Held</th>
+          <th>Position P/L</th>"""
+    portfolio_chip = "" if public_view else """
+      <button class="chip-btn" data-filter="held">My Portfolio</button>"""
+
+    # Table uses a CLASS (not id) so pane-scoped JS can find each pane's
+    # table independently.
+    table_block = f"""
+    <div class="panel">
+      <h2>{table_h2}</h2>
+      <div class="controls">
+        <button class="chip-btn active" data-filter="all">All</button>
+        <button class="chip-btn" data-filter="recent7">Recent (7d)</button>
+        <button class="chip-btn" data-filter="any-buy">Any Buy</button>
+        <button class="chip-btn" data-filter="any-sell">Any Sell</button>
+        <button class="chip-btn" data-filter="conf-bull">Confluence ▲▲</button>
+        <button class="chip-btn" data-filter="conf-bear">Confluence ▼▼</button>
+        <button class="chip-btn" data-filter="weekly-flip">Weekly Flips</button>
+        <button class="chip-btn" data-filter="daily-flip">Daily Flips</button>{portfolio_chip}
+        <input type="text" class="search-box" placeholder="Search ticker...">
+      </div>
+      <table class="scan-table"><thead><tr>
+            <th title="Both weekly and daily agree bullish (▲▲) / bearish (▼▼) / mixed (▲▼) — click to sort: bull → bear → mixed → none">Conf. ↕</th>
+            <th>Ticker</th>
+            <th>Close</th>
+            <th title="Click to sort by weekly bars-in-trend (freshest weekly flip first)"><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · in-trend · ST) ↕</th>
+            <th title="Click to sort by daily bars-in-trend (freshest daily flip first) — this is the default order"><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST) ↕</th>{portfolio_headers}
+            <th>Weekly Bar</th>
+            <th>Daily Bar</th>
+          </tr></thead><tbody>{rows_html}</tbody></table>
+    </div>"""
+
+    return {
+        "stats_html": stats_html,
+        "opp_panels": opp_panels,
+        "recent_flips_panel": recent_flips_panel,
+        "table_block": table_block,
+        "ticker_count": len(table_tickers),
+    }
+
+
+def generate_tabbed_html_report(weekly_scan, daily_scan, atr_period, atr_multiplier, output_path,
+                                flip_log=None, public_view=True):
+    """
+    Single-page tabbed report. Both Long and Short views live in one HTML
+    file; a tab button toggles which pane is visible. Tab choice is
+    persisted to localStorage so refresh keeps you on the same side.
+    """
+    weekly_results = weekly_scan["results"]
+    daily_results = daily_scan["results"]
+    run_date = daily_scan.get("run_date") or weekly_scan.get("run_date")
+
+    w_by = {r["ticker"]: r for r in weekly_results}
+    d_by = {r["ticker"]: r for r in daily_results}
+
+    all_tickers = set()
+    for r in weekly_results: all_tickers.add(r["ticker"])
+    for r in daily_results:  all_tickers.add(r["ticker"])
+
+    def _dir_of(by, ticker):
+        r = by.get(ticker)
+        return r.get("direction") if r and r.get("status") == "ok" else None
+    confluence_bull_tickers = {t for t in all_tickers
+                               if _dir_of(w_by, t) == "Bullish" and _dir_of(d_by, t) == "Bullish"}
+    confluence_bear_tickers = {t for t in all_tickers
+                               if _dir_of(w_by, t) == "Bearish" and _dir_of(d_by, t) == "Bearish"}
+
+    long_sections = _side_sections(weekly_scan, daily_scan, "long", flip_log, public_view,
+                                   w_by, d_by, confluence_bull_tickers, confluence_bear_tickers,
+                                   atr_period, atr_multiplier)
+    short_sections = _side_sections(weekly_scan, daily_scan, "short", flip_log, public_view,
+                                    w_by, d_by, confluence_bull_tickers, confluence_bear_tickers,
+                                    atr_period, atr_multiplier)
+
+    generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    # Held-bearish alert banner: skipped in public view (would name held positions).
+    weekly_alerts = weekly_scan.get("alerts", [])
+    daily_alerts = daily_scan.get("alerts", [])
+    all_alerts = [(a, "Weekly") for a in weekly_alerts] + [(a, "Daily") for a in daily_alerts]
+    if all_alerts and not public_view:
+        alert_items = "".join(_combined_alert_html(a, tf) for (a, tf) in all_alerts)
+        alert_banner = f"""
+        <div class="alert-banner">
+          <div class="alert-head">⚠ Sell signal on held stock(s) — {len(weekly_alerts)} weekly, {len(daily_alerts)} daily</div>
+          {alert_items}
+        </div>"""
+    else:
+        alert_banner = ""
+
+    public_notice = ("" if not public_view else
+        '<div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>')
+
+    body = f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supertrend Scanner — {run_date}</title>
+{CSS_JS}{COMBINED_CSS_EXTRA}</head><body><div class="wrap">
+  <div class="topbar">
+    <h1>Supertrend Combined Scanner</h1>
+    <div class="params">ATR({atr_period}) &times; {atr_multiplier} &middot; Weekly + Daily &middot; Generated {generated_at}</div>
+    {public_notice}
+  </div>
+
+  <div class="tab-nav">
+    <button data-tab="long" class="active long-active">▲ Long · Uptrend Confluence <span class="muted">({long_sections['ticker_count']})</span></button>
+    <button data-tab="short" class="short-active">▼ Short · Downtrend Confluence <span class="muted">({short_sections['ticker_count']})</span></button>
+    <a class="archive-link" href="archive.html">Archive →</a>
+  </div>
+
+  {alert_banner}
+
+  <div id="pane-long" class="tab-pane active">
+    {long_sections['recent_flips_panel']}
+    {long_sections['stats_html']}
+    {long_sections['opp_panels']}
+    {long_sections['table_block']}
+  </div>
+
+  <div id="pane-short" class="tab-pane">
+    {short_sections['recent_flips_panel']}
+    {short_sections['stats_html']}
+    {short_sections['opp_panels']}
+    {short_sections['table_block']}
+  </div>
+
+  <footer>
+    Parameters: ATR period {atr_period}, multiplier {atr_multiplier}. Data via Yahoo Finance (yfinance).
+    "Signal" is a fresh cross on the latest bar of that timeframe. "In-trend" counts bars since the current
+    direction started (d = trading days, w = weeks). "Confluence" agrees when both weekly and daily point
+    the same way. Long tab shows tickers currently in a bullish weekly+daily confluence; Short tab shows
+    bearish confluence. Both tabs rank by daily flip recency by default; click any column to re-sort within
+    that tab. Active tab is remembered across refreshes.
+    This report is a personal analysis tool, not investment advice — verify signals independently before trading.
+  </footer>
+</div>
+{TABBED_JS}</body></html>"""
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(body)

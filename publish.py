@@ -1,22 +1,21 @@
 """
 publish.py
 ----------
-Writes the public-view combined report to a docs/ folder that GitHub Pages
-can serve. Called from combined_scanner.py when COMBINED_PUBLISH_PAGE=1 is
-set in the environment (the combined GitHub Actions workflow sets this;
-running combined_scanner locally without the env var leaves docs/ alone).
+Writes the public-view combined report into a docs/ folder that
+GitHub Pages serves. Called from combined_scanner.py when the env var
+COMBINED_PUBLISH_PAGE=1 is set.
 
-Layout produced:
+Layout:
 
     docs/
-      index.html                       # always the latest report — overwritten
+      .nojekyll                               # tells Pages to skip Jekyll
+      index.html                              # TABBED Long + Short page
+      archive.html                            # landing + dated archive index
       reports/
-        report_<date>.html             # dated archive, pruned to 30 days
-      archive.html                     # auto-generated index of docs/reports/
+        report_<date>.html                    # dated archive (full view)
 
-Public view means: no "Held" or "Position P/L" columns, no "My Portfolio"
-filter, no held-bearish alert banner. Watchlist tickers and their weekly/
-daily Supertrend signals + the rolling 7-day flip log ARE visible.
+The old docs/short.html is no longer produced. If an old file exists
+from a previous publish, it's deleted on the first run of this version.
 """
 
 import html as _html
@@ -24,51 +23,54 @@ import os
 from datetime import datetime
 
 from engine import prune_old_reports
-from report import generate_combined_html_report
+from report import generate_combined_html_report, generate_tabbed_html_report
 
 
 def publish_public_report(weekly_scan, daily_scan, flip_log, atr_period, atr_multiplier,
                           docs_dir: str, run_date: str) -> str:
     """
-    Render the combined report in public_view mode into docs/index.html and
-    docs/reports/report_<run_date>.html, then rebuild docs/archive.html and
-    prune docs/reports/ to 30 days. Returns the archive path.
+    Writes three files per run and returns the full-archive path:
+
+      - docs/index.html  = tabbed single page (Long + Short) in public mode
+      - docs/reports/report_<run_date>.html = full archive (both sides visible)
+      - docs/archive.html = regenerated listing of reports/
+
+    Also writes/preserves docs/.nojekyll and removes the legacy
+    docs/short.html if it survived from a previous publish.
     """
     reports_dir = os.path.join(docs_dir, "reports")
     os.makedirs(reports_dir, exist_ok=True)
 
-    # Tell GitHub Pages to skip Jekyll and serve these HTML files as-is.
-    # Without this, Pages tries to run Jekyll on docs/, and Jekyll's
-    # default theme build (SCSS) fails on our all-HTML layout with
-    # "Error: No such file or directory @ dir_chdir0 - .../docs".
-    # An empty file is enough — Pages only checks that it exists.
     nojekyll_path = os.path.join(docs_dir, ".nojekyll")
     if not os.path.exists(nojekyll_path):
         open(nojekyll_path, "w").close()
 
+    # One-time cleanup of the pre-tabbed layout.
+    legacy_short = os.path.join(docs_dir, "short.html")
+    if os.path.exists(legacy_short):
+        try:
+            os.remove(legacy_short)
+            print(f"Cleanup: removed legacy {legacy_short} (consolidated into index.html)")
+        except OSError:
+            pass
+
     latest_path = os.path.join(docs_dir, "index.html")
     archive_path = os.path.join(reports_dir, f"report_{run_date}.html")
 
-    # Write the archived (dated) copy first...
-    generate_combined_html_report(
-        weekly_scan=weekly_scan,
-        daily_scan=daily_scan,
+    # The main public page: tabbed Long + Short in one HTML, public-view.
+    generate_tabbed_html_report(
+        weekly_scan=weekly_scan, daily_scan=daily_scan,
         flip_log=flip_log,
-        atr_period=atr_period,
-        atr_multiplier=atr_multiplier,
-        output_path=archive_path,
-        public_view=True,
+        atr_period=atr_period, atr_multiplier=atr_multiplier,
+        output_path=latest_path, public_view=True,
     )
-    # ...then the "latest" copy at docs/index.html (identical content today,
-    # but is overwritten every run so the URL always shows the newest one).
+    # The dated archive: full combined view (both sides visible, no tabs,
+    # single long scrollable page — the authoritative historical record).
     generate_combined_html_report(
-        weekly_scan=weekly_scan,
-        daily_scan=daily_scan,
+        weekly_scan=weekly_scan, daily_scan=daily_scan,
         flip_log=flip_log,
-        atr_period=atr_period,
-        atr_multiplier=atr_multiplier,
-        output_path=latest_path,
-        public_view=True,
+        atr_period=atr_period, atr_multiplier=atr_multiplier,
+        output_path=archive_path, public_view=True, side="full",
     )
 
     removed = prune_old_reports(reports_dir, days=30, run_date=run_date)
@@ -81,7 +83,7 @@ def publish_public_report(weekly_scan, daily_scan, flip_log, atr_period, atr_mul
 
 def _rebuild_archive_index(docs_dir: str, run_date: str) -> None:
     """Regenerate docs/archive.html — a plain, offline-friendly list of every
-    report currently in docs/reports/, newest first."""
+    dated full-view report currently in docs/reports/, newest first."""
     reports_dir = os.path.join(docs_dir, "reports")
     entries = []
     if os.path.isdir(reports_dir):
@@ -106,14 +108,15 @@ def _rebuild_archive_index(docs_dir: str, run_date: str) -> None:
          font-size:14px; line-height:1.6; padding:40px 24px; margin:0; }}
   .wrap {{ max-width:720px; margin:0 auto; }}
   h1 {{ font-size:20px; margin:0 0 4px; }}
+  h2 {{ font-size:14px; color:#7C8797; text-transform:uppercase; letter-spacing:0.05em; margin-top:28px; }}
   .meta {{ color:#7C8797; font-size:12.5px; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }}
   a {{ color:#96A9E6; text-decoration:none; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; }}
   a:hover {{ text-decoration:underline; }}
   .muted {{ color:#7C8797; }}
-  ul {{ padding-left: 20px; margin-top: 20px; }}
+  ul {{ padding-left: 20px; margin-top: 12px; }}
   li {{ padding: 3px 0; }}
-  .primary {{ display:inline-block; margin-top:16px; padding:8px 16px; background:#2FBF71; color:#0B0E14;
-              border-radius:8px; font-weight:700; }}
+  .btn {{ display:inline-block; margin-top:16px; padding:10px 20px; border-radius:8px;
+          background:#2FBF71; color:#0B0E14; font-weight:700; font-size: 14px; }}
   footer {{ margin-top:36px; color:#7C8797; font-size:12px; border-top:1px solid #232A38; padding-top:14px; }}
 </style>
 </head>
@@ -121,13 +124,13 @@ def _rebuild_archive_index(docs_dir: str, run_date: str) -> None:
 <div class="wrap">
   <h1>Supertrend Combined Scanner — Archive</h1>
   <div class="meta">Last updated {generated_at} (run {run_date})</div>
-  <a class="primary" href="index.html">Open latest report →</a>
-  <h2 style="margin-top:32px;font-size:14px;color:#7C8797;text-transform:uppercase;letter-spacing:0.05em;">Archived reports</h2>
+  <a class="btn" href="index.html">Open latest report (Long + Short tabs) →</a>
+  <h2>Dated archives (full view, both sides)</h2>
   <ul>
 {rows}
   </ul>
   <footer>
-    Reports older than 30 days are pruned automatically. Public view — portfolio positions are not shown here.
+    Reports older than 30 days are pruned automatically. Public view — portfolio positions are not shown.
   </footer>
 </div>
 </body>

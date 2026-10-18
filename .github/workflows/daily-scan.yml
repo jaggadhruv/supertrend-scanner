@@ -2,14 +2,12 @@ name: Daily Supertrend Scan
 
 "on":
   schedule:
-    # 18:00 UTC, Monday-Friday - after most markets close.
-    # Cron is UTC and fields are: minute hour day-of-month month day-of-week.
-    # Adjust the hour to suit your market's close + your own timezone.
+    # 18:00 UTC, Monday-Friday — after most markets close.
     - cron: '0 18 * * 1-5'
-  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab, any time
+  workflow_dispatch: {}
 
 permissions:
-  contents: write   # needed so the job can commit the new report back to the repo
+  contents: write
 
 concurrency:
   group: daily-scan
@@ -36,12 +34,30 @@ jobs:
 
       - name: Commit and push results
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data output
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "Automated daily scan $(date -u +'%Y-%m-%d %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "Automated daily scan $(date -u +'%Y-%m-%d %H:%M UTC')"
+          # Retry loop handles races with the weekly/combined workflows.
+          attempts=0
+          max_attempts=5
+          until git push; do
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge "$max_attempts" ]; then
+              echo "Push failed after $attempts attempts; giving up."
+              exit 1
+            fi
+            echo "Push rejected (attempt $attempts/$max_attempts) — pulling with rebase and retrying..."
+            git pull --rebase --autostash -X theirs origin main || {
+              echo "Rebase failed; aborting."
+              git rebase --abort || true
+              exit 1
+            }
+            sleep $((RANDOM % 5 + 2))
+          done
+          echo "Pushed successfully after $((attempts + 1)) attempt(s)."

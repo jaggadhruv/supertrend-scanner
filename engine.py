@@ -226,7 +226,10 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
             "quality_base_score": base_q,
             "quality_volume_ratio": r.get("quality_volume_ratio"),
             "quality_momentum_pct": r.get("quality_momentum_pct"),
+            "quality_momentum_10_pct": r.get("quality_momentum_10_pct"),
             "quality_prior_run": r.get("quality_prior_run"),
+            "quality_rsi": r.get("quality_rsi"),
+            "quality_high_distance_pct": r.get("quality_high_distance_pct"),
             "weekly_confluence": has_confluence,
         })
         existing.add(key)
@@ -299,52 +302,95 @@ def fetch_data(ticker, interval, period):
 
 def _compute_quality(st_df, bars_in_trend: int):
     """
-    Rate the current trend's quality as a 0-100 score. Three components:
-      - Volume surge (0-35): latest bar vol / 20-bar avg
-      - 5-bar momentum (0-30): % change over last 5 bars
-      - Prior-trend maturity (0-35): length of opposite-direction run
-    See _compute_quality's inline comments for the exact bands.
+    Rate the current trend's quality as a 0-100 score. Used to decide
+    which BUY/SELL flips are worth logging (vs. being noise) and to
+    rank the flips that are logged.
+
+    Revised five-component formulation:
+
+      1. Volume accumulation (0-25) — 5-bar avg vol / 20-bar avg vol.
+         Catches sustained accumulation over a week, not just a single
+         climactic bar that could be a liquidation.
+      2. Momentum consistency (0-30) — looks at BOTH 5-bar and 10-bar
+         % change. Both-positive-and-strong beats a single-day spike.
+      3. Prior-trend maturity (0-20) — length of the opposite-direction
+         run right before the current one. Still the whipsaw filter.
+      4. RSI condition (0-15) — Wilder RSI(14). For a BULL trend, 50-65
+         is the sweet spot (confirmed momentum with room to run). >75
+         is overbought / late. For a BEAR trend, 35-50 is the sweet
+         spot (confirmed weakness with room to fall).
+      5. Breakout proximity (0-10) — close vs. 20-bar high (for a bull
+         trend) or 20-bar low (bear trend). Rewards flips that are
+         confirming a real breakout, not a mid-range crossover.
+
+    All components fail gracefully: if a field is missing (short history,
+    no Volume column, flat series) that component falls back to a
+    neutral partial-credit score instead of crashing.
     """
     n = len(st_df)
+    try:
+        current_dir = int(st_df["Direction"].iloc[-1])
+    except (KeyError, IndexError, TypeError, ValueError):
+        current_dir = 1
+    current_bullish = (current_dir == 1)
 
-    # Volume
-    vol_ratio = None
+    # ------------------------------------------------------------------
+    # 1. Volume accumulation (0-25)
+    # ------------------------------------------------------------------
+    vol_accum = None
     if "Volume" in st_df.columns and n >= 20:
         try:
-            recent_vol = float(st_df["Volume"].iloc[-1])
-            avg_vol = float(st_df["Volume"].iloc[-20:].mean())
-            vol_ratio = recent_vol / avg_vol if avg_vol > 0 else None
+            avg5 = float(st_df["Volume"].iloc[-5:].mean())
+            avg20 = float(st_df["Volume"].iloc[-20:].mean())
+            vol_accum = avg5 / avg20 if avg20 > 0 else None
         except (TypeError, ValueError):
-            vol_ratio = None
-    if vol_ratio is None:   vol_score = 15
-    elif vol_ratio >= 2.0:  vol_score = 35
-    elif vol_ratio >= 1.5:  vol_score = 28
-    elif vol_ratio >= 1.2:  vol_score = 22
-    elif vol_ratio >= 1.0:  vol_score = 15
-    else:                   vol_score = 7
+            vol_accum = None
+    if   vol_accum is None:    vol_score = 10
+    elif vol_accum >= 1.5:     vol_score = 25
+    elif vol_accum >= 1.2:     vol_score = 20
+    elif vol_accum >= 1.0:     vol_score = 12
+    elif vol_accum >= 0.8:     vol_score = 7
+    else:                      vol_score = 2
 
-    # Momentum
-    mom_pct = None
-    if n >= 6:
+    # ------------------------------------------------------------------
+    # 2. Momentum consistency (0-30) — 5-bar AND 10-bar return
+    # ------------------------------------------------------------------
+    mom5 = mom10 = None
+    if n >= 11:
         try:
-            c5 = float(st_df["Close"].iloc[-6])
             c_now = float(st_df["Close"].iloc[-1])
-            if c5 > 0:
-                mom_pct = (c_now / c5 - 1.0) * 100.0
-        except (TypeError, ValueError):
-            mom_pct = None
-    if mom_pct is None:   mom_score = 12
-    elif mom_pct >= 5:    mom_score = 30
-    elif mom_pct >= 2:    mom_score = 22
-    elif mom_pct >= 0:    mom_score = 12
-    elif mom_pct >= -2:   mom_score = 5
-    else:                 mom_score = 0
+            c5    = float(st_df["Close"].iloc[-6])
+            c10   = float(st_df["Close"].iloc[-11])
+            if c5  > 0: mom5  = (c_now / c5  - 1.0) * 100.0
+            if c10 > 0: mom10 = (c_now / c10 - 1.0) * 100.0
+        except (TypeError, ValueError, IndexError):
+            pass
 
-    # Prior-trend maturity
+    def _mom_score_for(sig_bullish, m5, m10):
+        if m5 is None or m10 is None:
+            return 12
+        if sig_bullish:
+            if   m5 >=  3 and m10 >=  5:  return 30   # both windows strong
+            elif m5 >=  3 and m10 >=  0:  return 24   # strong short-term, flat 10-bar
+            elif m5 >=  0 and m10 >=  5:  return 22   # slow build
+            elif m5 >=  0 and m10 >=  0:  return 14   # mild positive
+            elif m5 >= -2 and m10 >= -2:  return 6
+            else:                         return 0
+        else:  # bearish: mirror the signs
+            if   m5 <= -3 and m10 <= -5:  return 30
+            elif m5 <= -3 and m10 <=  0:  return 24
+            elif m5 <=  0 and m10 <= -5:  return 22
+            elif m5 <=  0 and m10 <=  0:  return 14
+            elif m5 <=  2 and m10 <=  2:  return 6
+            else:                         return 0
+    mom_score = _mom_score_for(current_bullish, mom5, mom10)
+
+    # ------------------------------------------------------------------
+    # 3. Prior-trend maturity (0-20)
+    # ------------------------------------------------------------------
     prior_run = 0
     try:
         dir_series = st_df["Direction"].to_numpy()
-        current_dir = dir_series[-1]
         end_of_prior = n - bars_in_trend - 1
         if end_of_prior >= 0:
             prior_dir = dir_series[end_of_prior]
@@ -357,18 +403,92 @@ def _compute_quality(st_df, bars_in_trend: int):
     except (KeyError, IndexError, TypeError, ValueError):
         prior_run = 0
 
-    if   prior_run >= 15: mat_score = 35
-    elif prior_run >= 10: mat_score = 28
-    elif prior_run >= 5:  mat_score = 20
-    elif prior_run >= 3:  mat_score = 12
-    elif prior_run >= 1:  mat_score = 5
+    if   prior_run >= 15: mat_score = 20
+    elif prior_run >= 10: mat_score = 16
+    elif prior_run >= 5:  mat_score = 11
+    elif prior_run >= 3:  mat_score = 6
+    elif prior_run >= 1:  mat_score = 2
     else:                 mat_score = 0
 
+    # ------------------------------------------------------------------
+    # 4. RSI(14) condition (0-15) — favour confirmed-but-not-extended
+    # ------------------------------------------------------------------
+    rsi = None
+    if n >= 15:
+        try:
+            close = st_df["Close"].astype(float)
+            delta = close.diff()
+            gain = delta.where(delta > 0, 0.0)
+            loss = -delta.where(delta < 0, 0.0)
+            avg_gain = gain.ewm(alpha=1 / 14, min_periods=14, adjust=False).mean()
+            avg_loss = loss.ewm(alpha=1 / 14, min_periods=14, adjust=False).mean()
+            last_gain = float(avg_gain.iloc[-1])
+            last_loss = float(avg_loss.iloc[-1])
+            if last_loss > 0:
+                rs = last_gain / last_loss
+                rsi = 100.0 - (100.0 / (1.0 + rs))
+            elif last_gain > 0:
+                rsi = 100.0  # all-up window
+            else:
+                rsi = 50.0
+        except (TypeError, ValueError, IndexError, KeyError):
+            rsi = None
+
+    if rsi is None:
+        rsi_score = 7
+    elif current_bullish:
+        if   50 <= rsi <= 65:                  rsi_score = 15
+        elif 45 <= rsi <  50 or 65 < rsi <= 70: rsi_score = 11
+        elif 40 <= rsi <  45 or 70 < rsi <= 75: rsi_score = 7
+        elif rsi > 75:                          rsi_score = 2   # overbought
+        else:                                   rsi_score = 4   # too weak for a bull
+    else:  # bearish: mirror
+        if   35 <= rsi <= 50:                  rsi_score = 15
+        elif 30 <= rsi <  35 or 50 < rsi <= 55: rsi_score = 11
+        elif 25 <= rsi <  30 or 55 < rsi <= 60: rsi_score = 7
+        elif rsi < 25:                          rsi_score = 2   # oversold
+        else:                                   rsi_score = 4
+
+    # ------------------------------------------------------------------
+    # 5. Breakout proximity (0-10) — close vs 20-bar high / low
+    # ------------------------------------------------------------------
+    hl_pct = None
+    if n >= 20:
+        try:
+            close_now = float(st_df["Close"].iloc[-1])
+            if current_bullish:
+                high_20 = float(st_df["High"].iloc[-20:].max())
+                if high_20 > 0:
+                    hl_pct = (close_now - high_20) / high_20 * 100.0
+                if   hl_pct is None:  hl_score = 5
+                elif hl_pct >=  0:    hl_score = 10   # new 20-bar high
+                elif hl_pct >= -2:    hl_score = 7    # within 2% of high
+                elif hl_pct >= -5:    hl_score = 4
+                else:                 hl_score = 1
+            else:
+                low_20 = float(st_df["Low"].iloc[-20:].min())
+                if low_20 > 0:
+                    hl_pct = (close_now - low_20) / low_20 * 100.0
+                if   hl_pct is None:  hl_score = 5
+                elif hl_pct <=  0:    hl_score = 10   # new 20-bar low
+                elif hl_pct <=  2:    hl_score = 7
+                elif hl_pct <=  5:    hl_score = 4
+                else:                 hl_score = 1
+        except (TypeError, ValueError, IndexError, KeyError):
+            hl_score = 5
+            hl_pct = None
+    else:
+        hl_score = 5
+
+    total = vol_score + mom_score + mat_score + rsi_score + hl_score
     return {
-        "quality_score": int(vol_score + mom_score + mat_score),
-        "quality_volume_ratio": round(vol_ratio, 2) if vol_ratio is not None else None,
-        "quality_momentum_pct": round(mom_pct, 2) if mom_pct is not None else None,
+        "quality_score": int(total),
+        "quality_volume_ratio": round(vol_accum, 2) if vol_accum is not None else None,
+        "quality_momentum_pct": round(mom5, 2) if mom5 is not None else None,
+        "quality_momentum_10_pct": round(mom10, 2) if mom10 is not None else None,
         "quality_prior_run": int(prior_run),
+        "quality_rsi": round(rsi, 1) if rsi is not None else None,
+        "quality_high_distance_pct": round(hl_pct, 2) if hl_pct is not None else None,
     }
 
 
@@ -394,7 +514,10 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "quality_score": None,
         "quality_volume_ratio": None,
         "quality_momentum_pct": None,
+        "quality_momentum_10_pct": None,
         "quality_prior_run": None,
+        "quality_rsi": None,
+        "quality_high_distance_pct": None,
     }
 
     data = fetch_data(ticker, cfg.interval, cfg.lookback_period)

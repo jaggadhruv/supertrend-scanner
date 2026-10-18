@@ -1,19 +1,14 @@
 name: Combined Supertrend Scan (Weekly + Daily)
 
-# Runs both the weekly and daily Supertrend scans in one job, commits a
-# single merged HTML report to output/combined/, and (because
-# COMBINED_PUBLISH_PAGE=1 is set below) publishes a public-view copy to
-# docs/ so GitHub Pages serves it as a live URL.
-#
-# Each run also prunes report files older than 30 days from every output
-# folder (output/weekly, output/daily, output/combined, docs/reports).
-# See README for the one-time Pages setup.
+# Runs both weekly and daily scans in one job, commits the merged report
+# to output/combined/, and publishes the public-view tabbed page to docs/
+# so GitHub Pages serves it. Also prunes 30-day-old reports.
 
 on:
   schedule:
-    # Weekdays at 22:00 UTC — after the US market close.
+    # Weekdays 22:00 UTC — after US close.
     - cron: '0 22 * * 1-5'
-    # Saturday 07:00 UTC — the weekly candle has just closed.
+    # Saturday 07:00 UTC — weekly candle just closed.
     - cron: '0 7 * * 6'
   workflow_dispatch: {}
 
@@ -24,9 +19,11 @@ jobs:
   combined-scan:
     runs-on: ubuntu-latest
     env:
-      # Turns on the docs/ publisher inside combined_scanner.py.
+      # Enables the docs/ publisher inside combined_scanner.py.
       # Set to any non-empty value to enable; unset to disable.
       COMBINED_PUBLISH_PAGE: "1"
+      # Tune the quality gate for flip logging if desired (default 60).
+      # MIN_FLIP_QUALITY: "70"
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -63,10 +60,7 @@ jobs:
           git commit -m "Combined Supertrend report $(date -u +%Y-%m-%d)"
 
           # Retry loop: the weekly-scan and daily-scan workflows also push
-          # to main and can occasionally win a race against this one. On
-          # rejection ("fetch first"), pull with rebase and retry. Data
-          # files are all deterministic per-run rewrites; a rebase-onto
-          # of these committed changes onto the newer tip is safe.
+          # to main and can occasionally win a race against this one.
           attempts=0
           max_attempts=5
           until git push; do
@@ -76,15 +70,11 @@ jobs:
               exit 1
             fi
             echo "Push rejected (attempt $attempts/$max_attempts) — pulling with rebase and retrying..."
-            # --autostash covers any local artefacts a Pages build step
-            # might have left in the working tree; -X theirs prefers our
-            # freshly-computed data files on rebase conflicts.
             git pull --rebase --autostash -X theirs origin main || {
               echo "Rebase failed; aborting."
               git rebase --abort || true
               exit 1
             }
-            # Small jitter so parallel workflows don't lockstep-retry.
             sleep $((RANDOM % 5 + 2))
           done
           echo "Pushed successfully after $((attempts + 1)) attempt(s)."
