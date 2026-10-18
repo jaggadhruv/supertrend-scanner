@@ -219,13 +219,13 @@
 </head><body><div class="wrap">
   <div class="topbar">
     <h1>Supertrend Combined Scanner</h1>
-    <div class="params">ATR(10) &times; 2.5 &middot; Weekly + Daily &middot; Generated 2026-10-18 19:36</div>
+    <div class="params">ATR(10) &times; 2.5 &middot; Weekly + Daily &middot; Generated 2026-10-18 19:48</div>
     <div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>
   </div>
 
   <div class="tab-nav">
-    <button data-tab="long" class="active long-active">▲ Long · Uptrend Confluence <span class="muted">(3)</span></button>
-    <button data-tab="short" class="short-active">▼ Short · Downtrend Confluence <span class="muted">(0)</span></button>
+    <button data-tab="long" class="active long-active">▲ Long · Weekly Uptrend <span class="muted">(4)</span></button>
+    <button data-tab="short" class="short-active">▼ Short · Weekly Downtrend <span class="muted">(1)</span></button>
     <a class="archive-link" href="archive.html">Archive →</a>
   </div>
 
@@ -238,17 +238,9 @@
             <h2>Recent Buy Flips (Last 7 Days)</h2>
             <span class="subtle">Anything older than 7 days rolls off this list automatically. Full history in <code>data/flip_log.json</code>.</span>
           </div>
-          <div class="flip-mode-note">Showing only tickers that are currently in weekly bullish confluence. Sorted by quality within each day; ★ marks the top 3 when a day has more than 5 candidates.</div>
+          <div class="flip-mode-note">Showing only BUY flips on tickers whose current weekly direction is Bullish. Sorted by quality within each day; ★ marks the top 3 when a day has more than 5 candidates.</div>
           <div class="empty-note" style="margin-top:10px;">No BUY flips in the last 7 days that match this section's filter.</div>
         </div>
-    
-    <div class="stats-row">
-      <div class="stat-chip"><div class="num">3</div><div class="label">Long-side Tickers</div></div>
-      <div class="stats-group-label">Fresh</div>
-      <div class="stat-chip stat-buy"><div class="num">0</div><div class="label">Weekly Buy</div></div>
-      <div class="stat-chip stat-buy"><div class="num">0</div><div class="label">Daily Buy</div></div>
-      <div class="stat-chip stat-buy"><div class="num">0</div><div class="label">Confluence Buy</div></div>
-    </div>
     
     <div class="panel">
       <h2>Buying Opportunities</h2>
@@ -269,7 +261,7 @@
     </div>
     
     <div class="panel">
-      <h2>Full Long-side Watchlist — Weekly &amp; Daily Side-by-Side</h2>
+      <h2>Full Weekly-Uptrend Watchlist — Weekly &amp; Daily Side-by-Side</h2>
       <div class="controls">
         <button class="chip-btn active" data-filter="all">All</button>
         <button class="chip-btn" data-filter="recent7">Recent (7d)</button>
@@ -290,6 +282,25 @@
             <th>Weekly Bar</th>
             <th>Daily Bar</th>
           </tr></thead><tbody>
+    <tr data-ticker="nvda"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bullish"
+        data-d-dir="bearish"
+        data-held="1"
+        data-confluence="mixed"
+        data-d-recency="5"
+        data-w-recency="72">
+      <td data-sort="2"><span class="confluence-cell conf-mixed" title="Weekly and daily disagree">▲▼</span></td>
+      <td class="col-ticker">NVDA</td>
+      <td data-sort="214.13">214.13</td>
+      <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-06-02">72w</span> <span class="muted small">ST 197.29</span></span></td>
+      <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 days — since 2026-10-12">5d</span> <span class="muted small">ST 230.73</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr>
     <tr data-ticker="meta"
         data-w-signal="none"
         data-d-signal="none"
@@ -357,17 +368,9 @@
             <h2>Recent Sell Flips (Last 7 Days)</h2>
             <span class="subtle">Anything older than 7 days rolls off this list automatically. Full history in <code>data/flip_log.json</code>.</span>
           </div>
-          <div class="flip-mode-note">Showing only tickers that are currently in weekly bearish confluence. Sorted by quality within each day; ★ marks the top 3 when a day has more than 5 candidates.</div>
+          <div class="flip-mode-note">Showing only SELL flips on tickers whose current weekly direction is Bearish. Sorted by quality within each day; ★ marks the top 3 when a day has more than 5 candidates.</div>
           <div class="empty-note" style="margin-top:10px;">No SELL flips in the last 7 days that match this section's filter.</div>
         </div>
-    
-    <div class="stats-row">
-      <div class="stat-chip"><div class="num">0</div><div class="label">Short-side Tickers</div></div>
-      <div class="stats-group-label">Fresh</div>
-      <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Weekly Sell</div></div>
-      <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Daily Sell</div></div>
-      <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Confluence Sell</div></div>
-    </div>
     
     <div class="panel">
       <h2>Selling Opportunities</h2>
@@ -388,7 +391,7 @@
     </div>
     
     <div class="panel">
-      <h2>Full Short-side Watchlist — Weekly &amp; Daily Side-by-Side</h2>
+      <h2>Full Weekly-Downtrend Watchlist — Weekly &amp; Daily Side-by-Side</h2>
       <div class="controls">
         <button class="chip-btn active" data-filter="all">All</button>
         <button class="chip-btn" data-filter="recent7">Recent (7d)</button>
@@ -408,7 +411,26 @@
             <th title="Click to sort by daily bars-in-trend (freshest daily flip first) — this is the default order"><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST) ↕</th>
             <th>Weekly Bar</th>
             <th>Daily Bar</th>
-          </tr></thead><tbody></tbody></table>
+          </tr></thead><tbody>
+    <tr data-ticker="goog"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bearish"
+        data-d-dir="bullish"
+        data-held="0"
+        data-confluence="mixed"
+        data-d-recency="20"
+        data-w-recency="13">
+      <td data-sort="2"><span class="confluence-cell conf-mixed" title="Weekly and daily disagree">▲▼</span></td>
+      <td class="col-ticker">GOOG</td>
+      <td data-sort="336.91">336.91</td>
+      <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 weeks — since 2026-07-20">13w</span> <span class="muted small">ST 387.30</span></span></td>
+      <td data-sort="20"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 20 days — since 2026-09-21">20d</span> <span class="muted small">ST 331.70</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr></tbody></table>
     </div>
   </div>
 
@@ -416,9 +438,10 @@
     Parameters: ATR period 10, multiplier 2.5. Data via Yahoo Finance (yfinance).
     "Signal" is a fresh cross on the latest bar of that timeframe. "In-trend" counts bars since the current
     direction started (d = trading days, w = weeks). "Confluence" agrees when both weekly and daily point
-    the same way. Long tab shows tickers currently in a bullish weekly+daily confluence; Short tab shows
-    bearish confluence. Both tabs rank by daily flip recency by default; click any column to re-sort within
-    that tab. Active tab is remembered across refreshes.
+    the same way. Long tab shows every ticker whose current weekly direction is Bullish; Short tab shows
+    those whose current weekly direction is Bearish. The Confluence subpanel inside Buying/Selling
+    Opportunities calls out tickers that flipped on BOTH timeframes this run. Both tabs rank by daily flip
+    recency by default; click any column to re-sort within that tab. Active tab is remembered across refreshes.
     This report is a personal analysis tool, not investment advice — verify signals independently before trading.
   </footer>
 </div>
