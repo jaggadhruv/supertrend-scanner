@@ -1,3 +1,6 @@
+# Website
+https://jaggadhruv.github.io/supertrend-scanner/
+
 # Supertrend Scanner
 
 Free, open-source tool that scans your US-equity watchlist with the Supertrend
