@@ -1,20 +1,20 @@
 {
   "AAPL": {
-    "last_run_date": "2026-10-17",
+    "last_run_date": "2026-10-18",
     "direction": "Bullish",
     "signal": "NONE",
     "close": 343.46,
     "supertrend": 302.21
   },
   "MSFT": {
-    "last_run_date": "2026-10-17",
+    "last_run_date": "2026-10-18",
     "direction": "Bullish",
     "signal": "NONE",
     "close": 529.05,
     "supertrend": 469.42
   },
   "GOOG": {
-    "last_run_date": "2026-10-17",
+    "last_run_date": "2026-10-18",
     "direction": "Bearish",
     "signal": "NONE",
     "close": 336.91,
@@ -28,14 +28,14 @@
     "supertrend": 405.18
   },
   "NVDA": {
-    "last_run_date": "2026-10-17",
+    "last_run_date": "2026-10-18",
     "direction": "Bullish",
     "signal": "NONE",
     "close": 214.13,
     "supertrend": 197.29
   },
   "META": {
-    "last_run_date": "2026-10-17",
+    "last_run_date": "2026-10-18",
     "direction": "Bullish",
     "signal": "NONE",
     "close": 709.33,
