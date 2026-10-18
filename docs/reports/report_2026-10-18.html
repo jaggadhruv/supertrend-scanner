@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supertrend Scanner — 2026-10-18 · Full Archive · Public view</title>
+
+<style>
+  :root {
+    --bg: #0B0E14; --panel: #12161F; --panel-2: #171C27;
+    --border: #232A38; --text: #E7ECF3; --muted: #7C8797;
+    --bull: #2FBF71; --bull-bg: rgba(47,191,113,0.12);
+    --bear: #F0475D; --bear-bg: rgba(240,71,93,0.12);
+    --amber: #F0A93D; --amber-bg: rgba(240,169,61,0.10);
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Cascadia Code", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans);
+         font-size: 14px; line-height: 1.5; padding: 32px 24px 80px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;
+            gap: 8px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+  .topbar h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .topbar .params { color: var(--muted); font-family: var(--mono); font-size: 12.5px; }
+
+  .alert-banner { background: var(--bear-bg); border: 1px solid rgba(240,71,93,0.35);
+                  border-radius: 10px; padding: 16px 18px; margin-bottom: 22px; }
+  .alert-banner .alert-head { display:flex; align-items:center; gap:8px; font-weight:700; color: var(--bear);
+                              margin-bottom: 10px; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .alert-item { display:flex; gap:14px; padding: 8px 0; border-top: 1px solid rgba(240,71,93,0.18); }
+  .alert-item:first-of-type { border-top: none; }
+  .alert-ticker { font-family: var(--mono); font-weight: 700; min-width: 90px; color: var(--text); }
+  .alert-body { color: var(--text); font-size: 13.5px; }
+  .alert-trade { color: var(--muted); font-size: 12.5px; margin-top: 2px; font-family: var(--mono); }
+
+  .stats-row { display:flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .stat-chip { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+               padding: 12px 18px; min-width: 120px; }
+  .stat-chip .num { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+  .stat-chip .label { color: var(--muted); font-size: 11.5px; text-transform: uppercase;
+                      letter-spacing: 0.04em; margin-top: 2px; }
+  .stat-buy .num { color: var(--bull); }
+  .stat-sell .num { color: var(--bear); }
+
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+           padding: 18px 20px; margin-bottom: 22px; }
+  .panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em;
+              color: var(--muted); margin: 0 0 14px; }
+  .buy-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .buy-item { background: var(--bull-bg); border: 1px solid rgba(47,191,113,0.3);
+              border-radius: 8px; padding: 10px 12px; }
+  .buy-ticker { font-family: var(--mono); font-weight: 700; color: var(--bull); }
+  .buy-meta { color: var(--muted); font-size: 12px; margin-top: 3px; }
+  .empty-note { color: var(--muted); font-size: 13px; }
+
+  .controls { display:flex; gap: 10px; align-items:center; margin-bottom: 14px; flex-wrap: wrap; }
+  .chip-btn { background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+              padding: 6px 14px; border-radius: 999px; font-size: 12.5px; cursor: pointer; font-family: var(--sans); }
+  .chip-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 600; }
+  .search-box { margin-left: auto; background: var(--panel-2); border: 1px solid var(--border);
+                border-radius: 8px; padding: 6px 12px; color: var(--text); font-size: 13px;
+                font-family: var(--mono); width: 200px; }
+  .search-box::placeholder { color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 13px; }
+  thead th { text-align: left; color: var(--muted); font-weight: 600; font-size: 11px;
+             text-transform: uppercase; letter-spacing: 0.03em; padding: 10px 10px;
+             border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+             white-space: nowrap; font-family: var(--sans); }
+  thead th:hover { color: var(--text); }
+  thead th.sorted-asc::after { content: " ↑"; }
+  thead th.sorted-desc::after { content: " ↓"; }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:hover { background: var(--panel-2); }
+  td.rail { width: 4px; padding: 0; }
+  .rail-bull { background: var(--bull); }
+  .rail-bear { background: var(--bear); }
+  .rail-none { background: var(--border); }
+  .col-ticker { font-weight: 700; }
+  .error-cell { color: var(--amber); font-family: var(--sans); font-size: 12.5px; }
+
+  .badge { display:inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px;
+           font-weight: 700; letter-spacing: 0.02em; }
+  .badge-buy { background: var(--bull-bg); color: var(--bull); }
+  .badge-sell { background: var(--bear-bg); color: var(--bear); }
+  .badge-none { background: transparent; color: var(--muted); font-weight: 400; }
+
+  .dir { font-size: 12.5px; }
+  .dir-bull { color: var(--bull); }
+  .dir-bear { color: var(--bear); }
+  .dir-none { color: var(--muted); }
+
+  .muted { color: var(--muted); }
+  .small { font-size: 11.5px; }
+  .held-yes { color: var(--amber); font-weight: 700; font-size: 12px; }
+  .flip-yes { color: var(--text); background: rgba(231,236,243,0.08); padding: 2px 8px;
+              border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  .flip-changed { color: var(--amber); background: var(--amber-bg); padding: 2px 8px;
+                  border-radius: 999px; font-size: 11.5px; font-weight: 700; cursor: help; }
+  .in-trend { display:inline-block; padding: 2px 8px; border-radius: 999px;
+              font-family: var(--mono); font-size: 11.5px; font-weight: 700; cursor: help; }
+  .trend-bull { color: var(--bull); background: var(--bull-bg); }
+  .trend-bear { color: var(--bear); background: var(--bear-bg); }
+  .pnl-pos { color: var(--bull); font-weight: 700; }
+  .pnl-neg { color: var(--bear); font-weight: 700; }
+
+  footer { margin-top: 30px; color: var(--muted); font-size: 12px;
+           border-top: 1px solid var(--border); padding-top: 16px; }
+  tr.row-error { opacity: 0.7; }
+  tr.hidden-row { display: none; }
+</style>
+
+<style>
+  .confluence-cell { text-align: center; letter-spacing: 1px; font-size: 14px; }
+  .conf-bull { color: var(--bull); font-weight: 700; }
+  .conf-bear { color: var(--bear); font-weight: 700; }
+  .conf-mixed { color: var(--amber); font-weight: 700; }
+  .conf-none { color: var(--muted); }
+
+  .tf-cell { white-space: nowrap; }
+  .tf-cell .dir { margin-right: 4px; }
+
+  .tf-tag { display:inline-block; font-family: var(--mono); font-size: 10.5px; font-weight: 700;
+            padding: 1px 6px; border-radius: 4px; letter-spacing: 0.04em; margin-right: 6px; text-transform: uppercase; }
+  .tf-tag-w { background: rgba(120,140,220,0.18); color: #96A9E6; }
+  .tf-tag-d { background: rgba(220,170,120,0.18); color: #E6BE96; }
+
+  .buy-panels { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .buy-subpanel h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em;
+                     color: var(--muted); margin: 0 0 10px; display:flex; align-items:center; gap:8px; }
+  .buy-subpanel h3 .count { color: var(--text); font-family: var(--mono); }
+  .confluence-panel { border: 1px solid rgba(47,191,113,0.35); background: rgba(47,191,113,0.05);
+                      border-radius: 8px; padding: 12px 14px; }
+  .confluence-panel h3 { color: var(--bull); }
+  .confluence-panel .buy-item { background: rgba(47,191,113,0.18); }
+
+  .stats-group-label { color: var(--muted); font-size: 11px; text-transform: uppercase;
+                       letter-spacing: 0.05em; padding: 0 4px; align-self: center; }
+
+  /* Long/Short/Archive nav bar at the top of a sided page */
+  .side-nav { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border);
+              padding-bottom: 0; }
+  .side-nav a { padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--muted);
+                text-decoration: none; border-bottom: 2px solid transparent; transition: color 100ms; }
+  .side-nav a:hover { color: var(--text); }
+  .side-nav a.active { color: var(--text); border-bottom-color: var(--text); }
+  .side-nav a.active.long-active { color: var(--bull); border-bottom-color: var(--bull); }
+  .side-nav a.active.short-active { color: var(--bear); border-bottom-color: var(--bear); }
+  .side-badge { display:inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px;
+                font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-left: 10px;
+                vertical-align: middle; }
+  .side-badge.long-badge  { background: var(--bull-bg); color: var(--bull); }
+  .side-badge.short-badge { background: var(--bear-bg); color: var(--bear); }
+
+  /* Tabbed single-page layout (used by the published docs/index.html) */
+  .tab-nav { display: flex; gap: 2px; align-items: center; margin-bottom: 20px;
+             border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab-nav button { background: none; border: none; padding: 10px 18px;
+                    font-size: 13px; font-weight: 600; color: var(--muted);
+                    cursor: pointer; border-bottom: 2px solid transparent;
+                    font-family: inherit; transition: color 100ms; }
+  .tab-nav button:hover { color: var(--text); }
+  .tab-nav button.active.long-active  { color: var(--bull); border-bottom-color: var(--bull); }
+  .tab-nav button.active.short-active { color: var(--bear); border-bottom-color: var(--bear); }
+  .tab-nav .archive-link { margin-left: auto; padding: 10px 14px;
+                           color: var(--muted); text-decoration: none; font-size: 13px; }
+  .tab-nav .archive-link:hover { color: var(--text); }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Recent Buy Flips panel */
+  .flip-log-panel { border: 1px solid var(--border); }
+  .flip-log-panel .panel-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom: 12px; }
+  .flip-log-panel .panel-head h2 { margin: 0; }
+  .flip-log-panel .panel-head .subtle { color: var(--muted); font-family: var(--mono); font-size: 11.5px; }
+  .flip-day { margin: 10px 0 6px; }
+  .flip-day-head { color: var(--muted); font-size: 11px; text-transform: uppercase;
+                   letter-spacing: 0.05em; font-weight: 700; margin-bottom: 6px; }
+  .flip-day-head .today-tag { display:inline-block; margin-left: 8px;
+                              background: rgba(240,169,61,0.16); color: var(--amber);
+                              padding: 1px 7px; border-radius: 999px;
+                              font-size: 10px; letter-spacing: 0.03em; }
+  .flip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+
+  /* --- Card layout: now stacked (head row + body rows) so a reason line fits --- */
+  .flip-card { display:flex; flex-direction: column; gap: 4px;
+               padding: 9px 11px; border-radius: 8px;
+               border: 1px solid var(--border); background: var(--panel-2); }
+  .flip-card.flip-buy  { border-color: rgba(47,191,113,0.35); background: rgba(47,191,113,0.06); }
+  .flip-card.flip-sell { border-color: rgba(240,71,93,0.35);  background: rgba(240,71,93,0.06);  }
+  .flip-head { display:flex; align-items:center; gap: 8px; }
+  .flip-head .flip-tkr { font-family: var(--mono); font-weight: 700; color: var(--text);
+                         min-width: 62px; font-size: 13px; }
+  .flip-head .flip-tag { font-family: var(--mono); font-size: 10px; font-weight: 700;
+                         padding: 1px 5px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .flip-main { color: var(--text); font-size: 11.5px; font-family: var(--mono); line-height: 1.3; }
+  .flip-reason { color: var(--muted); font-size: 11px; font-family: var(--mono); line-height: 1.35; }
+  .flip-reason .r-strong { color: var(--text); font-weight: 700; }
+  .flip-reason .r-pos { color: var(--bull); font-weight: 700; }
+  .flip-reason .r-neg { color: var(--bear); font-weight: 700; }
+  .flip-reason .r-conf { color: var(--amber); font-weight: 700; }
+
+  /* Quality badges on flip cards */
+  .flip-head .q-badge { margin-left: auto; font-family: var(--mono); font-size: 10.5px;
+                        font-weight: 700; padding: 2px 8px; border-radius: 999px;
+                        letter-spacing: 0.02em; cursor: help; }
+  .q-high   { background: rgba(47,191,113,0.18); color: var(--bull); }
+  .q-med    { background: rgba(240,169,61,0.18); color: var(--amber); }
+  .q-low    { background: rgba(231,236,243,0.06); color: var(--muted); }
+  .q-star   { color: var(--amber); margin-right: 4px; font-weight: 700; }
+
+  .flip-mode-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
+  .flip-topbadge { display:inline-block; margin-left: 10px; background: rgba(47,191,113,0.16);
+                   color: var(--bull); padding: 1px 8px; border-radius: 999px;
+                   font-size: 10.5px; letter-spacing: 0.03em; font-weight: 700; }
+
+  tr.hidden-row { display: none; }
+</style>
+</head><body><div class="wrap">
+  
+  <div class="topbar">
+    <h1>Supertrend Combined Scanner · Full Archive · Public view</h1>
+    <div class="params">ATR(10) &times; 2.5 &middot; Weekly + Daily &middot; Generated 2026-10-18 19:36</div>
+    <div class="params" style="margin-top:6px;">Public view — portfolio positions are hidden. Signals, watchlist, and flip log are shown as-is.</div>
+  </div>
+  
+  
+    <div class="panel flip-log-panel">
+      <div class="panel-head">
+        <h2>Recent Flips (Last 7 Days)</h2>
+        <span class="subtle">122 BUY/SELL flip(s) across 5 day(s). Anything older than 7 days rolls off this list automatically. Full history in <code>data/flip_log.json</code>.</span>
+      </div>
+      <div class="flip-mode-note">Sorted by quality within each day; ★ marks the top 3 when a day has more than 5 candidates.</div>
+      <div class="flip-day">
+              <div class="flip-day-head">2026-10-16 <span class="flip-topbadge">★ top 3 of 21</span></div>
+              <div class="flip-grid">
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>NOC</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 519.86 · <span class="muted">ST 481.49</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+28%</span> (5/20 avg) · mom <span class="r-pos">+8.1%</span>/5b · <span class="r-strong">38-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>RTX</span>
+        <span class="q-badge q-high" title="Quality 85/100 — hover reason for details">85</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 193.92 · <span class="muted">ST 181.11</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+87%</span> (5/20 avg) · mom <span class="r-pos">+4.3%</span>/5b · <span class="r-strong">40-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>AON</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 292.55 · <span class="muted">ST 273.48</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-3%</span> (5/20 avg) · mom <span class="r-pos">+7.0%</span>/5b · <span class="r-strong">43-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ICE</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 161.56 · <span class="muted">ST 152.19</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+5%</span> (5/20 avg) · mom <span class="r-pos">+3.4%</span>/5b · <span class="r-strong">22-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PEP</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 131.49 · <span class="muted">ST 123.16</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+5%</span> (5/20 avg) · mom <span class="r-pos">+4.4%</span>/5b · <span class="r-strong">29-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">SBUX</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 97.52 · <span class="muted">ST 91.10</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-1%</span> (5/20 avg) · mom <span class="r-pos">+7.5%</span>/5b · <span class="r-strong">28-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">OKTA</span>
+        <span class="q-badge q-high" title="Quality 70/100 — hover reason for details">70</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 187.26 · <span class="muted">ST 227.91</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+102%</span> (5/20 avg) · mom <span class="r-pos">-19.3%</span>/5b · <span class="r-strong">35-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">D</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 63.56 · <span class="muted">ST 60.66</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-22%</span> (5/20 avg) · mom <span class="r-pos">+3.1%</span>/5b · <span class="r-strong">53-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">GD</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 344.23 · <span class="muted">ST 326.50</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-7%</span> (5/20 avg) · mom <span class="r-pos">+3.9%</span>/5b · <span class="r-strong">37-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ITW</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 272.28 · <span class="muted">ST 260.41</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-1%</span> (5/20 avg) · mom <span class="r-pos">+3.1%</span>/5b · <span class="r-strong">34-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">O</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 56.08 · <span class="muted">ST 53.80</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-26%</span> (5/20 avg) · mom <span class="r-pos">+3.5%</span>/5b · <span class="r-strong">52-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PSA</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 298.31 · <span class="muted">ST 284.36</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-20%</span> (5/20 avg) · mom <span class="r-pos">+2.9%</span>/5b · <span class="r-strong">35-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">WELL</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 234.85 · <span class="muted">ST 223.37</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-31%</span> (5/20 avg) · mom <span class="r-pos">+4.2%</span>/5b · <span class="r-strong">55-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">FTNT</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 169.13 · <span class="muted">ST 192.34</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+66%</span> (5/20 avg) · mom <span class="r-pos">-13.2%</span>/5b · <span class="r-strong">124-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">SNOW</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 306.84 · <span class="muted">ST 366.08</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+95%</span> (5/20 avg) · mom <span class="r-pos">-16.8%</span>/5b · <span class="r-strong">75-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">TSLA</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 354.72 · <span class="muted">ST 386.24</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+79%</span> (5/20 avg) · mom <span class="r-pos">-7.3%</span>/5b · <span class="r-strong">41-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">TXN</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 276.48 · <span class="muted">ST 299.11</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+52%</span> (5/20 avg) · mom <span class="r-pos">-2.6%</span>/5b · <span class="r-strong">17-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">DDOG</span>
+        <span class="q-badge q-med" title="Quality 57/100 — hover reason for details">57</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 247.11 · <span class="muted">ST 290.57</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+29%</span> (5/20 avg) · mom <span class="r-pos">-15.7%</span>/5b · <span class="r-strong">19-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PLTR</span>
+        <span class="q-badge q-med" title="Quality 57/100 — hover reason for details">57</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 186.03 · <span class="muted">ST 214.17</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+43%</span> (5/20 avg) · mom <span class="r-pos">-11.0%</span>/5b · <span class="r-strong">17-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">FFIV</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 442.03 · <span class="muted">ST 485.63</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-5%</span> (5/20 avg) · mom <span class="r-pos">-7.9%</span>/5b · <span class="r-strong">23-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">SNPS</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 454.63 · <span class="muted">ST 506.06</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-5%</span> (5/20 avg) · mom <span class="r-pos">-10.9%</span>/5b · <span class="r-strong">17-bar prior bull</span></div>
+    </div></div>
+            </div><div class="flip-day">
+              <div class="flip-day-head">2026-10-15 <span class="flip-topbadge">★ top 3 of 39</span></div>
+              <div class="flip-grid">
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>BLK</span>
+        <span class="q-badge q-high" title="Quality 100/100 — hover reason for details">100</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 1,120.78 · <span class="muted">ST 1,032.28</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+108%</span> (5/20 avg) · mom <span class="r-pos">+5.2%</span>/5b · <span class="r-strong">30-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>WCN</span>
+        <span class="q-badge q-high" title="Quality 100/100 — hover reason for details">100</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 165.51 · <span class="muted">ST 153.51</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+138%</span> (5/20 avg) · mom <span class="r-pos">+7.0%</span>/5b · <span class="r-strong">27-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>KMB</span>
+        <span class="q-badge q-high" title="Quality 93/100 — hover reason for details">93</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 104.07 · <span class="muted">ST 97.79</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+76%</span> (5/20 avg) · mom <span class="r-pos">+6.5%</span>/5b · <span class="r-strong">66-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AJG</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 250.10 · <span class="muted">ST 230.69</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+48%</span> (5/20 avg) · mom <span class="r-pos">+6.9%</span>/5b · <span class="r-strong">26-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MCO</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 483.69 · <span class="muted">ST 449.09</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+23%</span> (5/20 avg) · mom <span class="r-pos">+5.5%</span>/5b · <span class="r-strong">27-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">POOL</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 169.12 · <span class="muted">ST 152.93</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+45%</span> (5/20 avg) · mom <span class="r-pos">+6.9%</span>/5b · <span class="r-strong">31-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">SYK</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 293.23 · <span class="muted">ST 270.14</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+21%</span> (5/20 avg) · mom <span class="r-pos">+5.9%</span>/5b · <span class="r-strong">31-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">IDXX</span>
+        <span class="q-badge q-high" title="Quality 80/100 — hover reason for details">80</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 547.18 · <span class="muted">ST 509.49</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+3%</span> (5/20 avg) · mom <span class="r-pos">+6.6%</span>/5b · <span class="r-strong">43-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ADBE</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 251.67 · <span class="muted">ST 227.80</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+38%</span> (5/20 avg) · mom <span class="r-pos">+4.4%</span>/5b · <span class="r-strong">27-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">LMT</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 532.64 · <span class="muted">ST 502.48</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+21%</span> (5/20 avg) · mom <span class="r-pos">+4.9%</span>/5b · <span class="r-strong">38-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AZO</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 3,059.62 · <span class="muted">ST 2,805.01</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-35%</span> (5/20 avg) · mom <span class="r-pos">+5.1%</span>/5b · <span class="r-strong">108-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CLX</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 86.20 · <span class="muted">ST 81.25</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+8%</span> (5/20 avg) · mom <span class="r-pos">+3.3%</span>/5b · <span class="r-strong">32-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CRM</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 246.74 · <span class="muted">ST 221.21</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-10%</span> (5/20 avg) · mom <span class="r-pos">+8.3%</span>/5b · <span class="r-strong">18-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">FICO</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 769.93 · <span class="muted">ST 623.23</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-41%</span> (5/20 avg) · mom <span class="r-pos">+8.8%</span>/5b · <span class="r-strong">54-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">HD</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 308.24 · <span class="muted">ST 287.92</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+14%</span> (5/20 avg) · mom <span class="r-pos">+4.3%</span>/5b · <span class="r-strong">34-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">HRL</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 20.19 · <span class="muted">ST 19.22</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+13%</span> (5/20 avg) · mom <span class="r-pos">+4.0%</span>/5b · <span class="r-strong">46-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">LOW</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 195.72 · <span class="muted">ST 183.15</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+6%</span> (5/20 avg) · mom <span class="r-pos">+3.6%</span>/5b · <span class="r-strong">34-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">NEE</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 78.96 · <span class="muted">ST 75.56</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+3%</span> (5/20 avg) · mom <span class="r-pos">+2.1%</span>/5b · <span class="r-strong">49-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">NKE</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 37.14 · <span class="muted">ST 33.86</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-2%</span> (5/20 avg) · mom <span class="r-pos">+6.9%</span>/5b · <span class="r-strong">45-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ODFL</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 188.88 · <span class="muted">ST 175.60</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+17%</span> (5/20 avg) · mom <span class="r-pos">+4.0%</span>/5b · <span class="r-strong">54-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">REGN</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 796.34 · <span class="muted">ST 744.60</span></div>
+      <div class="flip-reason">vol <span class="">0%</span> (5/20 avg) · mom <span class="r-pos">+7.7%</span>/5b · <span class="r-strong">25-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ROP</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 382.45 · <span class="muted">ST 360.54</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-2%</span> (5/20 avg) · mom <span class="r-pos">+5.0%</span>/5b · <span class="r-strong">27-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ROST</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 234.83 · <span class="muted">ST 221.75</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+14%</span> (5/20 avg) · mom <span class="r-pos">+4.3%</span>/5b · <span class="r-strong">42-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">UPS</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 97.83 · <span class="muted">ST 92.53</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+13%</span> (5/20 avg) · mom <span class="r-pos">+3.9%</span>/5b · <span class="r-strong">56-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ETN</span>
+        <span class="q-badge q-high" title="Quality 70/100 — hover reason for details">70</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 402.48 · <span class="muted">ST 433.59</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+118%</span> (5/20 avg) · mom <span class="r-pos">-5.2%</span>/5b · <span class="r-strong">24-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CSX</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 48.69 · <span class="muted">ST 46.73</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-14%</span> (5/20 avg) · mom <span class="r-pos">+2.9%</span>/5b · <span class="r-strong">52-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">HSY</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 168.68 · <span class="muted">ST 159.82</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-4%</span> (5/20 avg) · mom <span class="r-pos">+3.8%</span>/5b · <span class="r-strong">32-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">HUBS</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 238.91 · <span class="muted">ST 207.00</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-34%</span> (5/20 avg) · mom <span class="r-pos">+3.0%</span>/5b · <span class="r-strong">25-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MCD</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 242.50 · <span class="muted">ST 232.54</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-2%</span> (5/20 avg) · mom <span class="r-pos">+2.4%</span>/5b · <span class="r-strong">65-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ORLY</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 88.50 · <span class="muted">ST 84.63</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-4%</span> (5/20 avg) · mom <span class="r-pos">+2.9%</span>/5b · <span class="r-strong">27-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">NET</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 316.32 · <span class="muted">ST 353.27</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+51%</span> (5/20 avg) · mom <span class="r-pos">-7.5%</span>/5b · <span class="r-strong">23-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">GEV</span>
+        <span class="q-badge q-med" title="Quality 56/100 — hover reason for details">56</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 926.44 · <span class="muted">ST 1,012.54</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+73%</span> (5/20 avg) · mom <span class="r-pos">-7.3%</span>/5b · <span class="r-strong">10-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">APH</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 81.49 · <span class="muted">ST 87.00</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+27%</span> (5/20 avg) · mom <span class="r-pos">-4.5%</span>/5b · <span class="r-strong">10-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CDNS</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 324.38 · <span class="muted">ST 350.09</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+5%</span> (5/20 avg) · mom <span class="r-pos">-7.0%</span>/5b · <span class="r-strong">17-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PWR</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 642.21 · <span class="muted">ST 701.60</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+49%</span> (5/20 avg) · mom <span class="r-pos">-6.3%</span>/5b · <span>9-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">WMB</span>
+        <span class="q-badge q-med" title="Quality 40/100 — hover reason for details">40</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 69.22 · <span class="muted">ST 75.76</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+63%</span> (5/20 avg) · mom <span class="r-pos">-4.3%</span>/5b · <span>4-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PLD</span>
+        <span class="q-badge q-low" title="Quality 38/100 — hover reason for details">38</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 126.94 · <span class="muted">ST 136.59</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+63%</span> (5/20 avg) · mom <span class="r-pos">-1.8%</span>/5b · <span>2-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AVGO</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 344.33 · <span class="muted">ST 367.62</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+13%</span> (5/20 avg) · mom <span class="r-pos">-4.4%</span>/5b · <span>7-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CSCO</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 109.85 · <span class="muted">ST 118.24</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+7%</span> (5/20 avg) · mom <span class="r-pos">-4.4%</span>/5b · <span>7-bar prior bull</span></div>
+    </div></div>
+            </div><div class="flip-day">
+              <div class="flip-day-head">2026-10-14 <span class="flip-topbadge">★ top 3 of 22</span></div>
+              <div class="flip-grid">
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>UNH</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 395.62 · <span class="muted">ST 359.55</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+36%</span> (5/20 avg) · mom <span class="r-pos">+5.2%</span>/5b · <span class="r-strong">50-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>EXPD</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 196.38 · <span class="muted">ST 186.11</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-8%</span> (5/20 avg) · mom <span class="r-pos">+2.9%</span>/5b · <span class="r-strong">14-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>MNST</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 44.22 · <span class="muted">ST 41.47</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+13%</span> (5/20 avg) · mom <span class="r-pos">+3.1%</span>/5b · <span class="r-strong">30-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">TRV</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 377.82 · <span class="muted">ST 357.50</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+8%</span> (5/20 avg) · mom <span class="r-pos">+4.8%</span>/5b · <span class="r-strong">44-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">LLY</span>
+        <span class="q-badge q-med" title="Quality 69/100 — hover reason for details">69</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 1,208.74 · <span class="muted">ST 1,108.05</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+36%</span> (5/20 avg) · mom <span class="r-pos">+1.7%</span>/5b · <span class="r-strong">31-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">BRO</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 64.80 · <span class="muted">ST 60.45</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-19%</span> (5/20 avg) · mom <span class="r-pos">+5.0%</span>/5b · <span class="r-strong">26-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">DRI</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 208.52 · <span class="muted">ST 193.47</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-37%</span> (5/20 avg) · mom <span class="r-pos">+3.5%</span>/5b · <span class="r-strong">33-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">UNP</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 286.43 · <span class="muted">ST 272.68</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-2%</span> (5/20 avg) · mom <span class="r-pos">+4.3%</span>/5b · <span class="r-strong">30-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">NBIS</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 186.01 · <span class="muted">ST 230.50</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+90%</span> (5/20 avg) · mom <span class="r-pos">-21.6%</span>/5b · <span class="r-strong">26-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">HPE</span>
+        <span class="q-badge q-med" title="Quality 57/100 — hover reason for details">57</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 63.11 · <span class="muted">ST 74.04</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+25%</span> (5/20 avg) · mom <span class="r-pos">-12.5%</span>/5b · <span class="r-strong">25-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MRVL</span>
+        <span class="q-badge q-med" title="Quality 57/100 — hover reason for details">57</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 245.28 · <span class="muted">ST 287.14</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+27%</span> (5/20 avg) · mom <span class="r-pos">-13.8%</span>/5b · <span class="r-strong">50-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PANW</span>
+        <span class="q-badge q-med" title="Quality 57/100 — hover reason for details">57</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 375.04 · <span class="muted">ST 422.53</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+21%</span> (5/20 avg) · mom <span class="r-pos">-7.5%</span>/5b · <span class="r-strong">15-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AMD</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 570.82 · <span class="muted">ST 644.51</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+1%</span> (5/20 avg) · mom <span class="r-pos">-11.6%</span>/5b · <span class="r-strong">26-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ANET</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 195.42 · <span class="muted">ST 217.94</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+16%</span> (5/20 avg) · mom <span class="r-pos">-9.5%</span>/5b · <span class="r-strong">50-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CRWD</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 249.29 · <span class="muted">ST 281.24</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+1%</span> (5/20 avg) · mom <span class="r-pos">-6.1%</span>/5b · <span class="r-strong">33-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">DAL</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 76.65 · <span class="muted">ST 83.63</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-22%</span> (5/20 avg) · mom <span class="r-pos">-7.6%</span>/5b · <span class="r-strong">16-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">FIX</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 1,541.68 · <span class="muted">ST 1,762.68</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+34%</span> (5/20 avg) · mom <span class="r-pos">-11.5%</span>/5b · <span>6-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">GNRC</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 198.06 · <span class="muted">ST 230.06</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-24%</span> (5/20 avg) · mom <span class="r-pos">-10.5%</span>/5b · <span class="r-strong">19-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">SPCX</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 152.16 · <span class="muted">ST 170.25</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-29%</span> (5/20 avg) · mom <span class="r-pos">-9.2%</span>/5b · <span class="r-strong">47-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AFRM</span>
+        <span class="q-badge q-med" title="Quality 40/100 — hover reason for details">40</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 70.51 · <span class="muted">ST 81.69</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+93%</span> (5/20 avg) · mom <span class="r-pos">-6.4%</span>/5b · <span>4-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ROK</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 423.42 · <span class="muted">ST 454.96</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+19%</span> (5/20 avg) · mom <span class="r-pos">-4.2%</span>/5b · <span>9-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">EME</span>
+        <span class="q-badge q-low" title="Quality 27/100 — hover reason for details">27</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 745.35 · <span class="muted">ST 821.31</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-11%</span> (5/20 avg) · mom <span class="r-pos">-5.0%</span>/5b · <span>6-bar prior bull</span></div>
+    </div></div>
+            </div><div class="flip-day">
+              <div class="flip-day-head">2026-10-13 <span class="flip-topbadge">★ top 3 of 12</span></div>
+              <div class="flip-grid">
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>ABT</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 102.61 · <span class="muted">ST 96.13</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+4%</span> (5/20 avg) · mom <span class="r-pos">+4.5%</span>/5b · <span class="r-strong">30-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>ALL</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 236.40 · <span class="muted">ST 223.10</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-37%</span> (5/20 avg) · mom <span class="r-pos">+5.4%</span>/5b · <span class="r-strong">43-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>BR</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 168.44 · <span class="muted">ST 159.54</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-33%</span> (5/20 avg) · mom <span class="r-pos">+6.2%</span>/5b · <span class="r-strong">25-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">FDS</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 290.82 · <span class="muted">ST 266.25</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-33%</span> (5/20 avg) · mom <span class="r-pos">+6.9%</span>/5b · <span class="r-strong">24-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PLD</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 133.55 · <span class="muted">ST 128.50</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+17%</span> (5/20 avg) · mom <span class="r-pos">+3.8%</span>/5b · <span class="r-strong">49-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">VLTO</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 98.99 · <span class="muted">ST 94.47</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+2%</span> (5/20 avg) · mom <span class="r-pos">+2.6%</span>/5b · <span class="r-strong">23-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">TYL</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 346.90 · <span class="muted">ST 319.73</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-1%</span> (5/20 avg) · mom <span class="r-pos">+4.8%</span>/5b · <span class="r-strong">25-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AMAT</span>
+        <span class="q-badge q-med" title="Quality 63/100 — hover reason for details">63</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 464.24 · <span class="muted">ST 519.77</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+72%</span> (5/20 avg) · mom <span class="r-pos">-12.4%</span>/5b · <span class="r-strong">15-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ASML</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 1,717.76 · <span class="muted">ST 1,832.35</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+12%</span> (5/20 avg) · mom <span class="r-pos">-6.3%</span>/5b · <span class="r-strong">15-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MU</span>
+        <span class="q-badge q-med" title="Quality 50/100 — hover reason for details">50</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 953.19 · <span class="muted">ST 1,058.39</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+11%</span> (5/20 avg) · mom <span class="r-pos">-8.8%</span>/5b · <span class="r-strong">40-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">KLAC</span>
+        <span class="q-badge q-med" title="Quality 43/100 — hover reason for details">43</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 184.00 · <span class="muted">ST 203.13</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+18%</span> (5/20 avg) · mom <span class="r-pos">-6.8%</span>/5b · <span class="r-strong">11-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">AAL</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 12.50 · <span class="muted">ST 13.48</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-17%</span> (5/20 avg) · mom <span class="r-pos">-3.9%</span>/5b · <span class="r-strong">12-bar prior bull</span></div>
+    </div></div>
+            </div><div class="flip-day">
+              <div class="flip-day-head">2026-10-12 <span class="flip-topbadge">★ top 3 of 28</span></div>
+              <div class="flip-grid">
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>FDS</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 293.74 · <span class="muted">ST 265.66</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-93%</span> (5/20 avg) · mom <span class="r-pos">+6.3%</span>/5b · <span class="r-strong">23-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>SPGI</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 412.10 · <span class="muted">ST 391.08</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-90%</span> (5/20 avg) · mom <span class="r-pos">+5.4%</span>/5b · <span class="r-strong">22-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr"><span class="q-star" title="Top-ranked flip on this day">★</span>WM</span>
+        <span class="q-badge q-high" title="Quality 87/100 — hover reason for details">87</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 226.86 · <span class="muted">ST 193.02</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+23%</span> (5/20 avg) · mom <span class="r-pos">+6.3%</span>/5b · <span class="r-strong">23-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">CHD</span>
+        <span class="q-badge q-high" title="Quality 80/100 — hover reason for details">80</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 104.53 · <span class="muted">ST 90.15</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+9%</span> (5/20 avg) · mom <span class="r-pos">+11.0%</span>/5b · <span class="r-strong">28-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">PG</span>
+        <span class="q-badge q-high" title="Quality 80/100 — hover reason for details">80</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 159.35 · <span class="muted">ST 140.10</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+18%</span> (5/20 avg) · mom <span class="r-pos">+9.7%</span>/5b · <span class="r-strong">30-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">ADP</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 273.03 · <span class="muted">ST 259.84</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-95%</span> (5/20 avg) · mom <span class="r-pos">+4.9%</span>/5b · <span class="r-strong">24-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">BDX</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 188.89 · <span class="muted">ST 176.47</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-36%</span> (5/20 avg) · mom <span class="r-pos">+4.5%</span>/5b · <span class="r-strong">24-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CTAS</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 204.90 · <span class="muted">ST 195.50</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-95%</span> (5/20 avg) · mom <span class="r-pos">+4.9%</span>/5b · <span class="r-strong">47-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">CVX</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 215.20 · <span class="muted">ST 204.49</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-81%</span> (5/20 avg) · mom <span class="r-pos">+4.2%</span>/5b · <span class="r-strong">15-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">KO</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 89.11 · <span class="muted">ST 85.68</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-88%</span> (5/20 avg) · mom <span class="r-pos">+3.0%</span>/5b · <span class="r-strong">28-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MSCI</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 568.97 · <span class="muted">ST 542.28</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-95%</span> (5/20 avg) · mom <span class="r-pos">+3.0%</span>/5b · <span class="r-strong">58-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PAYC</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 235.01 · <span class="muted">ST 219.13</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-42%</span> (5/20 avg) · mom <span class="r-pos">+4.1%</span>/5b · <span class="r-strong">24-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">PYPL</span>
+        <span class="q-badge q-high" title="Quality 79/100 — hover reason for details">79</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 56.05 · <span class="muted">ST 52.45</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-27%</span> (5/20 avg) · mom <span class="r-pos">+3.0%</span>/5b · <span class="r-strong">30-bar prior bear</span> · <span class="r-conf">W↑ confluence +15</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">DECK</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 84.27 · <span class="muted">ST 77.80</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-27%</span> (5/20 avg) · mom <span class="r-pos">+5.1%</span>/5b · <span class="r-strong">80-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">TJX</span>
+        <span class="q-badge q-high" title="Quality 72/100 — hover reason for details">72</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 147.33 · <span class="muted">ST 123.68</span></div>
+      <div class="flip-reason">vol <span class="r-pos">+20%</span> (5/20 avg) · mom <span class="r-pos">+16.9%</span>/5b · <span>8-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">DUK</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 117.15 · <span class="muted">ST 113.24</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-92%</span> (5/20 avg) · mom <span class="r-pos">+2.9%</span>/5b · <span class="r-strong">49-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">WM</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 211.14 · <span class="muted">ST 201.86</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-22%</span> (5/20 avg) · mom <span class="r-pos">+2.2%</span>/5b · <span class="r-strong">51-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-buy">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">DIS</span>
+        <span class="q-badge q-med" title="Quality 64/100 — hover reason for details">64</span>
+      </div>
+      <div class="flip-main">BUY · Bullish · Close 108.99 · <span class="muted">ST 96.07</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-45%</span> (5/20 avg) · mom <span class="r-pos">+2.3%</span>/5b · <span class="r-strong">32-bar prior bear</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MPWR</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 1,343.99 · <span class="muted">ST 1,486.77</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-88%</span> (5/20 avg) · mom <span class="r-pos">-9.2%</span>/5b · <span class="r-strong">15-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">SNDK</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 1,478.60 · <span class="muted">ST 1,733.79</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-62%</span> (5/20 avg) · mom <span class="r-pos">-13.2%</span>/5b · <span class="r-strong">40-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">AVGO</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 346.25 · <span class="muted">ST 426.89</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-54%</span> (5/20 avg) · mom <span class="r-pos">-4.3%</span>/5b · <span class="r-strong">26-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">C</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 122.27 · <span class="muted">ST 146.60</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-18%</span> (5/20 avg) · mom <span class="r-pos">-11.9%</span>/5b · <span class="r-strong">26-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">DAL</span>
+        <span class="q-badge q-med" title="Quality 42/100 — hover reason for details">42</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 76.65 · <span class="muted">ST 92.45</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-40%</span> (5/20 avg) · mom <span class="r-pos">-4.1%</span>/5b · <span class="r-strong">23-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">DRAM</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 54.76 · <span class="muted">ST 60.79</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-41%</span> (5/20 avg) · mom <span class="r-pos">-11.2%</span>/5b · <span class="r-strong">14-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">LRCX</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 311.25 · <span class="muted">ST 343.45</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-89%</span> (5/20 avg) · mom <span class="r-pos">-10.0%</span>/5b · <span class="r-strong">14-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">MCHP</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 73.85 · <span class="muted">ST 81.06</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-89%</span> (5/20 avg) · mom <span class="r-pos">-9.4%</span>/5b · <span class="r-strong">11-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-d">D</span>
+        <span class="flip-tkr">NVDA</span>
+        <span class="q-badge q-low" title="Quality 35/100 — hover reason for details">35</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 225.40 · <span class="muted">ST 240.37</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-81%</span> (5/20 avg) · mom <span class="r-pos">-5.7%</span>/5b · <span class="r-strong">14-bar prior bull</span></div>
+    </div>
+    <div class="flip-card flip-sell">
+      <div class="flip-head">
+        <span class="flip-tag tf-tag-w">W</span>
+        <span class="flip-tkr">KKR</span>
+        <span class="q-badge q-low" title="Quality 27/100 — hover reason for details">27</span>
+      </div>
+      <div class="flip-main">SELL · Bearish · Close 87.16 · <span class="muted">ST 108.29</span></div>
+      <div class="flip-reason">vol <span class="r-neg">-29%</span> (5/20 avg) · mom <span class="r-pos">-13.8%</span>/5b · <span>9-bar prior bull</span></div>
+    </div></div>
+            </div>
+    </div>
+  
+            <div class="stats-row">
+              <div class="stat-chip"><div class="num">5</div><div class="label">Tickers</div></div>
+              <div class="stats-group-label">Weekly</div>
+              <div class="stat-chip stat-buy"><div class="num">0</div><div class="label">Buy</div></div>
+              <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Sell</div></div>
+              <div class="stats-group-label">Daily</div>
+              <div class="stat-chip stat-buy"><div class="num">0</div><div class="label">Buy</div></div>
+              <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Sell</div></div>
+              <div class="stats-group-label">Confluence</div>
+              <div class="stat-chip stat-buy"><div class="num">0</div><div class="label">Buy (both)</div></div>
+              <div class="stat-chip stat-sell"><div class="num">0</div><div class="label">Sell (both)</div></div>
+              <div class="stat-chip"><div class="num">0</div><div class="label">Errors</div></div>
+            </div>
+  
+            <div class="panel">
+              <h2>Buying Opportunities</h2>
+              <div class="buy-panels">
+                <div class="buy-subpanel confluence-panel">
+                  <h3>★ Confluence Buy (fresh BUY on both weekly &amp; daily) <span class="count">0</span></h3>
+                  <div class="empty-note">Nothing fresh matching this section.</div>
+                </div>
+                <div class="buy-subpanel">
+                  <h3><span class="tf-tag tf-tag-w">Weekly</span> Buy Flips <span class="count">0</span></h3>
+                  <div class="empty-note">Nothing fresh matching this section.</div>
+                </div>
+                <div class="buy-subpanel">
+                  <h3><span class="tf-tag tf-tag-d">Daily</span> Buy Flips <span class="count">0</span></h3>
+                  <div class="empty-note">Nothing fresh matching this section.</div>
+                </div>
+              </div>
+            </div>
+  <div class="panel">
+    <h2>Full Watchlist — Weekly &amp; Daily Side-by-Side</h2>
+    <div class="controls">
+      <button class="chip-btn active" data-filter="all">All</button>
+      <button class="chip-btn" data-filter="recent7">Recent (7d)</button>
+      <button class="chip-btn" data-filter="any-buy">Any Buy</button>
+      <button class="chip-btn" data-filter="any-sell">Any Sell</button>
+      <button class="chip-btn" data-filter="conf-bull">Confluence ▲▲</button>
+      <button class="chip-btn" data-filter="conf-bear">Confluence ▼▼</button>
+      <button class="chip-btn" data-filter="weekly-flip">Weekly Flips</button>
+      <button class="chip-btn" data-filter="daily-flip">Daily Flips</button>
+      <input type="text" id="search-box" class="search-box" placeholder="Search ticker...">
+    </div>
+    <table id="scan-table"><thead><tr>
+          <th title="Both weekly and daily agree bullish (▲▲) / bearish (▼▼) / mixed (▲▼) — click to sort: bull → bear → mixed → none">Conf. ↕</th>
+          <th>Ticker</th>
+          <th>Close</th>
+          <th title="Click to sort by weekly bars-in-trend (freshest weekly flip first)"><span class="tf-tag tf-tag-w">W</span>Weekly (dir · signal · in-trend · ST) ↕</th>
+          <th title="Click to sort by daily bars-in-trend (freshest daily flip first) — this is the default order"><span class="tf-tag tf-tag-d">D</span>Daily (dir · signal · in-trend · ST) ↕</th>
+          <th>Weekly Bar</th>
+          <th>Daily Bar</th>
+        </tr></thead><tbody>
+    <tr data-ticker="nvda"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bullish"
+        data-d-dir="bearish"
+        data-held="1"
+        data-confluence="mixed"
+        data-d-recency="5"
+        data-w-recency="72">
+      <td data-sort="2"><span class="confluence-cell conf-mixed" title="Weekly and daily disagree">▲▼</span></td>
+      <td class="col-ticker">NVDA</td>
+      <td data-sort="214.13">214.13</td>
+      <td data-sort="72"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 72 weeks — since 2025-06-02">72w</span> <span class="muted small">ST 197.29</span></span></td>
+      <td data-sort="5"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 5 days — since 2026-10-12">5d</span> <span class="muted small">ST 230.73</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr>
+    <tr data-ticker="goog"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bearish"
+        data-d-dir="bullish"
+        data-held="0"
+        data-confluence="mixed"
+        data-d-recency="20"
+        data-w-recency="13">
+      <td data-sort="2"><span class="confluence-cell conf-mixed" title="Weekly and daily disagree">▲▼</span></td>
+      <td class="col-ticker">GOOG</td>
+      <td data-sort="336.91">336.91</td>
+      <td data-sort="13"><span class="tf-cell"><span class="dir dir-bear">▼ Bearish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bear" title="Bearish for 13 weeks — since 2026-07-20">13w</span> <span class="muted small">ST 387.30</span></span></td>
+      <td data-sort="20"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 20 days — since 2026-09-21">20d</span> <span class="muted small">ST 331.70</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr>
+    <tr data-ticker="meta"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bullish"
+        data-d-dir="bullish"
+        data-held="0"
+        data-confluence="bull"
+        data-d-recency="31"
+        data-w-recency="4">
+      <td data-sort="0"><span class="confluence-cell conf-bull" title="Both weekly and daily are bullish">▲▲</span></td>
+      <td class="col-ticker">META</td>
+      <td data-sort="709.33">709.33</td>
+      <td data-sort="4"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 4 weeks — since 2026-09-21">4w</span> <span class="muted small">ST 595.16</span></span></td>
+      <td data-sort="31"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 31 days — since 2026-09-03">31d</span> <span class="muted small">ST 693.52</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr>
+    <tr data-ticker="aapl"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bullish"
+        data-d-dir="bullish"
+        data-held="0"
+        data-confluence="bull"
+        data-d-recency="33"
+        data-w-recency="37">
+      <td data-sort="0"><span class="confluence-cell conf-bull" title="Both weekly and daily are bullish">▲▲</span></td>
+      <td class="col-ticker">AAPL</td>
+      <td data-sort="343.46">343.46</td>
+      <td data-sort="37"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 37 weeks — since 2026-02-02">37w</span> <span class="muted small">ST 302.21</span></span></td>
+      <td data-sort="33"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 33 days — since 2026-09-01">33d</span> <span class="muted small">ST 328.39</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr>
+    <tr data-ticker="msft"
+        data-w-signal="none"
+        data-d-signal="none"
+        data-w-flip="0"
+        data-d-flip="0"
+        data-w-dir="bullish"
+        data-d-dir="bullish"
+        data-held="0"
+        data-confluence="bull"
+        data-d-recency="75"
+        data-w-recency="21">
+      <td data-sort="0"><span class="confluence-cell conf-bull" title="Both weekly and daily are bullish">▲▲</span></td>
+      <td class="col-ticker">MSFT</td>
+      <td data-sort="529.05">529.05</td>
+      <td data-sort="21"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 21 weeks — since 2026-05-25">21w</span> <span class="muted small">ST 469.42</span></span></td>
+      <td data-sort="75"><span class="tf-cell"><span class="dir dir-bull">▲ Bullish</span> <span class="badge badge-none">—</span> <span class="in-trend trend-bull" title="Bullish for 75 days — since 2026-07-02">75d</span> <span class="muted small">ST 518.68</span></span></td>
+      <td class="muted small">2026-10-12</td>
+      <td class="muted small">2026-10-16</td>
+    </tr></tbody></table>
+  </div>
+  <footer>
+    Parameters: ATR period 10, multiplier 2.5. Data via Yahoo Finance (yfinance).
+    "Signal" is a fresh cross on the latest bar of that timeframe. "↺ Changed" means the current direction
+    differs from what was saved last time you ran that scanner even if the exact flip bar has already passed
+    — so nothing is missed if you skip a run. "In-trend" counts the consecutive bars the current direction has
+    been running (d = trading days, w = weeks; hover for the start date). "Confluence" agrees when both
+    weekly and daily point the same way. The table is sorted by daily flip recency by default (freshest first);
+    click any column header to re-sort — Confluence sorts bull → bear → mixed → none. The "Recent Flips" panel
+    reads from <code>data/flip_log.json</code>, which every run of any scanner appends to.
+    This report is a personal analysis tool, not investment advice — verify signals independently before trading.
+  </footer>
+</div>
+<script>
+  (function() {
+    var currentFilter = 'all';
+    var searchTerm = '';
+    function applyFilters() {
+      var rows = document.querySelectorAll('#scan-table tbody tr');
+      rows.forEach(function(row) {
+        var wSig = row.getAttribute('data-w-signal');
+        var dSig = row.getAttribute('data-d-signal');
+        var wFlip = row.getAttribute('data-w-flip') === '1';
+        var dFlip = row.getAttribute('data-d-flip') === '1';
+        var held = row.getAttribute('data-held') === '1';
+        var confluence = row.getAttribute('data-confluence');
+        var ticker = row.getAttribute('data-ticker') || '';
+        var dRec = parseInt(row.getAttribute('data-d-recency') || '9999', 10);
+        var wRec = parseInt(row.getAttribute('data-w-recency') || '9999', 10);
+        var m = true;
+        switch (currentFilter) {
+          case 'recent7':      m = dRec <= 7 || wRec <= 1; break;
+          case 'any-buy':      m = wSig === 'buy' || dSig === 'buy'; break;
+          case 'any-sell':     m = wSig === 'sell' || dSig === 'sell'; break;
+          case 'conf-bull':    m = confluence === 'bull'; break;
+          case 'conf-bear':    m = confluence === 'bear'; break;
+          case 'weekly-flip':  m = wFlip; break;
+          case 'daily-flip':   m = dFlip; break;
+          case 'held':         m = held; break;
+          default:             m = true;
+        }
+        var matchesSearch = ticker.indexOf(searchTerm) !== -1;
+        row.classList.toggle('hidden-row', !(m && matchesSearch));
+      });
+    }
+    document.querySelectorAll('.chip-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.chip-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+    var search = document.getElementById('search-box');
+    if (search) search.addEventListener('input', function() {
+      searchTerm = search.value.trim().toLowerCase(); applyFilters();
+    });
+    var sortState = {};
+    document.querySelectorAll('#scan-table thead th').forEach(function(th, colIndex) {
+      th.addEventListener('click', function() {
+        var tbody = document.getElementById('scan-table').querySelector('tbody');
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+        var asc = !(sortState[colIndex] === 'asc');
+        sortState = {}; sortState[colIndex] = asc ? 'asc' : 'desc';
+        document.querySelectorAll('#scan-table thead th').forEach(function(h) {
+          h.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+        rows.sort(function(a, b) {
+          var cellA = a.children[colIndex]; var cellB = b.children[colIndex];
+          if (!cellA || !cellB) return 0;
+          var va = cellA.getAttribute('data-sort'); var vb = cellB.getAttribute('data-sort');
+          if (va !== null && vb !== null) { va = parseFloat(va); vb = parseFloat(vb);
+            return asc ? va - vb : vb - va; }
+          var ta = cellA.textContent.trim().toLowerCase();
+          var tb = cellB.textContent.trim().toLowerCase();
+          if (ta < tb) return asc ? -1 : 1; if (ta > tb) return asc ? 1 : -1; return 0;
+        });
+        rows.forEach(function(r) { tbody.appendChild(r); });
+      });
+    });
+  })();
+</script>
+</body></html>
