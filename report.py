@@ -930,12 +930,12 @@ def _recent_flips_panel_html(flip_log, run_date, days=7, side="long",
 
     if side == "long":
         mode_note = (
-            'Showing only tickers that are currently in weekly bullish confluence. '
+            'Showing only BUY flips on tickers whose current weekly direction is Bullish. '
             f'Sorted by quality within each day; ★ marks the top 3 when a day has more than {auto_rank_threshold} candidates.'
         )
     elif side == "short":
         mode_note = (
-            'Showing only tickers that are currently in weekly bearish confluence. '
+            'Showing only SELL flips on tickers whose current weekly direction is Bearish. '
             f'Sorted by quality within each day; ★ marks the top 3 when a day has more than {auto_rank_threshold} candidates.'
         )
     else:
@@ -1413,16 +1413,21 @@ TABBED_JS = """
 
 
 def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
-                   w_by, d_by, confluence_bull_tickers, confluence_bear_tickers,
+                   w_by, d_by, side_tickers,
                    atr_period, atr_multiplier):
     """
     Build the inner HTML sections for one side (long or short):
-      - stats row scoped to that side
-      - opportunities panels (confluence + weekly + daily)
-      - recent flips panel (long = BUYs on confluence-bull tickers,
-                           short = SELLs on confluence-bear tickers)
-      - the full table (filtered to that side, class="scan-table")
-    Returns a dict of HTML strings.
+
+      1. Recent Buy/Sell Flips (7-day rolling, ranked by quality, top-3
+         starred when crowded).
+      2. Buying/Selling Opportunities (confluence + weekly + daily subpanels).
+      3. Full watchlist of weekly-uptrend / weekly-downtrend tickers.
+
+    `side_tickers` is the set of tickers whose CURRENT WEEKLY direction
+    matches this side (Bullish for long, Bearish for short). The full
+    watchlist filters by this; daily direction is informational.
+
+    Returns a dict of HTML strings (no stats row — three sections only).
     """
     run_date = daily_scan.get("run_date") or weekly_scan.get("run_date")
     weekly_results = weekly_scan["results"]
@@ -1439,12 +1444,8 @@ def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
             ticker,
         )
 
-    if side == "long":
-        table_tickers = confluence_bull_tickers
-        allowed = confluence_bull_tickers
-    else:
-        table_tickers = confluence_bear_tickers
-        allowed = confluence_bear_tickers
+    table_tickers = side_tickers
+    allowed = side_tickers
     order = sorted(table_tickers, key=_sort_key)
 
     def _ok(rs): return [r for r in rs if r.get("status") == "ok"]
@@ -1482,16 +1483,8 @@ def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
         </div>
       </div>
     </div>"""
-        stats_html = f"""
-    <div class="stats-row">
-      <div class="stat-chip"><div class="num">{len(table_tickers)}</div><div class="label">Long-side Tickers</div></div>
-      <div class="stats-group-label">Fresh</div>
-      <div class="stat-chip stat-buy"><div class="num">{len(w_buys)}</div><div class="label">Weekly Buy</div></div>
-      <div class="stat-chip stat-buy"><div class="num">{len(d_buys)}</div><div class="label">Daily Buy</div></div>
-      <div class="stat-chip stat-buy"><div class="num">{len(confluence_fresh)}</div><div class="label">Confluence Buy</div></div>
-    </div>"""
         recent_side = "long"
-        table_h2 = "Full Long-side Watchlist — Weekly &amp; Daily Side-by-Side"
+        table_h2 = "Full Weekly-Uptrend Watchlist — Weekly &amp; Daily Side-by-Side"
     else:  # short
         confluence_fresh = {r["ticker"] for r in w_sells} & {r["ticker"] for r in d_sells}
         confluence_results = [r for r in d_sells if r["ticker"] in confluence_fresh] \
@@ -1514,16 +1507,8 @@ def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
         </div>
       </div>
     </div>"""
-        stats_html = f"""
-    <div class="stats-row">
-      <div class="stat-chip"><div class="num">{len(table_tickers)}</div><div class="label">Short-side Tickers</div></div>
-      <div class="stats-group-label">Fresh</div>
-      <div class="stat-chip stat-sell"><div class="num">{len(w_sells)}</div><div class="label">Weekly Sell</div></div>
-      <div class="stat-chip stat-sell"><div class="num">{len(d_sells)}</div><div class="label">Daily Sell</div></div>
-      <div class="stat-chip stat-sell"><div class="num">{len(confluence_fresh)}</div><div class="label">Confluence Sell</div></div>
-    </div>"""
         recent_side = "short"
-        table_h2 = "Full Short-side Watchlist — Weekly &amp; Daily Side-by-Side"
+        table_h2 = "Full Weekly-Downtrend Watchlist — Weekly &amp; Daily Side-by-Side"
 
     recent_flips_panel = _recent_flips_panel_html(flip_log, run_date, days=7,
                                                   side=recent_side, allowed_tickers=allowed)
@@ -1563,7 +1548,6 @@ def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
     </div>"""
 
     return {
-        "stats_html": stats_html,
         "opp_panels": opp_panels,
         "recent_flips_panel": recent_flips_panel,
         "table_block": table_block,
@@ -1592,16 +1576,19 @@ def generate_tabbed_html_report(weekly_scan, daily_scan, atr_period, atr_multipl
     def _dir_of(by, ticker):
         r = by.get(ticker)
         return r.get("direction") if r and r.get("status") == "ok" else None
-    confluence_bull_tickers = {t for t in all_tickers
-                               if _dir_of(w_by, t) == "Bullish" and _dir_of(d_by, t) == "Bullish"}
-    confluence_bear_tickers = {t for t in all_tickers
-                               if _dir_of(w_by, t) == "Bearish" and _dir_of(d_by, t) == "Bearish"}
+
+    # Each tab's full-watchlist filter is driven by the CURRENT WEEKLY
+    # direction only (not confluence). Daily direction is informational
+    # per-row; a ticker in a weekly bull with a daily chop still appears
+    # on the Long tab.
+    weekly_bullish_tickers = {t for t in all_tickers if _dir_of(w_by, t) == "Bullish"}
+    weekly_bearish_tickers = {t for t in all_tickers if _dir_of(w_by, t) == "Bearish"}
 
     long_sections = _side_sections(weekly_scan, daily_scan, "long", flip_log, public_view,
-                                   w_by, d_by, confluence_bull_tickers, confluence_bear_tickers,
+                                   w_by, d_by, weekly_bullish_tickers,
                                    atr_period, atr_multiplier)
     short_sections = _side_sections(weekly_scan, daily_scan, "short", flip_log, public_view,
-                                    w_by, d_by, confluence_bull_tickers, confluence_bear_tickers,
+                                    w_by, d_by, weekly_bearish_tickers,
                                     atr_period, atr_multiplier)
 
     generated_at = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -1635,8 +1622,8 @@ def generate_tabbed_html_report(weekly_scan, daily_scan, atr_period, atr_multipl
   </div>
 
   <div class="tab-nav">
-    <button data-tab="long" class="active long-active">▲ Long · Uptrend Confluence <span class="muted">({long_sections['ticker_count']})</span></button>
-    <button data-tab="short" class="short-active">▼ Short · Downtrend Confluence <span class="muted">({short_sections['ticker_count']})</span></button>
+    <button data-tab="long" class="active long-active">▲ Long · Weekly Uptrend <span class="muted">({long_sections['ticker_count']})</span></button>
+    <button data-tab="short" class="short-active">▼ Short · Weekly Downtrend <span class="muted">({short_sections['ticker_count']})</span></button>
     <a class="archive-link" href="archive.html">Archive →</a>
   </div>
 
@@ -1644,14 +1631,12 @@ def generate_tabbed_html_report(weekly_scan, daily_scan, atr_period, atr_multipl
 
   <div id="pane-long" class="tab-pane active">
     {long_sections['recent_flips_panel']}
-    {long_sections['stats_html']}
     {long_sections['opp_panels']}
     {long_sections['table_block']}
   </div>
 
   <div id="pane-short" class="tab-pane">
     {short_sections['recent_flips_panel']}
-    {short_sections['stats_html']}
     {short_sections['opp_panels']}
     {short_sections['table_block']}
   </div>
@@ -1660,9 +1645,10 @@ def generate_tabbed_html_report(weekly_scan, daily_scan, atr_period, atr_multipl
     Parameters: ATR period {atr_period}, multiplier {atr_multiplier}. Data via Yahoo Finance (yfinance).
     "Signal" is a fresh cross on the latest bar of that timeframe. "In-trend" counts bars since the current
     direction started (d = trading days, w = weeks). "Confluence" agrees when both weekly and daily point
-    the same way. Long tab shows tickers currently in a bullish weekly+daily confluence; Short tab shows
-    bearish confluence. Both tabs rank by daily flip recency by default; click any column to re-sort within
-    that tab. Active tab is remembered across refreshes.
+    the same way. Long tab shows every ticker whose current weekly direction is Bullish; Short tab shows
+    those whose current weekly direction is Bearish. The Confluence subpanel inside Buying/Selling
+    Opportunities calls out tickers that flipped on BOTH timeframes this run. Both tabs rank by daily flip
+    recency by default; click any column to re-sort within that tab. Active tab is remembered across refreshes.
     This report is a personal analysis tool, not investment advice — verify signals independently before trading.
   </footer>
 </div>
