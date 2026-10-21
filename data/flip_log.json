@@ -38,6 +38,25 @@
     "weekly_confluence": false
   },
   {
+    "ticker": "ISRG",
+    "timeframe": "weekly",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-10-19",
+    "recorded_at": "2026-10-21",
+    "close": 438.0,
+    "supertrend": 366.99,
+    "quality_score": 74,
+    "quality_base_score": 74,
+    "quality_volume_ratio": 0.7,
+    "quality_momentum_pct": 11.36,
+    "quality_momentum_10_pct": 11.02,
+    "quality_prior_run": 37,
+    "quality_rsi": 56.3,
+    "quality_high_distance_pct": -1.32,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "NU",
     "timeframe": "daily",
     "direction": "Bearish",
