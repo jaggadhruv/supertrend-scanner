@@ -1,5 +1,24 @@
 [
   {
+    "ticker": "DECK",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-10-23",
+    "recorded_at": "2026-10-23",
+    "close": 81.09,
+    "supertrend": 88.6,
+    "quality_score": 71,
+    "quality_base_score": 71,
+    "quality_volume_ratio": 1.44,
+    "quality_momentum_pct": -5.39,
+    "quality_momentum_10_pct": -2.17,
+    "quality_prior_run": 9,
+    "quality_rsi": 43.4,
+    "quality_high_distance_pct": 5.04,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "META",
     "timeframe": "daily",
     "direction": "Bearish",
