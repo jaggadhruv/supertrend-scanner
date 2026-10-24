@@ -382,7 +382,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 209.99,
-    "supertrend": 155.51
+    "supertrend": 155.53
   },
   "BAC": {
     "last_run_date": "2026-10-24",
@@ -620,7 +620,7 @@
     "direction": "Bullish",
     "signal": "BUY",
     "close": 188.97,
-    "supertrend": 159.67
+    "supertrend": 159.76
   },
   "ANET": {
     "last_run_date": "2026-10-24",
@@ -914,7 +914,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 196.21,
-    "supertrend": 175.68
+    "supertrend": 175.66
   },
   "FAST": {
     "last_run_date": "2026-10-24",
@@ -1530,7 +1530,7 @@
     "direction": "Bullish",
     "signal": "BUY",
     "close": 186.6,
-    "supertrend": 153.26
+    "supertrend": 153.28
   },
   "WELL": {
     "last_run_date": "2026-10-24",
@@ -1544,7 +1544,7 @@
     "direction": "Bullish",
     "signal": "NONE",
     "close": 239.38,
-    "supertrend": 205.05
+    "supertrend": 205.08
   },
   "WMB": {
     "last_run_date": "2026-10-24",
