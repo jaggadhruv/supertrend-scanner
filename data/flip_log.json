@@ -437,6 +437,25 @@
     "weekly_confluence": false
   },
   {
+    "ticker": "FFIV",
+    "timeframe": "weekly",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-10-26",
+    "recorded_at": "2026-10-29",
+    "close": 365.53,
+    "supertrend": 513.21,
+    "quality_score": 86,
+    "quality_base_score": 86,
+    "quality_volume_ratio": 1.25,
+    "quality_momentum_pct": -17.5,
+    "quality_momentum_10_pct": -4.97,
+    "quality_prior_run": 34,
+    "quality_rsi": 44.1,
+    "quality_high_distance_pct": 1.04,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "TSLA",
     "timeframe": "weekly",
     "direction": "Bullish",
