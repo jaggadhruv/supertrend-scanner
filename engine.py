@@ -230,6 +230,9 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
             "quality_prior_run": r.get("quality_prior_run"),
             "quality_rsi": r.get("quality_rsi"),
             "quality_high_distance_pct": r.get("quality_high_distance_pct"),
+            "atr_value": r.get("atr_value"),
+            "high_20":   r.get("high_20"),
+            "low_20":    r.get("low_20"),
             "weekly_confluence": has_confluence,
         })
         existing.add(key)
@@ -481,6 +484,21 @@ def _compute_quality(st_df, bars_in_trend: int):
         hl_score = 5
 
     total = vol_score + mom_score + mat_score + rsi_score + hl_score
+    # Levels for the Entry & SL block on cards: latest ATR (for stops) and
+    # 20-bar high/low (for targets).
+    atr_value = None
+    try:
+        atr_value = float(st_df["ATR"].iloc[-1])
+    except (KeyError, IndexError, TypeError, ValueError):
+        atr_value = None
+    high_20 = low_20 = None
+    try:
+        if n >= 20:
+            high_20 = float(st_df["High"].iloc[-20:].max())
+            low_20  = float(st_df["Low"].iloc[-20:].min())
+    except (KeyError, IndexError, TypeError, ValueError):
+        pass
+
     return {
         "quality_score": int(total),
         "quality_volume_ratio": round(vol_accum, 2) if vol_accum is not None else None,
@@ -489,6 +507,9 @@ def _compute_quality(st_df, bars_in_trend: int):
         "quality_prior_run": int(prior_run),
         "quality_rsi": round(rsi, 1) if rsi is not None else None,
         "quality_high_distance_pct": round(hl_pct, 2) if hl_pct is not None else None,
+        "atr_value":  round(atr_value, 4) if atr_value is not None else None,
+        "high_20":    round(high_20, 2) if high_20 is not None else None,
+        "low_20":     round(low_20, 2) if low_20 is not None else None,
     }
 
 
@@ -518,6 +539,9 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "quality_prior_run": None,
         "quality_rsi": None,
         "quality_high_distance_pct": None,
+        "atr_value": None,
+        "high_20": None,
+        "low_20": None,
     }
 
     data = fetch_data(ticker, cfg.interval, cfg.lookback_period)

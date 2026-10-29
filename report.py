@@ -497,6 +497,18 @@ COMBINED_CSS_EXTRA = """
   .flip-reason .r-neg { color: var(--bear); font-weight: 700; }
   .flip-reason .r-conf { color: var(--amber); font-weight: 700; }
 
+  /* Entry & SL block (below the reason line on each flip card) */
+  .flip-entry { color: var(--muted); font-size: 11px; font-family: var(--mono);
+                border-top: 1px dashed var(--border); margin-top: 5px; padding-top: 5px;
+                display: flex; flex-direction: column; gap: 2px; }
+  .flip-entry .entry-line { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; }
+  .flip-entry .entry-label { color: var(--muted); font-weight: 700; min-width: 44px;
+                             text-transform: uppercase; letter-spacing: 0.03em; font-size: 10px; }
+  .flip-entry .r-pos    { color: var(--bull); font-weight: 700; }
+  .flip-entry .r-neg    { color: var(--bear); font-weight: 700; }
+  .flip-entry .r-strong { color: var(--text); font-weight: 700; }
+  .flip-entry .r-amber  { color: var(--amber); font-weight: 700; }
+
   /* Quality badges on flip cards */
   .flip-head .q-badge { margin-left: auto; font-family: var(--mono); font-size: 10.5px;
                         font-weight: 700; padding: 2px 8px; border-radius: 999px;
@@ -836,6 +848,127 @@ def _build_reason_html(entry):
     return f'<div class="flip-reason">{" · ".join(bits)}</div>'
 
 
+def _build_entry_sl_html(entry):
+    """
+    Three-line Entry / SL / Target block below the reason text on each
+    flip card. Needs atr_value + supertrend + close in the entry;
+    returns "" for legacy entries that don't have those.
+
+    For a BUY:
+      Entry   Buy @ close  OR  limit @ midpoint(close, ST) — a disciplined
+              pullback price between where price is now and the Supertrend
+              line, which is support.
+      SL      tight = close - 1.5 * ATR
+              natural = ST line (the indicator's own trailing stop)
+      Target  20-bar high if we haven't hit it yet, else close + 2x the
+              tight-SL distance (2R target).
+
+    For a SELL (short), the whole thing mirrors — midpoint is above price
+    (toward the ST line which is resistance), SLs are above, target is
+    the 20-bar low or 2x the SL distance below.
+    """
+    close = entry.get("close")
+    st = entry.get("supertrend")
+    atr = entry.get("atr_value")
+    signal = (entry.get("signal") or "").upper()
+    if close is None or st is None or atr is None or signal not in ("BUY", "SELL"):
+        return ""
+    try:
+        close = float(close); st = float(st); atr = float(atr)
+    except (TypeError, ValueError):
+        return ""
+    if close <= 0 or atr <= 0:
+        return ""
+
+    def pct(from_, to):
+        return (to - from_) / from_ * 100.0 if from_ else 0.0
+
+    if signal == "BUY":
+        # Supertrend line is BELOW price for a bull trend.
+        pullback = (close + st) / 2.0                       # halfway between close and ST
+        sl_tight = max(close - 1.5 * atr, st)               # don't go wider than ST line
+        sl_natural = st
+        # Target: 20-bar high is the natural resistance to take profit at.
+        # If we're already at or above the 20-bar high, fall back to 2R.
+        h20 = entry.get("high_20")
+        if isinstance(h20, (int, float)) and h20 > close:
+            target = float(h20)
+            target_label = "20-bar high"
+        else:
+            target = close + 2.0 * (close - sl_tight)
+            target_label = "2R target"
+        rr_denom = (close - sl_tight)
+        rr = (target - close) / rr_denom if rr_denom > 0 else 0.0
+
+        pullback_pct = pct(close, pullback)      # negative % (down from current)
+        sl_tight_pct = pct(close, sl_tight)      # negative
+        sl_nat_pct   = pct(close, sl_natural)    # negative (deeper)
+        target_pct   = pct(close, target)        # positive
+
+        return f"""
+    <div class="flip-entry">
+      <div class="entry-line">
+        <span class="entry-label">Entry</span>
+        <span>Buy @ <span class="r-strong">{close:.2f}</span></span>
+        <span class="muted">·</span>
+        <span>Limit @ <span class="r-strong">{pullback:.2f}</span> (<span class="r-amber">{pullback_pct:+.1f}%</span>, pullback to midpoint)</span>
+      </div>
+      <div class="entry-line">
+        <span class="entry-label">SL</span>
+        <span>tight <span class="r-neg">{sl_tight:.2f}</span> (<span class="r-neg">{sl_tight_pct:+.1f}%</span>, 1.5×ATR)</span>
+        <span class="muted">·</span>
+        <span>natural <span class="r-neg">{sl_natural:.2f}</span> (<span class="r-neg">{sl_nat_pct:+.1f}%</span>, ST line)</span>
+      </div>
+      <div class="entry-line">
+        <span class="entry-label">Target</span>
+        <span><span class="r-strong">{target:.2f}</span> (<span class="r-pos">{target_pct:+.1f}%</span>, {target_label})</span>
+        <span class="muted">·</span>
+        <span>R:R <span class="r-pos">1 : {rr:.1f}</span></span>
+      </div>
+    </div>"""
+
+    # SELL — mirror image
+    pullback = (close + st) / 2.0                            # ST is ABOVE price here
+    sl_tight = min(close + 1.5 * atr, st)                    # don't go wider than ST line
+    sl_natural = st
+    l20 = entry.get("low_20")
+    if isinstance(l20, (int, float)) and l20 < close:
+        target = float(l20)
+        target_label = "20-bar low"
+    else:
+        target = close - 2.0 * (sl_tight - close)
+        target_label = "2R target"
+    rr_denom = (sl_tight - close)
+    rr = (close - target) / rr_denom if rr_denom > 0 else 0.0
+
+    pullback_pct = pct(close, pullback)       # positive (up from current, adverse but entry zone)
+    sl_tight_pct = pct(close, sl_tight)       # positive (up = adverse for a short)
+    sl_nat_pct   = pct(close, sl_natural)     # positive (deeper up)
+    target_pct   = pct(close, target)         # negative (down from current, favorable)
+
+    return f"""
+    <div class="flip-entry">
+      <div class="entry-line">
+        <span class="entry-label">Entry</span>
+        <span>Short @ <span class="r-strong">{close:.2f}</span></span>
+        <span class="muted">·</span>
+        <span>Limit @ <span class="r-strong">{pullback:.2f}</span> (<span class="r-amber">{pullback_pct:+.1f}%</span>, bounce to midpoint)</span>
+      </div>
+      <div class="entry-line">
+        <span class="entry-label">SL</span>
+        <span>tight <span class="r-neg">{sl_tight:.2f}</span> (<span class="r-neg">{sl_tight_pct:+.1f}%</span>, 1.5×ATR)</span>
+        <span class="muted">·</span>
+        <span>natural <span class="r-neg">{sl_natural:.2f}</span> (<span class="r-neg">{sl_nat_pct:+.1f}%</span>, ST line)</span>
+      </div>
+      <div class="entry-line">
+        <span class="entry-label">Target</span>
+        <span><span class="r-strong">{target:.2f}</span> (<span class="r-pos">{target_pct:+.1f}%</span>, {target_label})</span>
+        <span class="muted">·</span>
+        <span>R:R <span class="r-pos">1 : {rr:.1f}</span></span>
+      </div>
+    </div>"""
+
+
 def _flip_card_html(entry, is_top_quality: bool = False):
     """
     One card for the Recent Flips panel. Three stacked rows:
@@ -864,6 +997,7 @@ def _flip_card_html(entry, is_top_quality: bool = False):
 
     star = '<span class="q-star" title="Top-ranked flip on this day">★</span>' if is_top_quality else ""
     reason_html = _build_reason_html(entry)
+    entry_sl_html = _build_entry_sl_html(entry)
     main_html = f'<div class="flip-main">{signal} · {direction} · Close {close_str} · <span class="muted">ST {st}</span></div>'
 
     return f"""
@@ -875,6 +1009,7 @@ def _flip_card_html(entry, is_top_quality: bool = False):
       </div>
       {main_html}
       {reason_html}
+      {entry_sl_html}
     </div>"""
 
 
