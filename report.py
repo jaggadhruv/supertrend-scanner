@@ -888,15 +888,22 @@ def _build_entry_sl_html(entry):
         pullback = (close + st) / 2.0                       # halfway between close and ST
         sl_tight = max(close - 1.5 * atr, st)               # don't go wider than ST line
         sl_natural = st
-        # Target: 20-bar high is the natural resistance to take profit at.
-        # If we're already at or above the 20-bar high, fall back to 2R.
+        # Target: 3×ATR above entry. With a 1.5×ATR SL, this gives a
+        # built-in R:R around 2:1 regardless of the stock. 20-bar high
+        # is NOT the target — on a fresh Supertrend flip the 20-bar
+        # high is often just overhead (last bars of the previous
+        # downtrend's early range) which collapses R:R to 1:0.3-0.5.
+        # Instead it's shown as a resistance NOTE when it falls
+        # between close and the ATR target.
+        target = close + 3.0 * atr
+        target_label = "3×ATR"
         h20 = entry.get("high_20")
-        if isinstance(h20, (int, float)) and h20 > close:
-            target = float(h20)
-            target_label = "20-bar high"
-        else:
-            target = close + 2.0 * (close - sl_tight)
-            target_label = "2R target"
+        res_note = ""
+        if isinstance(h20, (int, float)) and close < h20 < target:
+            res_note_pct = (h20 - close) / close * 100.0
+            res_note = (f'<span class="muted">·</span> '
+                        f'<span>near resistance <span class="r-amber">{h20:.2f}</span> '
+                        f'(<span class="r-amber">{res_note_pct:+.1f}%</span>, scale-out?)</span>')
         rr_denom = (close - sl_tight)
         rr = (target - close) / rr_denom if rr_denom > 0 else 0.0
 
@@ -924,6 +931,7 @@ def _build_entry_sl_html(entry):
         <span><span class="r-strong">{target:.2f}</span> (<span class="r-pos">{target_pct:+.1f}%</span>, {target_label})</span>
         <span class="muted">·</span>
         <span>R:R <span class="r-pos">1 : {rr:.1f}</span></span>
+        {res_note}
       </div>
     </div>"""
 
@@ -931,13 +939,17 @@ def _build_entry_sl_html(entry):
     pullback = (close + st) / 2.0                            # ST is ABOVE price here
     sl_tight = min(close + 1.5 * atr, st)                    # don't go wider than ST line
     sl_natural = st
+    # Target: 3×ATR below entry. 20-bar low is shown as a support note,
+    # not the target — same reasoning as the BUY side.
+    target = close - 3.0 * atr
+    target_label = "3×ATR"
     l20 = entry.get("low_20")
-    if isinstance(l20, (int, float)) and l20 < close:
-        target = float(l20)
-        target_label = "20-bar low"
-    else:
-        target = close - 2.0 * (sl_tight - close)
-        target_label = "2R target"
+    sup_note = ""
+    if isinstance(l20, (int, float)) and target < l20 < close:
+        sup_note_pct = (l20 - close) / close * 100.0
+        sup_note = (f'<span class="muted">·</span> '
+                    f'<span>near support <span class="r-amber">{l20:.2f}</span> '
+                    f'(<span class="r-amber">{sup_note_pct:+.1f}%</span>, scale-out?)</span>')
     rr_denom = (sl_tight - close)
     rr = (close - target) / rr_denom if rr_denom > 0 else 0.0
 
@@ -965,6 +977,7 @@ def _build_entry_sl_html(entry):
         <span><span class="r-strong">{target:.2f}</span> (<span class="r-pos">{target_pct:+.1f}%</span>, {target_label})</span>
         <span class="muted">·</span>
         <span>R:R <span class="r-pos">1 : {rr:.1f}</span></span>
+        {sup_note}
       </div>
     </div>"""
 
