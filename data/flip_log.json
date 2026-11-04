@@ -132,6 +132,28 @@
     "weekly_confluence": false
   },
   {
+    "ticker": "TXN",
+    "timeframe": "weekly",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-11-02",
+    "recorded_at": "2026-11-04",
+    "close": 312.49,
+    "supertrend": 259.0,
+    "quality_score": 69,
+    "quality_base_score": 69,
+    "quality_volume_ratio": 0.95,
+    "quality_momentum_pct": 6.36,
+    "quality_momentum_10_pct": 20.82,
+    "quality_prior_run": 11,
+    "quality_rsi": 63.2,
+    "quality_high_distance_pct": -6.45,
+    "atr_value": 19.9965,
+    "high_20": 334.03,
+    "low_20": 248.13,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "MSFT",
     "timeframe": "daily",
     "direction": "Bearish",
