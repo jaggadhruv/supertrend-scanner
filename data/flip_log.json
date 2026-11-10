@@ -1,5 +1,27 @@
 [
   {
+    "ticker": "MNST",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-11-10",
+    "recorded_at": "2026-11-10",
+    "close": 45.34,
+    "supertrend": 48.99,
+    "quality_score": 83,
+    "quality_base_score": 83,
+    "quality_volume_ratio": 1.28,
+    "quality_momentum_pct": -3.9,
+    "quality_momentum_10_pct": -0.22,
+    "quality_prior_run": 19,
+    "quality_rsi": 47.0,
+    "quality_high_distance_pct": 4.71,
+    "atr_value": 1.371,
+    "high_20": 49.5,
+    "low_20": 43.3,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "DAL",
     "timeframe": "weekly",
     "direction": "Bullish",
