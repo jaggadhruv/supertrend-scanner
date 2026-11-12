@@ -1,5 +1,27 @@
 [
   {
+    "ticker": "BABA",
+    "timeframe": "daily",
+    "direction": "Bearish",
+    "signal": "SELL",
+    "flip_date": "2026-11-12",
+    "recorded_at": "2026-11-12",
+    "close": 94.36,
+    "supertrend": 104.3,
+    "quality_score": 79,
+    "quality_base_score": 79,
+    "quality_volume_ratio": 1.24,
+    "quality_momentum_pct": -12.69,
+    "quality_momentum_10_pct": -5.2,
+    "quality_prior_run": 6,
+    "quality_rsi": 33.6,
+    "quality_high_distance_pct": 1.01,
+    "atr_value": 3.8542,
+    "high_20": 112.18,
+    "low_20": 93.42,
+    "weekly_confluence": false
+  },
+  {
     "ticker": "AVGO",
     "timeframe": "daily",
     "direction": "Bullish",
