@@ -1,5 +1,27 @@
 [
   {
+    "ticker": "TXN",
+    "timeframe": "daily",
+    "direction": "Bullish",
+    "signal": "BUY",
+    "flip_date": "2026-11-12",
+    "recorded_at": "2026-11-13",
+    "close": 312.48,
+    "supertrend": 276.81,
+    "quality_score": 61,
+    "quality_base_score": 46,
+    "quality_volume_ratio": 0.85,
+    "quality_momentum_pct": 12.34,
+    "quality_momentum_10_pct": -0.15,
+    "quality_prior_run": 5,
+    "quality_rsi": 60.2,
+    "quality_high_distance_pct": -1.49,
+    "atr_value": 13.8259,
+    "high_20": 317.2,
+    "low_20": 271.23,
+    "weekly_confluence": true
+  },
+  {
     "ticker": "BABA",
     "timeframe": "daily",
     "direction": "Bearish",
