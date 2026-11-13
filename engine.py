@@ -1,25 +1,12 @@
 """
 engine.py
 ---------
-Shared scan engine. scanner.py (weekly), daily_scanner.py (daily), and
-combined_scanner.py all call run_analysis()/run_scan() with their own
-ScanConfig. The fetching, indicator math, alerting, flip logging, and
-cleanup logic doesn't care which timeframe it's on.
+Shared scan engine. All three entry points (scanner.py, daily_scanner.py,
+combined_scanner.py) build a ScanConfig and call run_scan() or
+run_analysis() here.
 
-Skip-safety: nothing here assumes you run on a fixed schedule. Every
-run re-downloads a full lookback window and recomputes Supertrend from
-scratch, so there's nothing that can go "stale" or break if you miss a
-day (or a week). See analyze_ticker() for exactly how that's handled.
-
-Watchlist layering: cfg.stocks_file can be a single CSV path OR a list
-of CSV paths. All of them are read, deduped (case-insensitive on the
-ticker), and merged in list order. Missing files are silently skipped
-so you can refer to data/universe.csv even on a brand-new repo.
-
-Flip log: data/flip_log.json records every BUY/SELL flip across runs.
-BUY logging is gated on quality_score >= min_quality (default 60) so
-noise doesn't accumulate. SELL logging has no quality gate because the
-held-bearish alert path depends on it.
+Every run re-downloads a full lookback window and recomputes Supertrend
+from scratch — nothing depends on previous runs, safe to skip days.
 """
 
 import json
@@ -27,14 +14,15 @@ import os
 import re
 import time
 import traceback
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Union, List, Optional, Set
+from typing import List, Optional, Set, Union
 
 import pandas as pd
 import yfinance as yf
 
 from supertrend import calculate_supertrend
+from backtest import backtest_flips
 
 
 # --------------------------------------------------------------------------
@@ -42,12 +30,12 @@ from supertrend import calculate_supertrend
 # --------------------------------------------------------------------------
 @dataclass
 class ScanConfig:
-    label: str                # "Weekly" or "Daily" - shown in the report title
-    interval: str              # yfinance interval: "1wk" or "1d"
-    lookback_period: str       # yfinance period: e.g. "3y" or "1y"
+    label: str
+    interval: str
+    lookback_period: str
     atr_period: int
     atr_multiplier: float
-    stocks_file: Union[str, List[str]]   # single path or list of paths; see load_stock_list
+    stocks_file: Union[str, List[str]]
     trades_file: str
     history_file: str
     output_dir: str
@@ -59,18 +47,9 @@ class ScanConfig:
 
 
 # --------------------------------------------------------------------------
-# IO helpers (timeframe-agnostic)
+# IO helpers
 # --------------------------------------------------------------------------
 def load_stock_list(path_or_paths):
-    """
-    Load tickers from one CSV or a list of CSVs. Dedupes case-insensitively
-    while preserving first-seen order. Missing files are silently skipped —
-    useful because data/universe.csv won't exist until refresh_universe.py
-    has run at least once.
-
-    Each CSV must have a header row and tickers in the first column.
-    Raises FileNotFoundError only if NO source could be read.
-    """
     paths = [path_or_paths] if isinstance(path_or_paths, str) else list(path_or_paths)
     seen = set()
     out = []
@@ -127,8 +106,8 @@ def save_history(path, history):
 # Flip log
 # --------------------------------------------------------------------------
 FLIP_LOG_MAX_AGE_DAYS = 180
-DEFAULT_MIN_FLIP_QUALITY = 60      # BUY flips below this score are not logged
-WEEKLY_CONFLUENCE_BONUS = 15       # extra quality for daily BUYs whose weekly agrees
+DEFAULT_MIN_FLIP_QUALITY = 60
+WEEKLY_CONFLUENCE_BONUS = 15
 
 
 def _flip_log_path(cfg: "ScanConfig") -> str:
@@ -156,28 +135,10 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
                  min_quality: Optional[int] = None,
                  weekly_bullish_tickers: Optional[Set[str]] = None,
                  max_age_days: int = FLIP_LOG_MAX_AGE_DAYS) -> dict:
-    """
-    Append fresh BUY/SELL flips to data/flip_log.json. Dedupes on
-    (ticker, timeframe, flip_date), prunes entries older than
-    max_age_days, and re-sorts newest first.
-
-    Quality gate (BUY only):
-      - If min_quality is set, a BUY is logged only when its final
-        quality_score (after weekly-confluence boost) is >= min_quality.
-      - SELLs are always logged — the held-bearish alert depends on
-        them regardless of score.
-
-    Weekly confluence boost (daily BUYs only):
-      - If weekly_bullish_tickers is provided, any daily BUY whose
-        ticker is in that set gets a +WEEKLY_CONFLUENCE_BONUS boost on
-        its logged quality_score, capped at 100. The boosted value is
-        what the quality gate above checks.
-
-    Returns a dict: {"added": int, "skipped_low_quality": int}.
-    """
+    """Append fresh BUY/SELL flips to data/flip_log.json with dedup and prune."""
     path = _flip_log_path(cfg)
     log = load_flip_log(path)
-    timeframe = cfg.label.lower()  # "weekly" | "daily"
+    timeframe = cfg.label.lower()
 
     existing = {(e.get("ticker"), e.get("timeframe"), e.get("flip_date")) for e in log}
     added = 0
@@ -191,7 +152,6 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
         if key in existing:
             continue
 
-        # Base quality + optional weekly-confluence boost (daily BUYs only)
         base_q = r.get("quality_score")
         boosted_q = base_q
         has_confluence = False
@@ -203,9 +163,6 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
             boosted_q = min(100, int(base_q) + WEEKLY_CONFLUENCE_BONUS)
             has_confluence = True
 
-        # Quality gate (BUY only) — low-quality BUYs are detected but not
-        # persisted. The user still sees them this run if the report
-        # happens to look at results directly, but they don't accumulate.
         if (min_quality is not None
                 and r.get("signal") == "BUY"
                 and boosted_q is not None
@@ -238,20 +195,17 @@ def record_flips(cfg: "ScanConfig", results: list, run_date: str,
         existing.add(key)
         added += 1
 
-    # Prune anything older than the cutoff so the file stays bounded.
     try:
         cutoff = (date.fromisoformat(run_date) - timedelta(days=max_age_days)).isoformat()
     except ValueError:
         cutoff = "0000-00-00"
     log = [e for e in log if (e.get("flip_date") or "0000-00-00") >= cutoff]
-
     log.sort(key=lambda e: (e.get("flip_date") or "", e.get("recorded_at") or ""), reverse=True)
     save_flip_log(path, log)
     return {"added": added, "skipped_low_quality": skipped_low_q}
 
 
 def recent_flips(log: list, days: int = 7, run_date: Optional[str] = None):
-    """Filter to flips within `days` calendar days of run_date."""
     if run_date is None:
         run_date = date.today().isoformat()
     try:
@@ -291,7 +245,7 @@ def prune_old_reports(output_dir: str, days: int = 30, run_date: Optional[str] =
 
 
 # --------------------------------------------------------------------------
-# Data fetch + analysis
+# Data fetch
 # --------------------------------------------------------------------------
 def fetch_data(ticker, interval, period):
     try:
@@ -303,33 +257,10 @@ def fetch_data(ticker, interval, period):
         return None
 
 
+# --------------------------------------------------------------------------
+# Quality score (5-component, 0-100)
+# --------------------------------------------------------------------------
 def _compute_quality(st_df, bars_in_trend: int):
-    """
-    Rate the current trend's quality as a 0-100 score. Used to decide
-    which BUY/SELL flips are worth logging (vs. being noise) and to
-    rank the flips that are logged.
-
-    Revised five-component formulation:
-
-      1. Volume accumulation (0-25) — 5-bar avg vol / 20-bar avg vol.
-         Catches sustained accumulation over a week, not just a single
-         climactic bar that could be a liquidation.
-      2. Momentum consistency (0-30) — looks at BOTH 5-bar and 10-bar
-         % change. Both-positive-and-strong beats a single-day spike.
-      3. Prior-trend maturity (0-20) — length of the opposite-direction
-         run right before the current one. Still the whipsaw filter.
-      4. RSI condition (0-15) — Wilder RSI(14). For a BULL trend, 50-65
-         is the sweet spot (confirmed momentum with room to run). >75
-         is overbought / late. For a BEAR trend, 35-50 is the sweet
-         spot (confirmed weakness with room to fall).
-      5. Breakout proximity (0-10) — close vs. 20-bar high (for a bull
-         trend) or 20-bar low (bear trend). Rewards flips that are
-         confirming a real breakout, not a mid-range crossover.
-
-    All components fail gracefully: if a field is missing (short history,
-    no Volume column, flat series) that component falls back to a
-    neutral partial-credit score instead of crashing.
-    """
     n = len(st_df)
     try:
         current_dir = int(st_df["Direction"].iloc[-1])
@@ -337,9 +268,7 @@ def _compute_quality(st_df, bars_in_trend: int):
         current_dir = 1
     current_bullish = (current_dir == 1)
 
-    # ------------------------------------------------------------------
     # 1. Volume accumulation (0-25)
-    # ------------------------------------------------------------------
     vol_accum = None
     if "Volume" in st_df.columns and n >= 20:
         try:
@@ -355,9 +284,7 @@ def _compute_quality(st_df, bars_in_trend: int):
     elif vol_accum >= 0.8:     vol_score = 7
     else:                      vol_score = 2
 
-    # ------------------------------------------------------------------
-    # 2. Momentum consistency (0-30) — 5-bar AND 10-bar return
-    # ------------------------------------------------------------------
+    # 2. Momentum consistency (0-30)
     mom5 = mom10 = None
     if n >= 11:
         try:
@@ -370,16 +297,15 @@ def _compute_quality(st_df, bars_in_trend: int):
             pass
 
     def _mom_score_for(sig_bullish, m5, m10):
-        if m5 is None or m10 is None:
-            return 12
+        if m5 is None or m10 is None: return 12
         if sig_bullish:
-            if   m5 >=  3 and m10 >=  5:  return 30   # both windows strong
-            elif m5 >=  3 and m10 >=  0:  return 24   # strong short-term, flat 10-bar
-            elif m5 >=  0 and m10 >=  5:  return 22   # slow build
-            elif m5 >=  0 and m10 >=  0:  return 14   # mild positive
+            if   m5 >=  3 and m10 >=  5:  return 30
+            elif m5 >=  3 and m10 >=  0:  return 24
+            elif m5 >=  0 and m10 >=  5:  return 22
+            elif m5 >=  0 and m10 >=  0:  return 14
             elif m5 >= -2 and m10 >= -2:  return 6
             else:                         return 0
-        else:  # bearish: mirror the signs
+        else:
             if   m5 <= -3 and m10 <= -5:  return 30
             elif m5 <= -3 and m10 <=  0:  return 24
             elif m5 <=  0 and m10 <= -5:  return 22
@@ -388,9 +314,7 @@ def _compute_quality(st_df, bars_in_trend: int):
             else:                         return 0
     mom_score = _mom_score_for(current_bullish, mom5, mom10)
 
-    # ------------------------------------------------------------------
     # 3. Prior-trend maturity (0-20)
-    # ------------------------------------------------------------------
     prior_run = 0
     try:
         dir_series = st_df["Direction"].to_numpy()
@@ -413,9 +337,7 @@ def _compute_quality(st_df, bars_in_trend: int):
     elif prior_run >= 1:  mat_score = 2
     else:                 mat_score = 0
 
-    # ------------------------------------------------------------------
-    # 4. RSI(14) condition (0-15) — favour confirmed-but-not-extended
-    # ------------------------------------------------------------------
+    # 4. RSI condition (0-15)
     rsi = None
     if n >= 15:
         try:
@@ -431,7 +353,7 @@ def _compute_quality(st_df, bars_in_trend: int):
                 rs = last_gain / last_loss
                 rsi = 100.0 - (100.0 / (1.0 + rs))
             elif last_gain > 0:
-                rsi = 100.0  # all-up window
+                rsi = 100.0
             else:
                 rsi = 50.0
         except (TypeError, ValueError, IndexError, KeyError):
@@ -440,22 +362,21 @@ def _compute_quality(st_df, bars_in_trend: int):
     if rsi is None:
         rsi_score = 7
     elif current_bullish:
-        if   50 <= rsi <= 65:                  rsi_score = 15
+        if   50 <= rsi <= 65:                   rsi_score = 15
         elif 45 <= rsi <  50 or 65 < rsi <= 70: rsi_score = 11
         elif 40 <= rsi <  45 or 70 < rsi <= 75: rsi_score = 7
-        elif rsi > 75:                          rsi_score = 2   # overbought
-        else:                                   rsi_score = 4   # too weak for a bull
-    else:  # bearish: mirror
-        if   35 <= rsi <= 50:                  rsi_score = 15
+        elif rsi > 75:                          rsi_score = 2
+        else:                                   rsi_score = 4
+    else:
+        if   35 <= rsi <= 50:                   rsi_score = 15
         elif 30 <= rsi <  35 or 50 < rsi <= 55: rsi_score = 11
         elif 25 <= rsi <  30 or 55 < rsi <= 60: rsi_score = 7
-        elif rsi < 25:                          rsi_score = 2   # oversold
+        elif rsi < 25:                          rsi_score = 2
         else:                                   rsi_score = 4
 
-    # ------------------------------------------------------------------
-    # 5. Breakout proximity (0-10) — close vs 20-bar high / low
-    # ------------------------------------------------------------------
+    # 5. Breakout proximity (0-10)
     hl_pct = None
+    hl_score = 5
     if n >= 20:
         try:
             close_now = float(st_df["Close"].iloc[-1])
@@ -464,8 +385,8 @@ def _compute_quality(st_df, bars_in_trend: int):
                 if high_20 > 0:
                     hl_pct = (close_now - high_20) / high_20 * 100.0
                 if   hl_pct is None:  hl_score = 5
-                elif hl_pct >=  0:    hl_score = 10   # new 20-bar high
-                elif hl_pct >= -2:    hl_score = 7    # within 2% of high
+                elif hl_pct >=  0:    hl_score = 10
+                elif hl_pct >= -2:    hl_score = 7
                 elif hl_pct >= -5:    hl_score = 4
                 else:                 hl_score = 1
             else:
@@ -473,19 +394,15 @@ def _compute_quality(st_df, bars_in_trend: int):
                 if low_20 > 0:
                     hl_pct = (close_now - low_20) / low_20 * 100.0
                 if   hl_pct is None:  hl_score = 5
-                elif hl_pct <=  0:    hl_score = 10   # new 20-bar low
+                elif hl_pct <=  0:    hl_score = 10
                 elif hl_pct <=  2:    hl_score = 7
                 elif hl_pct <=  5:    hl_score = 4
                 else:                 hl_score = 1
         except (TypeError, ValueError, IndexError, KeyError):
             hl_score = 5
             hl_pct = None
-    else:
-        hl_score = 5
 
-    total = vol_score + mom_score + mat_score + rsi_score + hl_score
-    # Levels for the Entry & SL block on cards: latest ATR (for stops) and
-    # 20-bar high/low (for targets).
+    # ATR + 20-bar high/low for the Entry/SL block on cards
     atr_value = None
     try:
         atr_value = float(st_df["ATR"].iloc[-1])
@@ -499,6 +416,7 @@ def _compute_quality(st_df, bars_in_trend: int):
     except (KeyError, IndexError, TypeError, ValueError):
         pass
 
+    total = vol_score + mom_score + mat_score + rsi_score + hl_score
     return {
         "quality_score": int(total),
         "quality_volume_ratio": round(vol_accum, 2) if vol_accum is not None else None,
@@ -513,6 +431,9 @@ def _compute_quality(st_df, bars_in_trend: int):
     }
 
 
+# --------------------------------------------------------------------------
+# Per-ticker analysis
+# --------------------------------------------------------------------------
 def analyze_ticker(ticker, history_store, cfg: ScanConfig):
     result = {
         "ticker": ticker,
@@ -542,6 +463,15 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "atr_value": None,
         "high_20": None,
         "low_20": None,
+        # Historical backtest (populated when we have enough data)
+        "backtest_buy_trades":   0,
+        "backtest_buy_win_rate": None,
+        "backtest_buy_pf":       None,
+        "backtest_buy_avg_r":    None,
+        "backtest_sell_trades":   0,
+        "backtest_sell_win_rate": None,
+        "backtest_sell_pf":       None,
+        "backtest_sell_avg_r":    None,
     }
 
     data = fetch_data(ticker, cfg.interval, cfg.lookback_period)
@@ -591,6 +521,11 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
 
     quality = _compute_quality(st, bars_in_trend)
 
+    # Historical backtest — simulates every past flip on this ticker with
+    # the same Entry/SL/Target rules the report shows. Fast (<0.01s/ticker).
+    bt_buy  = backtest_flips(st, side="buy")
+    bt_sell = backtest_flips(st, side="sell")
+
     result.update({
         "close": round(float(last["Close"]), 2),
         "supertrend": round(float(last["Supertrend"]), 2),
@@ -606,6 +541,14 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "bars_in_trend": bars_in_trend,
         "trend_start_date": trend_start_date,
         **quality,
+        "backtest_buy_trades":   bt_buy["trades"],
+        "backtest_buy_win_rate": bt_buy["win_rate"],
+        "backtest_buy_pf":       bt_buy["profit_factor"],
+        "backtest_buy_avg_r":    bt_buy["avg_r"],
+        "backtest_sell_trades":   bt_sell["trades"],
+        "backtest_sell_win_rate": bt_sell["win_rate"],
+        "backtest_sell_pf":       bt_sell["profit_factor"],
+        "backtest_sell_avg_r":    bt_sell["avg_r"],
     })
     return result
 
@@ -690,14 +633,7 @@ def run_analysis(cfg: ScanConfig, verbose: bool = True):
 
     results = cross_reference_trades(results, trades_df)
     alerts = build_alerts(results)
-
-    return {
-        "cfg": cfg,
-        "run_date": run_date,
-        "results": results,
-        "alerts": alerts,
-        "history_store": history_store,
-    }
+    return {"cfg": cfg, "run_date": run_date, "results": results, "alerts": alerts, "history_store": history_store}
 
 
 def commit_history(cfg: ScanConfig, scan: dict) -> None:
@@ -706,7 +642,6 @@ def commit_history(cfg: ScanConfig, scan: dict) -> None:
 
 
 def _min_quality_from_env():
-    """MIN_FLIP_QUALITY env var overrides the default. Clamped to [0, 100]."""
     try:
         raw = os.environ.get("MIN_FLIP_QUALITY")
         if raw is None:
@@ -717,25 +652,16 @@ def _min_quality_from_env():
 
 
 def run_scan(cfg: ScanConfig):
-    """
-    One-timeframe scan path (scanner.py / daily_scanner.py). Running a
-    single timeframe can't do the weekly-confluence boost - that needs
-    both scans at once (combined_scanner.py). So BUY flips here are
-    gated purely on their base quality score.
-    """
     scan = run_analysis(cfg)
     if scan is None:
         return None
 
     commit_history(cfg, scan)
-
     min_q = _min_quality_from_env()
     stats = record_flips(cfg, scan["results"], scan["run_date"], min_quality=min_q)
     msg_bits = []
-    if stats["added"]:
-        msg_bits.append(f"+{stats['added']} new {cfg.label.lower()} flip(s)")
-    if stats["skipped_low_quality"]:
-        msg_bits.append(f"skipped {stats['skipped_low_quality']} BUY(s) below quality {min_q}")
+    if stats["added"]: msg_bits.append(f"+{stats['added']} new {cfg.label.lower()} flip(s)")
+    if stats["skipped_low_quality"]: msg_bits.append(f"skipped {stats['skipped_low_quality']} BUY(s) below quality {min_q}")
     if msg_bits:
         print("Flip log: " + ", ".join(msg_bits))
 
@@ -748,12 +674,9 @@ def run_scan(cfg: ScanConfig):
 
     from report import generate_html_report
     generate_html_report(
-        results=scan["results"],
-        alerts=scan["alerts"],
-        run_date=scan["run_date"],
-        atr_period=cfg.atr_period,
-        atr_multiplier=cfg.atr_multiplier,
-        output_path=out_path,
+        results=scan["results"], alerts=scan["alerts"],
+        run_date=scan["run_date"], atr_period=cfg.atr_period,
+        atr_multiplier=cfg.atr_multiplier, output_path=out_path,
         timeframe_label=cfg.label,
     )
     print(f"\nReport written to: {out_path}")
