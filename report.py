@@ -344,20 +344,29 @@ COMBINED_CSS_EXTRA = """
   }
   .superior-panel h2 { color:#B399F0; letter-spacing:0.05em; }
   .superior-panel .subtle { color:#9b8ad1; }
-  .superior-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:10px; }
+  .superior-panel .panel-head { display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+  .superior-panel .panel-head h2 { margin:0; white-space:nowrap; }
+  .superior-panel .panel-head .subtle { font-size:11.5px; line-height:1.45; max-width:760px; }
+  .superior-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:10px; }
   .superior-card {
     background:rgba(142,116,224,0.07);
     border:1px solid rgba(142,116,224,0.28);
     border-radius:8px; padding:10px 12px;
-    display:flex; flex-direction:column; gap:3px;
+    display:flex; flex-direction:column; gap:8px;
   }
-  .superior-card .superior-tkr { font-family:var(--mono); font-weight:700; color:#F0C96B; font-size:14px; display:flex; align-items:center; gap:6px; }
-  .superior-card .fresh-tag { background:rgba(240,201,107,0.18); color:#F0C96B; padding:1px 7px; border-radius:999px; font-size:10px; letter-spacing:0.04em; font-weight:700; text-transform:uppercase; }
-  .superior-card .superior-pf { color:var(--muted); font-family:var(--mono); font-size:11px; display:flex; align-items:baseline; gap:6px; }
-  .superior-card .superior-pf .pf-value { color:#B399F0; font-weight:700; font-size:20px; letter-spacing:-0.02em; }
+  .superior-card .superior-top { display:flex; align-items:center; gap:8px; }
+  .superior-card .superior-rank { font-family:var(--mono); font-size:11px; font-weight:700; color:#0B0E14; background:#B399F0; border-radius:999px; padding:1px 8px; }
+  .superior-card.rank-top .superior-rank { background:#F0C96B; }
+  .superior-card .superior-tkr { font-family:var(--mono); font-weight:700; color:#F0C96B; font-size:14px; }
+  .superior-card .fresh-tag { margin-left:auto; background:rgba(240,201,107,0.18); color:#F0C96B; padding:1px 7px; border-radius:999px; font-size:10px; letter-spacing:0.04em; font-weight:700; text-transform:uppercase; }
+  .superior-card .superior-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .superior-card .superior-stat { background:rgba(11,14,20,0.45); border:1px solid rgba(142,116,224,0.18); border-radius:6px; padding:6px 9px; cursor:help; }
+  .superior-card .stat-label { color:var(--muted); font-size:9.5px; text-transform:uppercase; letter-spacing:0.05em; font-weight:700; white-space:nowrap; }
+  .superior-card .stat-value { font-family:var(--mono); font-weight:700; font-size:19px; letter-spacing:-0.02em; line-height:1.25; }
+  .superior-card .pf-value { color:#B399F0; }
+  .superior-card .wr-good { color:var(--bull); }
+  .superior-card .wr-neutral { color:var(--text); }
   .superior-card .superior-meta { color:var(--muted); font-size:11px; font-family:var(--mono); }
-  .superior-card .superior-meta .wr-good { color:var(--bull); font-weight:700; }
-  .superior-card .superior-meta .wr-neutral { color:#B399F0; font-weight:700; }
 
   tr.hidden-row { display:none; }
 </style>
@@ -767,14 +776,25 @@ def _recent_flips_panel_html(flip_log, run_date, days=7, side="long", allowed_ti
     return f'<div class="panel flip-log-panel"><div class="panel-head"><h2>{panel_title}</h2><span class="subtle">{len(kept)} {signal_word} flip(s) across {len(day_order)} day(s). {subtle_tail}</span></div><div class="flip-mode-note">{mode_note}</div>{"".join(day_blocks)}</div>'
 
 
-def _superior_panel_html(daily_results, side_tickers, side, pf_threshold=1.5, min_trades=5):
-    """Top-of-pane: tickers with historical backtest PF >= pf_threshold."""
+# Superior Selection gate. A profit factor is only as good as the number
+# of trades behind it: 4 wins and 1 loss already reads 8.0. Twenty closed
+# trades is roughly 3-5 years of daily flips for one side of one ticker.
+SUPERIOR_PF_THRESHOLD = 1.5
+SUPERIOR_MIN_TRADES = 20
+
+
+def _superior_panel_html(daily_results, side_tickers, side,
+                         pf_threshold=SUPERIOR_PF_THRESHOLD, min_trades=SUPERIOR_MIN_TRADES):
+    """Top-of-pane: tickers whose historical backtest profit factor is
+    >= pf_threshold over at least min_trades closed trades.
+    Ranked by profit factor, then win rate, then sample size."""
     if side == "long":
-        pf_k, wr_k, tr_k, ar_k = "backtest_buy_pf", "backtest_buy_win_rate", "backtest_buy_trades", "backtest_buy_avg_r"
-        fresh_sig = "BUY"; title = "⚡ Superior Long Selection"
+        prefix = "backtest_buy_"; fresh_sig = "BUY"; title = "⚡ Superior Long Selection"
     else:
-        pf_k, wr_k, tr_k, ar_k = "backtest_sell_pf", "backtest_sell_win_rate", "backtest_sell_trades", "backtest_sell_avg_r"
-        fresh_sig = "SELL"; title = "⚡ Superior Short Selection"
+        prefix = "backtest_sell_"; fresh_sig = "SELL"; title = "⚡ Superior Short Selection"
+    pf_k, wr_k, tr_k, ar_k = prefix + "pf", prefix + "win_rate", prefix + "trades", prefix + "avg_r"
+    win_k, loss_k = prefix + "wins", prefix + "losses"
+
     candidates = []
     for r in daily_results:
         if r.get("status") != "ok": continue
@@ -782,21 +802,45 @@ def _superior_panel_html(daily_results, side_tickers, side, pf_threshold=1.5, mi
         pf = r.get(pf_k); trades = r.get(tr_k) or 0
         if pf is None or pf < pf_threshold or trades < min_trades: continue
         candidates.append(r)
-    candidates.sort(key=lambda r: (r.get(pf_k) or 0), reverse=True)
-    subtle = (f"Profit factor &ge; {pf_threshold} with {min_trades}+ sample trades on the daily chart. "
-              f"Backtest replays every historical flip with current SL (1.5&times;ATR) and target (3&times;ATR) rules.")
+    candidates.sort(key=lambda r: (-(r.get(pf_k) or 0), -(r.get(wr_k) or 0), -(r.get(tr_k) or 0), r["ticker"]))
+
+    subtle = (f"Ranked by profit factor, then win rate. Needs profit factor &ge; {pf_threshold:g} over at least "
+              f"{min_trades} closed trades on the daily chart. Each past flip is replayed as: enter at the next "
+              f"day's open, stop 1.5&times;ATR, target 3&times;ATR, gaps and 0.1% costs included.")
     if not candidates:
-        return f'<div class="panel superior-panel"><div class="panel-head"><h2>{title}</h2><span class="subtle">{subtle}</span></div><div class="empty-note">No tickers currently match this filter.</div></div>'
+        return (f'<div class="panel superior-panel"><div class="panel-head"><h2>{title}</h2>'
+                f'<span class="subtle">{subtle}</span></div>'
+                f'<div class="empty-note">No tickers currently pass this filter.</div></div>')
+
+    pf_tip = ("Profit factor = total R won divided by total R lost across all closed trades. "
+              "1.0 is break-even; above 1.5 is the bar for this section.")
+    wr_tip = ("Win rate = share of closed trades that made money after costs. "
+              "With a 2:1 target, break-even is about 34%.")
     cards = []
-    for r in candidates:
+    for rank, r in enumerate(candidates, start=1):
         pf = r[pf_k]; wr = r.get(wr_k) or 0; trades = r.get(tr_k) or 0; avg_r = r.get(ar_k) or 0
+        wins = r.get(win_k); losses = r.get(loss_k)
         ticker = _esc(r["ticker"])
-        fresh = (r.get("signal") == fresh_sig)
-        fresh_html = ' <span class="fresh-tag">fresh flip</span>' if fresh else ""
-        wr_cls = "wr-good" if wr >= 55 else "wr-neutral"
-        tip = f"Profit factor {pf:.2f} — sum of winning R divided by sum of losing R (capped at 99)."
-        cards.append(f'<div class="superior-card"><div class="superior-tkr">{ticker}{fresh_html}</div><div class="superior-pf" title="{_esc(tip)}">PF <span class="pf-value">{pf:.2f}</span></div><div class="superior-meta"><span class="{wr_cls}">{wr:.0f}% WR</span> &middot; {trades} trades &middot; avg {avg_r:+.2f}R</div></div>')
-    return f'<div class="panel superior-panel"><div class="panel-head"><h2>{title} <span class="subtle" style="font-weight:400">({len(candidates)})</span></h2><span class="subtle">{subtle}</span></div><div class="superior-grid">{"".join(cards)}</div></div>'
+        fresh_html = '<span class="fresh-tag">fresh flip</span>' if r.get("signal") == fresh_sig else ""
+        wr_cls = "wr-good" if wr >= 50 else "wr-neutral"
+        top_cls = " rank-top" if rank <= 3 else ""
+        wl_html = f" &middot; {wins}W / {losses}L" if wins is not None and losses is not None else ""
+        cards.append(
+            f'<div class="superior-card{top_cls}">'
+            f'<div class="superior-top"><span class="superior-rank">#{rank}</span>'
+            f'<span class="superior-tkr">{ticker}</span>{fresh_html}</div>'
+            f'<div class="superior-stats">'
+            f'<div class="superior-stat" title="{_esc(pf_tip)}"><div class="stat-label">Profit factor</div>'
+            f'<div class="stat-value pf-value">{pf:.2f}</div></div>'
+            f'<div class="superior-stat" title="{_esc(wr_tip)}"><div class="stat-label">Win rate</div>'
+            f'<div class="stat-value {wr_cls}">{wr:.0f}%</div></div>'
+            f'</div>'
+            f'<div class="superior-meta">{trades} trades{wl_html} &middot; avg {avg_r:+.2f}R</div>'
+            f'</div>')
+    return (f'<div class="panel superior-panel"><div class="panel-head">'
+            f'<h2>{title} <span class="subtle" style="font-weight:400">({len(candidates)})</span></h2>'
+            f'<span class="subtle">{subtle}</span></div>'
+            f'<div class="superior-grid">{"".join(cards)}</div></div>')
 
 
 def _side_sections(weekly_scan, daily_scan, side, flip_log, public_view,
@@ -973,7 +1017,7 @@ def generate_tabbed_html_report(weekly_scan, daily_scan, atr_period, atr_multipl
     {short_sections['opp_panels']}
     {short_sections['table_block']}
   </div>
-  <footer>Parameters: ATR period {atr_period}, multiplier {atr_multiplier}. Long tab shows every ticker whose current weekly direction is Bullish; Short mirrors. Superior Selection ranks tickers by historical backtest profit factor.</footer>
+  <footer>Parameters: ATR period {atr_period}, multiplier {atr_multiplier}. Long tab shows every ticker whose current weekly direction is Bullish; Short mirrors. Superior Selection ranks tickers by historical backtest profit factor, then win rate. Past results on a single ticker are a tie-breaker, not a forecast.</footer>
 </div>{TABBED_JS}</body></html>"""
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(body)

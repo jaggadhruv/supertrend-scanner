@@ -247,6 +247,41 @@ def prune_old_reports(output_dir: str, days: int = 30, run_date: Optional[str] =
 # --------------------------------------------------------------------------
 # Data fetch
 # --------------------------------------------------------------------------
+# The backtest needs years of flips to mean anything: one year of daily
+# bars holds only ~6 trades per side, and 6 trades can show almost any
+# profit factor by luck. Daily scans therefore download at least this
+# much history (same single request per ticker, just a longer window).
+# The current signal is unaffected: Supertrend on the latest bar is the
+# same whether it is computed from 1 year or 5 years of bars.
+BACKTEST_DAILY_LOOKBACK = "5y"
+
+_PERIOD_UNIT_DAYS = {"d": 1, "wk": 7, "mo": 30, "y": 365}
+
+
+def _period_days(period):
+    p = str(period).strip().lower()
+    if p == "max":
+        return float("inf")
+    if p == "ytd":
+        return 365
+    m = re.match(r"^(\d+)(d|wk|mo|y)$", p)
+    if not m:
+        return None
+    return int(m.group(1)) * _PERIOD_UNIT_DAYS[m.group(2)]
+
+
+def _fetch_period(cfg):
+    """Lookback actually downloaded: the configured one, extended to
+    BACKTEST_DAILY_LOOKBACK for daily scans when it is shorter."""
+    if cfg.interval != "1d":
+        return cfg.lookback_period
+    have = _period_days(cfg.lookback_period)
+    need = _period_days(BACKTEST_DAILY_LOOKBACK)
+    if have is None or need is None or have >= need:
+        return cfg.lookback_period
+    return BACKTEST_DAILY_LOOKBACK
+
+
 def fetch_data(ticker, interval, period):
     try:
         data = yf.Ticker(ticker).history(period=period, interval=interval, auto_adjust=False)
@@ -465,16 +500,20 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "low_20": None,
         # Historical backtest (populated when we have enough data)
         "backtest_buy_trades":   0,
+        "backtest_buy_wins":     0,
+        "backtest_buy_losses":   0,
         "backtest_buy_win_rate": None,
         "backtest_buy_pf":       None,
         "backtest_buy_avg_r":    None,
         "backtest_sell_trades":   0,
+        "backtest_sell_wins":     0,
+        "backtest_sell_losses":   0,
         "backtest_sell_win_rate": None,
         "backtest_sell_pf":       None,
         "backtest_sell_avg_r":    None,
     }
 
-    data = fetch_data(ticker, cfg.interval, cfg.lookback_period)
+    data = fetch_data(ticker, cfg.interval, _fetch_period(cfg))
     if data is None or data.empty:
         result["status"] = "error"
         result["error"] = "No data returned (check ticker symbol / exchange suffix)"
@@ -521,8 +560,9 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
 
     quality = _compute_quality(st, bars_in_trend)
 
-    # Historical backtest — simulates every past flip on this ticker with
-    # the same Entry/SL/Target rules the report shows. Fast (<0.01s/ticker).
+    # Historical backtest: replays every past flip on this ticker (entry at
+    # the next bar's open, 1.5xATR stop, 3xATR target, gaps and costs
+    # included). See backtest.py for the exact rules.
     bt_buy  = backtest_flips(st, side="buy")
     bt_sell = backtest_flips(st, side="sell")
 
@@ -542,10 +582,14 @@ def analyze_ticker(ticker, history_store, cfg: ScanConfig):
         "trend_start_date": trend_start_date,
         **quality,
         "backtest_buy_trades":   bt_buy["trades"],
+        "backtest_buy_wins":     bt_buy["wins"],
+        "backtest_buy_losses":   bt_buy["losses"],
         "backtest_buy_win_rate": bt_buy["win_rate"],
         "backtest_buy_pf":       bt_buy["profit_factor"],
         "backtest_buy_avg_r":    bt_buy["avg_r"],
         "backtest_sell_trades":   bt_sell["trades"],
+        "backtest_sell_wins":     bt_sell["wins"],
+        "backtest_sell_losses":   bt_sell["losses"],
         "backtest_sell_win_rate": bt_sell["win_rate"],
         "backtest_sell_pf":       bt_sell["profit_factor"],
         "backtest_sell_avg_r":    bt_sell["avg_r"],
